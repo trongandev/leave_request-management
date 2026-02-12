@@ -46,26 +46,54 @@
 }
 
 :root {
+    font-family: "Inter", "Roboto", sans-serif;
     --radius: 0.625rem;
-    --background: #f0f7ff;
-    --foreground: #1a2e44;
+    /* Nền trang web - Xám nhạt để làm nổi bật các Card trắng */
+    --background: #f5f7f9;
+    /* Màu chữ chính - Deep Grey gần như đen */
+    --foreground: #262626;
+
+    /* Thẻ nội dung (Card) */
     --card: #ffffff;
-    --card-foreground: #1a2e44;
+    --card-foreground: #262626;
+
+    /* Popover/Dropdown/Tooltip */
     --popover: #ffffff;
-    --popover-foreground: #1a2e44;
-    --primary: #2d5a9e;
+    --popover-foreground: #262626;
+
+    /* Màu chủ đạo (Primary) - Jira Blue */
+    --primary: #0052cc;
     --primary-foreground: #ffffff;
-    --secondary: #e1eeff;
-    --secondary-foreground: #2d5a9e;
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    --accent: #f8fafc;
-    --accent-foreground: #2d5a9e;
-    --destructive: #ef4444;
+
+    /* Màu phụ (Secondary) - Thường dùng cho các trạng thái trung tính hoặc nền phụ */
+    --secondary: #f0f2f5;
+    --secondary-foreground: #262626;
+
+    /* Trạng thái Muted (Dành cho text phụ, label mờ) */
+    --muted: #f5f7f9;
+    --muted-foreground: #8c8c8c;
+
+    /* Màu Accent (Dành cho hiệu ứng hover hoặc nhấn mạnh nhẹ) */
+    --accent: #e6f7ff;
+    --accent-foreground: #0052cc;
+
+    /* Màu hủy bỏ/Lỗi (Destructive) - Coral Red */
+    --destructive: #ff4d4f;
     --destructive-foreground: #ffffff;
-    --border: #e2e8f0;
-    --input: #f8fafc;
-    --ring: #2d5a9e;
+
+    /* Đường viền và Input */
+    --border: #f0f0f0;
+    --input: #e8e8e8;
+
+    /* Màu Focus Ring - Xanh dương nhạt có độ trong suốt */
+    --ring: rgba(0, 82, 204, 0.2);
+
+    /* Bổ sung các trạng thái nghiệp vụ (Semantic Colors) */
+    --success: #52c41a;
+    --success-bg: #f6ffed; /* Dùng cho Ghost Tag */
+    --warning: #faad14;
+    --warning-bg: #fffbe6; /* Dùng cho Ghost Tag */
+    --error-bg: #fff1f0; /* Dùng cho Ghost Tag của Destructive */
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
@@ -79,6 +107,7 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 @layer base {
