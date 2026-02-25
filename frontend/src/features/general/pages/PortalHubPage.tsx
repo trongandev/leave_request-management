@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronRight } from "lucide-react"
-import React from "react"
+
 import { Link } from "react-router-dom"
 
 export default function PortalHubPage() {
@@ -54,26 +54,28 @@ export default function PortalHubPage() {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome to the Hub</h1>
                     <p className="text-gray-500 dark:text-gray-400 text-lg">Select a module to continue your session.</p>
                 </div>
-                {portalHubs.map((hub) => (
-                    <Card>
-                        <CardContent className="flex gap-5 items-center">
-                            <div className="shrink-0">
-                                <div className={`w-16 h-16 rounded-xl ${hub.bgColor} flex items-center justify-center `}>
-                                    <span className={`material-icons text-3xl ${hub.color}`}>{hub.icon}</span>
+                <div className="grid grid-cols-3 gap-5">
+                    {portalHubs.map((hub) => (
+                        <Card key={hub.name}>
+                            <CardContent className="space-y-5">
+                                <div className="">
+                                    <div className={`w-16 h-16 rounded-xl ${hub.bgColor} flex items-center justify-center `}>
+                                        <span className={`material-icons text-6xl ${hub.color}`}>{hub.icon}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="grow">
-                                <h2 className="text-[20px] font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-primary transition-colors">{hub.name}</h2>
-                                <p className="text-[14px] text-gray-500 dark:text-gray-400 leading-relaxed max-w-xl mx-auto sm:mx-0">{hub.description}</p>
-                            </div>
-                            <Link to={hub.link}>
-                                <Button>
-                                    Visit <ChevronRight />
-                                </Button>
-                            </Link>
-                        </CardContent>
-                    </Card>
-                ))}
+                                <div className="">
+                                    <h2 className="text-[20px] font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-primary transition-colors">{hub.name}</h2>
+                                    <p className="text-[14px] text-gray-500 dark:text-gray-400 leading-relaxed max-w-xl mx-auto sm:mx-0">{hub.description}</p>
+                                </div>
+                                <Link to={hub.link}>
+                                    <Button className="w-full">
+                                        Visit <ChevronRight />
+                                    </Button>
+                                </Link>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
 
                 <div className="mt-8 flex justify-center gap-6 text-sm text-gray-400 dark:text-gray-500">
                     <a className="hover:text-primary dark:hover:text-primary-300 transition-colors" href="#">

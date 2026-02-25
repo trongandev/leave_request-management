@@ -1,5 +1,3 @@
-import React from "react"
-
 export default function RequestDetailAndApprovalPage() {
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 font-display min-h-screen flex flex-col">
@@ -61,7 +59,7 @@ export default function RequestDetailAndApprovalPage() {
                         <div className="bg-surface-light dark:bg-surface-dark rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-4">
-                                    <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-slate-100 dark:border-slate-600 shadow-sm flex-shrink-0">
+                                    <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-slate-100 dark:border-slate-600 shadow-sm shrink-0">
                                         <img
                                             alt="Employee Avatar"
                                             className="h-full w-full object-cover"
@@ -149,7 +147,7 @@ export default function RequestDetailAndApprovalPage() {
                             </div>
                             <div className="p-6 space-y-6">
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" for="comment">
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                                         Manager's Comments <span className="text-slate-400 font-normal">(Optional)</span>
                                     </label>
                                     <div className="relative">
@@ -157,7 +155,6 @@ export default function RequestDetailAndApprovalPage() {
                                             className="block w-full rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-800 shadow-sm focus:border-primary focus:ring-primary sm:text-sm resize-none p-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                             id="comment"
                                             placeholder="Add a note explaining your decision..."
-                                            rows="4"
                                         ></textarea>
                                         <div className="absolute bottom-2 right-2 text-xs text-slate-400">0/500</div>
                                     </div>
@@ -204,7 +201,7 @@ export default function RequestDetailAndApprovalPage() {
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">By Sarah Jenkins</p>
                                                     </div>
                                                     <div className="whitespace-nowrap text-right text-xs text-slate-500 dark:text-slate-400">
-                                                        <time datetime="2023-10-10">Oct 10</time>
+                                                        <time>Oct 10</time>
                                                     </div>
                                                 </div>
                                             </div>
@@ -224,7 +221,7 @@ export default function RequestDetailAndApprovalPage() {
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">System Auto-Assign</p>
                                                     </div>
                                                     <div className="whitespace-nowrap text-right text-xs text-slate-500 dark:text-slate-400">
-                                                        <time datetime="2023-10-10">Oct 10</time>
+                                                        <time>Oct 10</time>
                                                     </div>
                                                 </div>
                                             </div>
@@ -235,7 +232,7 @@ export default function RequestDetailAndApprovalPage() {
                         </div>
                         <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-4 border border-primary/20">
                             <div className="flex gap-3">
-                                <span className="material-icons text-primary text-xl flex-shrink-0">info</span>
+                                <span className="material-icons text-primary text-xl shrink-0">info</span>
                                 <div>
                                     <h4 className="text-sm font-semibold text-primary dark:text-primary-100 mb-1">Company Policy</h4>
                                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">

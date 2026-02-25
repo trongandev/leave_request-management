@@ -110,9 +110,3 @@ client/
 2. **Tạo đơn**: Truy cập mục "Tạo đơn mới", chọn loại đơn và điền thông tin (metadata).
 3. **Duyệt đơn** (Dành cho Manager): Kiểm tra danh sách "Pending Approvals", xem chi tiết và nhấn Approve hoặc Reject kèm ghi chú.
 4. **Theo dõi**: Nhân viên xem tiến độ phê duyệt qua Timeline tại màn hình Chi tiết đơn.
-
----
-
-## 🤝 Liên hệ & Đóng góp
-
-Hệ thống được phát triển bởi **Stitch Learning**. Mọi đóng góp vui lòng tạo Pull Request hoặc liên hệ qua email quản trị.

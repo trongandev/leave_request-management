@@ -1,5 +1,3 @@
-import React from "react"
-
 export default function LoginPage() {
     return (
         <div className="w-full h-screen flex overflow-hidden bg-white dark:bg-background-dark shadow-2xl">

@@ -1,32 +1,6 @@
-import React from "react"
-
 export default function TeamLeaveCalendarViewPage() {
     return (
         <div className="bg-background-light dark:bg-background-dark font-display text-neutral-800 dark:text-neutral-100 min-h-screen flex flex-col overflow-hidden">
-            <header className="h-16 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between px-6 z-20 shrink-0">
-                <div className="flex items-center gap-4">
-                    <div className="bg-primary/10 dark:bg-primary/20 p-2 rounded-lg">
-                        <span className="material-icons text-primary dark:text-blue-400">calendar_month</span>
-                    </div>
-                    <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">Team Calendar</h1>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-lg transition-colors">
-                        <span className="material-icons text-[20px]">notifications</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-lg transition-colors">
-                        <span className="material-icons text-[20px]">help_outline</span>
-                    </button>
-                    <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
-                        <img
-                            alt="Manager Profile"
-                            className="h-full w-full object-cover"
-                            data-alt="Profile picture of the logged in manager"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCffeIEYnzVQ1nI515tEo0GZZqSC7LouH5XPvVxu6K-MQnsiFlfVtuX808OAjCqv3YuRfM3pvBee-M3drKAOREFkWMviZFKYv6DA2ieo4wvIucXtWVx4wh6er8b_U2U7zQ9fsmX2l71r3hOZL3h0cZinvibpceew81AK49Zdg4yEHFV4S4X-PnYgPXS26zf6MQlmYB1d1CyRoCGt03xSBtSyGVXPbFtinXwYZUWUwnAEk-XRFvqFdXPUWM5W9nvcty_reYlxIXamFg"
-                        />
-                    </div>
-                </div>
-            </header>
             <div className="flex flex-1 overflow-hidden">
                 <aside className="w-72 bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 flex flex-col z-10 hidden md:flex shrink-0">
                     <div className="p-5 border-b border-neutral-200 dark:border-neutral-700">
@@ -64,7 +38,7 @@ export default function TeamLeaveCalendarViewPage() {
                         </div>
                         <div className="space-y-3">
                             <label className="flex items-center gap-3 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-lg cursor-pointer group transition-colors">
-                                <input checked="" className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
+                                <input className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
                                 <div className="h-8 w-8 rounded-full bg-neutral-200 overflow-hidden shrink-0">
                                     <img
                                         alt="Alice Johnson"
@@ -79,7 +53,7 @@ export default function TeamLeaveCalendarViewPage() {
                                 </div>
                             </label>
                             <label className="flex items-center gap-3 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-lg cursor-pointer group transition-colors">
-                                <input checked="" className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
+                                <input className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
                                 <div className="h-8 w-8 rounded-full bg-neutral-200 overflow-hidden shrink-0">
                                     <img
                                         alt="Bob Smith"
@@ -94,7 +68,7 @@ export default function TeamLeaveCalendarViewPage() {
                                 </div>
                             </label>
                             <label className="flex items-center gap-3 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-lg cursor-pointer group transition-colors">
-                                <input checked="" className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
+                                <input className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
                                 <div className="h-8 w-8 rounded-full bg-neutral-200 overflow-hidden shrink-0">
                                     <img
                                         alt="Charlie Davis"
@@ -124,7 +98,7 @@ export default function TeamLeaveCalendarViewPage() {
                                 </div>
                             </label>
                             <label className="flex items-center gap-3 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-lg cursor-pointer group transition-colors">
-                                <input checked="" className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
+                                <input className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
                                 <div className="h-8 w-8 rounded-full bg-neutral-200 overflow-hidden shrink-0">
                                     <img
                                         alt="Evan Wright"
@@ -213,15 +187,11 @@ export default function TeamLeaveCalendarViewPage() {
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
                                 <span className="text-neutral-700 dark:text-neutral-300 text-sm font-medium mb-1">5</span>
-                                <div className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-100 text-xs px-2 py-1 -mx-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity shadow-sm">
-                                     
-                                </div>
+                                <div className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-100 text-xs px-2 py-1 -mx-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity shadow-sm"></div>
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
                                 <span className="text-neutral-700 dark:text-neutral-300 text-sm font-medium mb-1">6</span>
-                                <div className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-100 text-xs px-2 py-1 rounded-r-md rounded-l-none -ml-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity shadow-sm">
-                                     
-                                </div>
+                                <div className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-100 text-xs px-2 py-1 rounded-r-md rounded-l-none -ml-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity shadow-sm"></div>
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
                                 <span className="text-neutral-700 dark:text-neutral-300 text-sm font-medium mb-1">7</span>
@@ -255,21 +225,15 @@ export default function TeamLeaveCalendarViewPage() {
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
                                 <span className="text-neutral-700 dark:text-neutral-300 text-sm font-medium mb-1">13</span>
-                                <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs px-2 py-1 -mx-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity">
-                                     
-                                </div>
+                                <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs px-2 py-1 -mx-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity"></div>
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
                                 <span className="text-neutral-700 dark:text-neutral-300 text-sm font-medium mb-1">14</span>
-                                <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs px-2 py-1 -mx-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity">
-                                     
-                                </div>
+                                <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs px-2 py-1 -mx-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity"></div>
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
                                 <span className="text-neutral-700 dark:text-neutral-300 text-sm font-medium mb-1">15</span>
-                                <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs px-2 py-1 rounded-r-md rounded-l-none -ml-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity">
-                                     
-                                </div>
+                                <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs px-2 py-1 rounded-r-md rounded-l-none -ml-2 mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity"></div>
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
                                 <span className="text-neutral-700 dark:text-neutral-300 text-sm font-medium mb-1">16</span>

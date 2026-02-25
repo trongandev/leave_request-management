@@ -1,5 +1,5 @@
 import { ClipboardPen, LayoutDashboard, MessageCircle, Search, SquareCode } from "lucide-react"
-import React from "react"
+
 import { Link, useLocation } from "react-router-dom"
 
 export default function CHeader() {
