@@ -70,9 +70,7 @@ function App() {
                     <Route path="/admin/access-control" element={<AccessControlPage />} />
                     {/* END SYSTEM GROUP */}
                 </Route>
-                <Route path="/auth" element={<AuthLayout />}>
-                    <Route path="login" element={<LoginPage />} />
-                </Route>
+
                 <Route path="/preferences" element={<PreferenceLayout />}>
                     <Route index path="/preferences" element={<CAppearancePage />} />
                     <Route path="/preferences/appearance" element={<CAppearancePage />} />
@@ -82,6 +80,9 @@ function App() {
                     <Route path="/preferences/localization" element={<CLocalizationPage />} />
                 </Route>
                 <Route path="*" element={<NotFoundPage />} />
+            </Route>
+            <Route path="/auth" element={<AuthLayout />}>
+                <Route path="login" element={<LoginPage />} />
             </Route>
         </Routes>
     )
