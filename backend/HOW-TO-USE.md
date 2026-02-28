@@ -255,8 +255,8 @@ remove(@Param('id') id: string) {}
 Dùng helper function `paginate()` có sẵn — không cần viết lại logic skip/limit:
 
 ```typescript
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { paginate } from 'src/common/utils/pagination.util';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { paginate } from '../common/utils/pagination.util';
 
 // Controller
 @Get()
