@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PermissionDoc } from './permission.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { PERMISSIONS_METADATA } from 'src/enum/permission.enum';
+import { PERMISSIONS_METADATA } from '@/enum/permission.enum';
 import { Model } from 'mongoose';
 
 @Injectable()

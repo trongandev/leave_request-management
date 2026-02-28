@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { DatabaseSeeder } from './database.seeder';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/users/users.schema';
-import { Role, RoleSchema } from 'src/roles/roles.schema';
+import { User, UserSchema } from '@/users/users.schema';
+import { Role, RoleSchema } from '@/roles/roles.schema';
 import {
   PermissionDoc,
   PermissionSchema,
-} from 'src/permission/permission.schema';
+} from '@/permission/permission.schema';
 
 @Module({
   imports: [

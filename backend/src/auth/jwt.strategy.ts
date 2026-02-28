@@ -2,8 +2,8 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { DatabaseConfig } from 'src/config/database.config';
-import { User } from 'src/users/users.schema';
+import { DatabaseConfig } from '@/config/database.config';
+import { User } from '@/users/users.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
