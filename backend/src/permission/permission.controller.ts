@@ -1,9 +1,9 @@
 import { Controller, Post, UseGuards } from '@nestjs/common';
 import { PermissionService } from './permission.service';
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '@/auth/guards/permissions.guard';
-import { Permission } from '@/enum/permission.enum';
-import { RequirePermissions } from '@/auth/decorators/permissions.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { Permission } from '../enum/permission.enum';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 
 @Controller('permissions')
 export class PermissionController {

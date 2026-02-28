@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
-import { User } from '@/users/users.schema';
-import { Role } from '@/roles/roles.schema';
+import { User } from '../users/users.schema';
+import { Role } from '../roles/roles.schema';
 
 const mockUserModel = {
   findOne: jest.fn(),

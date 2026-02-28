@@ -9,8 +9,8 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { User } from '@/users/users.schema';
-import { Role } from '@/roles/roles.schema';
+import { User } from '../users/users.schema';
+import { Role } from '../roles/roles.schema';
 
 @Injectable()
 export class AuthService {

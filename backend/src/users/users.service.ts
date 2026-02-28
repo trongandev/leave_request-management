@@ -5,8 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './users.schema';
 import { Model } from 'mongoose';
 import { ApiOperation } from '@nestjs/swagger';
-import { paginate } from '@/common/utils/pagination.util';
-import { PaginationDto } from '@/common/dto/pagination.dto';
+import { paginate } from '../common/utils/pagination.util';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class UsersService {

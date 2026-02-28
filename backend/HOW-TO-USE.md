@@ -130,8 +130,8 @@ export const PERMISSIONS_METADATA = [
 ### Bước 2: Dùng `@RequirePermissions()` trên endpoint
 
 ```typescript
-import { RequirePermissions } from '@/auth/decorators/permissions.decorator';
-import { Permission } from '@/enum/permission.enum';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
+import { Permission } from '../enum/permission.enum';
 
 @Controller('departments')
 export class DepartmentsController {
@@ -160,7 +160,7 @@ export class DepartmentsController {
 Dùng `@Public()` cho các endpoint không cần đăng nhập (login, health check...):
 
 ```typescript
-import { Public } from '@/auth/decorators/public.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Public()
 @Get('health')
@@ -182,9 +182,9 @@ login(@Body() loginDto: LoginDto) {
 Lấy thông tin user đang đăng nhập từ JWT token (đã được `JwtStrategy` populate sẵn):
 
 ```typescript
-import { CurrentUser } from '@/auth/decorators/current-user.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { HydratedDocument } from 'mongoose';
-import { User } from '@/users/users.schema';
+import { User } from '../users/users.schema';
 
 @Get('me')
 getProfile(@CurrentUser() user: HydratedDocument<User>) {
@@ -255,8 +255,8 @@ remove(@Param('id') id: string) {}
 Dùng helper function `paginate()` có sẵn — không cần viết lại logic skip/limit:
 
 ```typescript
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { paginate } from '@/common/utils/pagination.util';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { paginate } from '../common/utils/pagination.util';
 
 // Controller
 @Get()

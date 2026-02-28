@@ -1,10 +1,10 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PERMISSIONS_METADATA } from '@/enum/permission.enum';
-import { PermissionDoc } from '@/permission/permission.schema';
-import { Role } from '@/roles/roles.schema';
-import { User } from '@/users/users.schema';
+import { PERMISSIONS_METADATA } from '../enum/permission.enum';
+import { PermissionDoc } from '../permission/permission.schema';
+import { Role } from '../roles/roles.schema';
+import { User } from '../users/users.schema';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()

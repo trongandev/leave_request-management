@@ -8,7 +8,7 @@ import { RegisterDto } from './dto/register.dto';
 import { Public } from './decorators/public.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RequirePermissions } from './decorators/permissions.decorator';
-import { Permission } from '@/enum/permission.enum';
+import { Permission } from '../enum/permission.enum';
 
 @ApiTags('Auth')
 @Controller('auth')

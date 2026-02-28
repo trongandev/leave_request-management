@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileController } from './profile.controller';
-import { UsersService } from '@/users/users.service';
+import { UsersService } from '../users/users.service';
 
 const mockUsersService = {
   findOne: jest.fn(),

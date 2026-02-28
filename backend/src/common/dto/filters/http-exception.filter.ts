@@ -8,7 +8,7 @@ import {
 import { Request, Response } from 'express';
 // import { InjectModel } from '@nestjs/mongoose';
 // import { Model } from 'mongoose';
-// import { ErrorLog } from '@/logs/error-log.schema';
+// import { ErrorLog } from '../logs/error-log.schema';
 
 @Catch() // Để trống để bắt TẤT CẢ các loại lỗi
 export class AllExceptionsFilter implements ExceptionFilter {

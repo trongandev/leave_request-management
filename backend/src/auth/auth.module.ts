@@ -6,11 +6,11 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { DatabaseConfig } from '@/config/database.config';
+import { DatabaseConfig } from '../config/database.config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from '@/users/users.schema';
-import { Role, RoleSchema } from '@/roles/roles.schema';
-import { UsersModule } from '@/users/users.module';
+import { User, UserSchema } from '../users/users.schema';
+import { Role, RoleSchema } from '../roles/roles.schema';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
