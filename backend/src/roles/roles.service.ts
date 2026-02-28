@@ -18,6 +18,10 @@ export class RolesService {
     return this.roleModel.find().exec();
   }
 
+  findAllDetail() {
+    return this.roleModel.find().populate('permissions').exec();
+  }
+
   findOne(id: number) {
     return this.roleModel.findById(id).exec();
   }

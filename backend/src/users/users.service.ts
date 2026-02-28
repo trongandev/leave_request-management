@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { DatabaseConfig } from 'src/config/database.config';
 import { ApiOperation } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { paginate } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class UsersService {
@@ -24,22 +25,7 @@ export class UsersService {
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   async findAll(paginationDto: PaginationDto) {
-    const { page, limit } = paginationDto;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      this.userModel.find().skip(skip).limit(limit).exec(),
-      this.userModel.countDocuments(),
-    ]);
-
-    return {
-      data,
-      meta: {
-        total,
-        page,
-        last_page: Math.ceil(total / limit),
-      },
-    };
+    return paginate(this.userModel, paginationDto);
   }
 
   findOne(id: string) {

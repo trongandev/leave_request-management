@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsMongoId,
   IsNotEmpty,
-  IsOptional,
   IsString,
   Matches,
   MinLength,
@@ -32,29 +30,4 @@ export class RegisterDto {
   })
   @ApiProperty({ example: 'Password@123', description: 'Mật khẩu' })
   password: string;
-
-  @IsMongoId({ message: 'role_id không hợp lệ' })
-  @IsNotEmpty({ message: 'role_id không được để trống' })
-  @ApiProperty({
-    example: '507f1f77bcf86cd799439012',
-    description: 'ID của Role được cấp phát cho nhân viên mới',
-  })
-  roleId: string;
-
-  @IsMongoId({ message: 'department_id không hợp lệ' })
-  @IsNotEmpty({ message: 'department_id không được để trống' })
-  @ApiProperty({
-    example: '507f1f77bcf86cd799439013',
-    description: 'ID của Department',
-  })
-  departmentId: string;
-
-  @IsMongoId({ message: 'manager_id không hợp lệ' })
-  @IsOptional()
-  @ApiProperty({
-    example: '507f1f77bcf86cd799439011',
-    description: 'ID người quản lý trực tiếp (tuỳ chọn)',
-    required: false,
-  })
-  managerId?: string;
 }

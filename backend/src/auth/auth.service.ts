@@ -12,9 +12,6 @@ import { Role } from 'src/roles/roles.schema';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
-// Các role được phép tạo tài khoản cho nhân viên mới
-const ALLOWED_REGISTER_ROLES = ['admin', 'manager'];
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -71,26 +68,27 @@ export class AuthService {
 
   // ─── REGISTER ────────────────────────────────────────────────────────────────
   // Chỉ admin / manager mới được gọi API này (kiểm tra ở controller)
-  async register(registerDto: RegisterDto, callerRoleName: string) {
-    // 1. Kiểm tra quyền của người gọi
-    if (!ALLOWED_REGISTER_ROLES.includes(callerRoleName?.toLowerCase())) {
-      throw new ForbiddenException(
-        'Chỉ Manager hoặc Admin mới có quyền tạo tài khoản',
-      );
-    }
-
-    // 2. Kiểm tra email đã tồn tại chưa
+  async register(registerDto: RegisterDto) {
     const existed = await this.userModel.findOne({ email: registerDto.email });
     if (existed) {
       throw new ForbiddenException('Email đã được sử dụng');
     }
 
-    // 3. Hash password trước khi lưu
+    // tìm roleId cho employee mặc định khi tạo user mới
+    const findRoleId = await this.roleModel
+      .findOne({ name: 'EMPLOYEE' })
+      .exec();
+    if (!findRoleId) {
+      throw new ForbiddenException('Role employee không tồn tại');
+    }
+
+    // Hash password trước khi lưu
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
     // 4. Tạo user mới
     const newUser = new this.userModel({
       ...registerDto,
+      roleId: findRoleId._id,
       password: hashedPassword,
     });
     await newUser.save();
@@ -107,10 +105,10 @@ export class AuthService {
     return {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       id: (populated as any)?._id,
-      fullName: registerDto.fullName,
-      email: registerDto.email,
-      role: roleName,
-      departmentId: registerDto.departmentId,
+      fullName: populated?.fullName,
+      email: populated?.email,
+      roleId: roleName,
+      departmentId: populated?.departmentId,
     };
   }
 }

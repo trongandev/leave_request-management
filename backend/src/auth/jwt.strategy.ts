@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
@@ -5,6 +8,7 @@ import { DatabaseConfig } from 'src/config/database.config';
 import { User } from 'src/users/users.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { Request } from 'express';
 interface JwtPayload {
   sub: string;
   email: string;
@@ -17,7 +21,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private dbConfig: DatabaseConfig,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      // Cấu hình bộ trích xuất token (Extractor)
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        // Cách 1: Thử lấy từ Authorization: Bearer <token>
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+
+        // Cách 2: Thử lấy từ Cookie có tên là 'accessToken'
+        (req: Request) => {
+          let token: any = null;
+          if (req && req.cookies) {
+            token = req.cookies['accessToken'];
+          }
+          return token;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: dbConfig.JWT_SECRET,
     });
