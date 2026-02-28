@@ -6,7 +6,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { envValidationSchema } from './config/env.validation';
 import { DatabaseConfig } from './config/database.config';
-import { ErrorLog, ErrorLogSchema } from './logs/error-log.schema';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/dto/filters/http-exception.filter';
 import { LogsModule } from './logs/logs.module';
@@ -31,9 +30,6 @@ import { PermissionsGuard } from './auth/guards/permissions.guard';
         uri: configService.get<string>('MONGO_URI') as string,
       }),
     }),
-    MongooseModule.forFeature([
-      { name: ErrorLog.name, schema: ErrorLogSchema },
-    ]),
 
     UsersModule,
 
