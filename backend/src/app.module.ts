@@ -8,7 +8,7 @@ import { envValidationSchema } from './config/env.validation';
 import { DatabaseConfig } from './config/database.config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/dto/filters/http-exception.filter';
-import { LogsModule } from './logs/logs.module';
+// import { LogsModule } from './logs/logs.module';
 import { AuthModule } from './auth/auth.module';
 import { RolesModule } from './roles/roles.module';
 import { DatabaseModule } from './database/database.module';
@@ -33,7 +33,7 @@ import { PermissionsGuard } from './auth/guards/permissions.guard';
 
     UsersModule,
 
-    LogsModule,
+    // LogsModule,
 
     AuthModule,
 

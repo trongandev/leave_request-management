@@ -5,18 +5,18 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Request, Response } from 'express';
-import { Model } from 'mongoose';
-import { ErrorLog } from 'src/logs/error-log.schema';
+// import { InjectModel } from '@nestjs/mongoose';
+// import { Model } from 'mongoose';
+// import { ErrorLog } from 'src/logs/error-log.schema';
 
 @Catch() // Để trống để bắt TẤT CẢ các loại lỗi
 export class AllExceptionsFilter implements ExceptionFilter {
-  constructor(
-    @InjectModel(ErrorLog.name) private errorLogModel: Model<ErrorLog>,
-  ) {}
+  // constructor(
+  //   @InjectModel(ErrorLog.name) private errorLogModel: Model<ErrorLog>,
+  // ) {}
 
-  async catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -45,18 +45,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
       stack: isProduction ? undefined : err.stack,
     };
 
-    // 2. Ghi log lỗi vào MongoDB (Bất kể môi trường nào)
-    try {
-      await this.errorLogModel.create({
-        path: request.url,
-        method: request.method,
-        statusCode: status,
-        message: errorResponse.message,
-        stack: err.stack,
-      });
-    } catch (dbError) {
-      console.error('Không thể ghi log vào DB:', dbError);
-    }
+    // // 2. Ghi log lỗi vào MongoDB (Bất kể môi trường nào)
+    // try {
+    //   await this.errorLogModel.create({
+    //     path: request.url,
+    //     method: request.method,
+    //     statusCode: status,
+    //     message: errorResponse.message,
+    //     stack: err.stack,
+    //   });
+    // } catch (dbError) {
+    //   console.error('Không thể ghi log vào DB:', dbError);
+    // }
 
     response.status(status).json(errorResponse);
   }
