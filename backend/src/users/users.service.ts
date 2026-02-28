@@ -4,17 +4,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './users.schema';
 import { Model } from 'mongoose';
-import { DatabaseConfig } from 'src/config/database.config';
 import { ApiOperation } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { paginate } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-    private dbConfig: DatabaseConfig,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   create(createUserDto: CreateUserDto) {
     const newUser = new this.userModel(createUserDto);
