@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
@@ -41,7 +40,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload) {
     const user = await this.userModel
       .findById(payload.sub)
-      .populate('roleId')
+      .populate({
+        path: 'roleId', // field trong User trỏ tới Role
+        populate: {
+          path: 'permissions',
+          model: 'PermissionDoc',
+        },
+      })
       .exec();
 
     if (!user) {

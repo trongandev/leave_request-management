@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
-import { User } from '../users/users.schema';
+import { User } from '../../users/users.schema';
 
 export const CurrentUser = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext): HydratedDocument<User> => {

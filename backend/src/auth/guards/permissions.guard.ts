@@ -2,8 +2,8 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSION_KEY } from '../decorators/permissions.decorator';
 import { HydratedDocument } from 'mongoose';
-import { User } from '../users/users.schema';
-import { Role } from '../roles/roles.schema';
+import { User } from '../../users/users.schema';
+import { Role } from '../../roles/roles.schema';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -25,7 +25,12 @@ export class PermissionsGuard implements CanActivate {
 
     // Lấy permissions từ roleId (đã populate trong JwtStrategy)
     const role = user?.roleId as unknown as Role;
-    const userPermissions: string[] = role?.permissions ?? [];
+    const rawPermissions: any[] = (role?.permissions as any[]) ?? [];
+
+    // permissions là array of PermissionDoc objects → lấy field .code
+    const userPermissions: string[] = rawPermissions.map(
+      (p) => (typeof p === 'object' ? p.code : p) as string,
+    );
 
     return userPermissions.includes(requiredPermission);
   }

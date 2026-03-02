@@ -19,12 +19,12 @@ import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 
 @Controller('users')
 @ApiBearerAuth()
+@RequirePermissions('MANAGE_USERS')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  @RequirePermissions('MANAGE_USERS')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
