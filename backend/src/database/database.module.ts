@@ -7,11 +7,22 @@ import {
   PermissionDoc,
   PermissionSchema,
 } from '../permission/permission.schema';
+import {
+  Department,
+  DepartmentSchema,
+} from 'src/departments/departments.schema';
+import { Position, PositionSchema } from 'src/positions/positions.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
+    MongooseModule.forFeature([
+      { name: Position.name, schema: PositionSchema },
+    ]),
+    MongooseModule.forFeature([
+      { name: Department.name, schema: DepartmentSchema },
+    ]),
     MongooseModule.forFeature([
       { name: PermissionDoc.name, schema: PermissionSchema },
     ]),

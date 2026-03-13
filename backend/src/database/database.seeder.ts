@@ -6,6 +6,9 @@ import { PermissionDoc } from '../permission/permission.schema';
 import { Role } from '../roles/roles.schema';
 import { User } from '../users/users.schema';
 import * as bcrypt from 'bcrypt';
+import { Department } from 'src/departments/departments.schema';
+import { orgStructure } from 'src/config/orgStructure.config';
+import { Position } from 'src/positions/positions.schema';
 
 @Injectable()
 export class DatabaseSeeder implements OnApplicationBootstrap {
@@ -16,6 +19,9 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     private readonly permissionModel: Model<PermissionDoc>,
     @InjectModel(Role.name) private readonly roleModel: Model<Role>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(Position.name) private readonly positionModel: Model<Position>,
+    @InjectModel(Department.name)
+    private readonly departmentModel: Model<Department>,
   ) {}
 
   // Hàm này tự động chạy khi ứng dụng khởi chạy xong
@@ -24,6 +30,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.seedPermissions();
     await this.seedRoles();
     await this.seedAdminUser();
+    await this.createDefaultDepartmentsAndPositions();
     console.log('--- Seeding hoàn tất ---');
   }
 
@@ -112,5 +119,28 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       });
       console.log('Đã tạo tài khoản Admin mặc định: admin@lrm.com / Admin@123');
     }
+  }
+
+  // tạo danh sách phòng ban mới
+  async createDefaultDepartmentsAndPositions() {
+    for (const item of orgStructure) {
+      // A. Upsert Department
+      const dept = await this.departmentModel.findOneAndUpdate(
+        { code: item.code },
+        { name: item.name, code: item.code },
+        { upsert: true, returnDocument: 'after' },
+      );
+
+      // B. Upsert Positions cho Department đó
+      for (const pos of item.positions) {
+        await this.positionModel.updateOne(
+          { name: pos.name, departmentId: dept._id.toString() }, // Đảm bảo vị trí thuộc đúng phòng
+          { $set: { ...pos, departmentId: dept._id.toString() } },
+          { upsert: true },
+        );
+      }
+    }
+
+    return { message: 'Seeding Departments & Positions hoàn tất!' };
   }
 }

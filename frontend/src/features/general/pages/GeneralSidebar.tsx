@@ -1,3 +1,6 @@
+import { Button } from "@/components/ui/button"
+import { useAuthStore } from "@/store/useAuthStore"
+import { LogOutIcon } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 
 const requestsNav = [
@@ -68,6 +71,8 @@ const adminNav = [
 ]
 export default function GeneralSidebar() {
     const { pathname } = useLocation()
+    const { user, logout } = useAuthStore()
+    console.log(user)
     const nav = pathname.startsWith("/approvals") ? approvalsNav : pathname.startsWith("/admin") ? adminNav : requestsNav
     return (
         <>
@@ -100,19 +105,20 @@ export default function GeneralSidebar() {
             </nav>
             <div className="p-4 border-t border-slate-200">
                 <div className="flex items-center gap-3">
-                    <img
-                        alt="User Profile Picture"
-                        className="w-10 h-10 rounded-full object-cover border border-slate-200"
-                        data-alt="Portrait of a smiling man in business attire"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPF11CM_1ZTPsHRdBbZfJ2s576CXCFe5yHBgZphwohrBnMF-Veelhi-_6k-Bs9LedUHEm3SGZ7QAvskw7zojveQTwresFST9VI-sOaTNMWSWUk1fAQIAgL5h3Ey2EuHlEQuRaYCNY5FrBIqvz33H8HG_uY02MMu5IglzHWyQXtW8w6dpQZhhmSbkO9Idkp8UiKpZMmFfOiadO6o8YHzj59X5pUzXcwARE13werNEKxa967xWaci2EYg_rVmIlSn9sYlCuRBy4gVak"
-                    />
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-900 truncate">Tom Cook</p>
-                        <p className="text-xs text-neutral-500 truncate">Software Engineer</p>
+                    <div className="w-10 h-10 flex items-center justify-center bg-primary/10 text-primary rounded-full ring-2 ring-blue-500/30">
+                        {user?.fullName
+                            ?.split(" ")
+                            .map((n: string) => n[0])
+                            .slice(0, 2)
+                            .join("") || "N/A"}
                     </div>
-                    <button className="text-neutral-400 hover:text-slate-900 transition-colors">
-                        <span className="material-icons text-[20px]">logout</span>
-                    </button>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-900 truncate">{user?.fullName}</p>
+                        <p className="text-xs text-neutral-500 truncate">{user?.positionId.fullName}</p>
+                    </div>
+                    <Button variant={"ghost"} onClick={logout}>
+                        <LogOutIcon />
+                    </Button>
                 </div>
             </div>
         </>

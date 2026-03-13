@@ -32,7 +32,7 @@ export default function RequestDetailAndApprovalPage() {
                     </div>
                 </div>
             </nav>
-            <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+            <main className="grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div>
                         <div className="flex items-center gap-3 mb-1">

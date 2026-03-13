@@ -1,8 +1,6 @@
 export interface APIResponse<T> {
-    ok: boolean
-    status: string
+    success: boolean
     statusCode: number
     message: string
     data: T
-    timestamp: string
 }

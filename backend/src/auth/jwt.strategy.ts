@@ -47,6 +47,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           model: 'PermissionDoc',
         },
       })
+      .populate({
+        path: 'positionId', // field trong User trỏ tới Role
+        populate: {
+          path: 'departmentId',
+          model: 'Department',
+        },
+      })
       .exec();
 
     if (!user) {

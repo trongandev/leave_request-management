@@ -1,7 +1,7 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -27,21 +27,30 @@ export class AuthService {
     // 1. Tìm user, populate role để lấy permissions
     const user = await this.userModel
       .findOne({ email })
-      .populate<{ roleId: Role }>('roleId')
+      .populate({
+        path: 'roleId',
+        populate: {
+          path: 'permissions',
+          model: 'PermissionDoc',
+        },
+      })
+      .populate({
+        path: 'positionId',
+        populate: {
+          path: 'departmentId',
+          model: 'Department',
+        },
+      })
       .exec();
 
     if (!user) {
-      throw new UnauthorizedException(
-        'Tài khoản hoặc mật khẩu không chính xác',
-      );
+      throw new BadRequestException('Tài khoản hoặc mật khẩu không chính xác');
     }
 
     // 2. So sánh password với hash trong DB
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException(
-        'Tài khoản hoặc mật khẩu không chính xác',
-      );
+      throw new BadRequestException('Tài khoản hoặc mật khẩu không chính xác');
     }
 
     // 3. Ký JWT
@@ -56,13 +65,7 @@ export class AuthService {
 
     return {
       accessToken: accessToken,
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        role: role?.name,
-        permissions: role?.permissions,
-      },
+      user: user,
     };
   }
 

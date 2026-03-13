@@ -31,12 +31,14 @@ import ApprovalWorkflowConfigPage from "./features/admin/pages/configuration/App
 import ReportAndAnalyticsPage from "./features/admin/pages/system/ReportAndAnalyticsPage"
 import AuditLogPage from "./features/admin/pages/system/AuditLogPage"
 import AccessControlPage from "./features/admin/pages/system/AccessControlPage"
+import DashboardHomePage from "./features/general/pages/DashboardHomePage"
 
 function App() {
     return (
         <Routes>
-            <Route path="/" index element={<PortalHubPage />} />
+            <Route path="/portal" index element={<PortalHubPage />} />
             <Route element={<GeneralLayout />}>
+                <Route index element={<DashboardHomePage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 {/* request layout: dành cho nhân viên khi truy cập vào */}
                 <Route path="/employee" element={<RequestLayout />}>

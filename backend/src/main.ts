@@ -4,8 +4,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './common/dto/interceptors/transform.interceptor';
 import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
+  app.use(morgan('dev'));
   app.use(cookieParser());
   // useGlobalPipes: sử dụng ValidationPipe để tự động validate dữ liệu đầu vào
   app.useGlobalPipes(

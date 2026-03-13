@@ -16,6 +16,9 @@ import { PermissionModule } from './permission/permission.module';
 import { ProfileModule } from './profile/profile.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from './auth/guards/permissions.guard';
+import { CountersModule } from './counters/counters.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { PositionsModule } from './positions/positions.module';
 
 @Module({
   imports: [
@@ -44,6 +47,12 @@ import { PermissionsGuard } from './auth/guards/permissions.guard';
     PermissionModule,
 
     ProfileModule,
+
+    CountersModule,
+
+    DepartmentsModule,
+
+    PositionsModule,
   ],
   controllers: [AppController],
   providers: [

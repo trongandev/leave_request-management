@@ -1,163 +1,170 @@
+import { Button } from "@/components/ui/button"
+import { useAuthStore } from "@/store/useAuthStore"
+import { KeyRoundIcon, LockIcon, MailIcon, VerifiedIcon } from "lucide-react"
+import { useFormik } from "formik"
+import * as Yup from "yup"
+import InputField from "@/components/etc/InputField"
+import authService from "@/services/authService"
+import { toast } from "sonner"
+import { useLocation, useNavigate } from "react-router-dom"
 export default function LoginPage() {
+    const { setUser } = useAuthStore()
+    const location = useLocation()
+    const navigate = useNavigate()
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            password: "",
+        },
+        validationSchema: Yup.object({
+            email: Yup.string().email("Invalid email address").required("Email is required"),
+            password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+        }),
+        onSubmit: async (values) => {
+            await handleLogin(values)
+        },
+    })
+
+    const handleLogin = async (values: { email: string; password: string }) => {
+        try {
+            const res = await authService.login(values)
+            if (res.success) {
+                setUser(res.data.user)
+                toast.success("Đăng nhập thành công")
+                if (location.state?.from) {
+                    navigate(location.state.from.pathname)
+                } else {
+                    navigate("/")
+                }
+            }
+        } catch (error: any) {
+            console.log(error)
+            toast.error("Đăng nhập thất bại", {
+                description: error?.response?.data?.message,
+            })
+        }
+        // if (res.success) {
+        //     toast.success("Đăng nhập thành công")
+        // } else {
+        //     toast.error("Đăng nhập thất bại")
+        // }
+    }
+
     return (
-        <div className="w-full h-screen flex overflow-hidden bg-white dark:bg-background-dark shadow-2xl">
-            <div className="hidden lg:flex lg:w-1/2 relative bg-primary flex-col justify-between p-12 text-white">
+        <div className="flex w-full h-screen overflow-hidden bg-white shadow-2xl dark:bg-background-dark">
+            <div className="relative flex-col justify-between hidden p-12 text-white lg:flex lg:w-1/2 bg-primary">
                 <div className="absolute inset-0 z-0">
                     <img
                         alt="Modern corporate office interior with glass walls"
-                        className="w-full h-full object-cover opacity-20 mix-blend-overlay"
+                        className="object-cover w-full h-full opacity-20 mix-blend-overlay"
                         data-alt="Modern corporate office interior with glass walls"
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9fmS1un0GHek6JsuRl5RvwyrMh7B73-tMnvhO_43FQ5ZsdJHhfOUmlwzGnDjDKFSsDQjvtRAsAcGVJw8i_P__nphFQsVsgjD7v-mfIhklhBJHiyfxcz2Xx1mwVWIsmYDdYIIbcoYN44-Zr8Gh9XlxY9JVomkMStOb-YjMrFdlzVZ5EqzEU_iS6RVLVyqPu4xrrAYbng5tclUFEM460aTvnT9NeTrrmdwkmq8Tj4iAhnW9e3y_XSmY3I6Thx5B61aFY90Xr8GF8N8"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-blue-900 opacity-90 mix-blend-multiply"></div>
+                    <div className="absolute inset-0 bg-linear-to-br from-primary via-primary to-blue-900 opacity-90 mix-blend-multiply"></div>
                 </div>
                 <div className="relative z-10 flex items-center space-x-3">
-                    <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
-                        <span className="material-icons text-white text-3xl">corporate_fare</span>
+                    <div className="p-2 border rounded-lg bg-white/10 backdrop-blur-sm border-white/20">
+                        <span className="text-3xl text-white material-icons">corporate_fare</span>
                     </div>
-                    <span className="text-2xl font-bold tracking-tight text-white">HR Enterprise</span>
+                    <span className="text-2xl font-bold tracking-tight text-white">LRM Enterprise</span>
                 </div>
-                <div className="relative z-10 flex flex-col items-center justify-center flex-grow py-12">
+                <div className="relative z-10 flex flex-col items-center justify-center py-12 grow">
                     <div className="relative w-80 h-80">
-                        <div className="absolute top-0 left-10 w-64 h-64 bg-white/5 rounded-full blur-3xl animate-pulse"></div>
-                        <div className="absolute bottom-10 right-10 w-48 h-48 bg-blue-400/20 rounded-full blur-2xl"></div>
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 shadow-2xl">
-                            <div className="flex items-center space-x-3 mb-4">
-                                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                    <span className="material-icons text-white text-sm">person</span>
+                        <div className="absolute top-0 w-64 h-64 rounded-full left-10 bg-white/5 blur-3xl animate-pulse"></div>
+                        <div className="absolute w-48 h-48 rounded-full bottom-10 right-10 bg-blue-400/20 blur-2xl"></div>
+                        <div className="absolute p-6 transform -translate-x-1/2 -translate-y-1/2 border shadow-2xl top-1/2 left-1/2 w-72 bg-white/10 backdrop-blur-md rounded-xl border-white/20">
+                            <div className="flex items-center mb-4 space-x-3">
+                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
+                                    <span className="text-sm text-white material-icons">person</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="h-2 w-24 bg-white/40 rounded"></div>
-                                    <div className="h-2 w-16 bg-white/20 rounded"></div>
+                                    <div className="w-24 h-2 rounded bg-white/40"></div>
+                                    <div className="w-16 h-2 rounded bg-white/20"></div>
                                 </div>
                             </div>
                             <div className="space-y-3">
-                                <div className="h-2 w-full bg-white/10 rounded"></div>
-                                <div className="h-2 w-5/6 bg-white/10 rounded"></div>
-                                <div className="h-2 w-4/6 bg-white/10 rounded"></div>
+                                <div className="w-full h-2 rounded bg-white/10"></div>
+                                <div className="w-5/6 h-2 rounded bg-white/10"></div>
+                                <div className="w-4/6 h-2 rounded bg-white/10"></div>
                             </div>
-                            <div className="mt-6 flex space-x-2">
-                                <div className="h-8 w-20 bg-primary rounded border border-white/30"></div>
-                                <div className="h-8 w-8 bg-white/10 rounded border border-white/30"></div>
+                            <div className="flex mt-6 space-x-2">
+                                <div className="w-20 h-8 border rounded bg-primary border-white/30"></div>
+                                <div className="w-8 h-8 border rounded bg-white/10 border-white/30"></div>
                             </div>
                         </div>
                         <div className="absolute -right-4 top-20 bg-white text-primary px-4 py-2 rounded-lg shadow-lg text-sm font-semibold flex items-center gap-2 animate-[bounce_3s_infinite]">
-                            <span className="material-icons text-base">verified</span>
+                            <VerifiedIcon />
                             Secure Access
                         </div>
                     </div>
                 </div>
                 <div className="relative z-10 max-w-md">
-                    <h2 className="text-3xl font-bold mb-4 leading-snug">Streamline your workforce management.</h2>
-                    <p className="text-blue-100 text-lg font-light leading-relaxed">
-                        Access your HR tools, leave management, and payroll in one secure, unified platform designed for the modern enterprise.
+                    <h2 className="mb-4 text-3xl font-bold leading-snug">Streamline your workforce management.</h2>
+                    <p className="text-lg font-light leading-relaxed text-blue-100">
+                        Access your LRM tools, leave management, and payroll in one secure, unified platform designed for the modern enterprise.
                     </p>
-                    <div className="mt-8 flex gap-2">
-                        <div className="h-1 w-8 bg-white rounded-full"></div>
-                        <div className="h-1 w-2 bg-white/30 rounded-full"></div>
-                        <div className="h-1 w-2 bg-white/30 rounded-full"></div>
+                    <div className="flex gap-2 mt-8">
+                        <div className="w-8 h-1 bg-white rounded-full"></div>
+                        <div className="w-2 h-1 rounded-full bg-white/30"></div>
+                        <div className="w-2 h-1 rounded-full bg-white/30"></div>
                     </div>
                 </div>
             </div>
-            <div className="w-full lg:w-1/2 bg-white dark:bg-background-dark flex flex-col justify-center items-center p-8 lg:p-16 relative">
-                <div className="lg:hidden absolute top-8 left-8 flex items-center space-x-2">
-                    <span className="material-icons text-primary text-3xl">corporate_fare</span>
+            <div className="relative flex flex-col items-center justify-center w-full p-8 bg-white lg:w-1/2 dark:bg-background-dark lg:p-16">
+                <div className="absolute flex items-center space-x-2 lg:hidden top-8 left-8">
+                    <span className="text-3xl material-icons text-primary">corporate_fare</span>
                     <span className="text-xl font-bold text-gray-900 dark:text-white">HR Enterprise</span>
                 </div>
                 <div className="w-full max-w-md space-y-8">
-                    <div className="text-left space-y-2">
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Welcome back</h1>
-                        <p className="text-neutral-text dark:text-gray-400 text-base">Please enter your details to sign in.</p>
+                    <div className="space-y-2 text-left">
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Welcome back</h1>
+                        <p className="text-base text-neutral-text dark:text-gray-400">Please enter your details to sign in.</p>
                     </div>
-                    <form action="#" className="space-y-6" method="POST">
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="email">
-                                Work Email
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="material-icons text-gray-400 text-xl">mail_outline</span>
-                                </div>
-                                <input
-                                    className="block w-full pl-10 pr-3 py-3 border-neutral-border dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
-                                    id="email"
-                                    name="email"
-                                    placeholder="name@company.com"
-                                    type="email"
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="password">
-                                Password
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="material-icons text-gray-400 text-xl">lock_outline</span>
-                                </div>
-                                <input
-                                    className="block w-full pl-10 pr-10 py-3 border-neutral-border dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
-                                    id="password"
-                                    name="password"
-                                    placeholder="••••••••"
-                                    type="password"
-                                />
-                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
-                                    <span className="material-icons text-gray-400 text-xl hover:text-gray-600 dark:hover:text-gray-300 transition-colors">visibility_off</span>
-                                </div>
-                            </div>
-                        </div>
+                    <form className="space-y-6" onSubmit={formik.handleSubmit}>
+                        <InputField iconLeft={MailIcon} label="Work Email" name="email" placeholder="name@example.com" type="email" formik={formik} />
+                        <InputField iconLeft={LockIcon} label="Password" name="password" placeholder="••••••••" type="password" formik={formik} />
+
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
-                                <input className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer" id="remember-me" name="remember-me" type="checkbox" />
-                                <label className="ml-2 block text-sm text-gray-600 dark:text-gray-400 cursor-pointer" htmlFor="remember-me">
+                                <input className="w-4 h-4 border-gray-300 rounded cursor-pointer text-primary focus:ring-primary" id="remember-me" name="remember-me" type="checkbox" />
+                                <label className="block ml-2 text-sm text-gray-600 cursor-pointer dark:text-gray-400" htmlFor="remember-me">
                                     Remember me
                                 </label>
                             </div>
                             <div className="text-sm">
-                                <a className="font-medium text-gray-500 hover:text-primary transition-colors dark:text-gray-400 dark:hover:text-white" href="#">
+                                <a className="font-medium text-gray-500 transition-colors hover:text-primary dark:text-gray-400 dark:hover:text-white" href="#">
                                     Forgot password?
                                 </a>
                             </div>
                         </div>
-                        <div>
-                            <button
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200"
-                                type="submit"
-                            >
-                                Sign in
-                            </button>
-                        </div>
+                        <Button className="w-full h-12" type="submit">
+                            Sign in
+                        </Button>
                     </form>
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white dark:bg-background-dark text-gray-500 dark:text-gray-400">Or continue with</span>
+                            <span className="px-2 text-gray-500 bg-white dark:bg-background-dark dark:text-gray-400">Or continue with</span>
                         </div>
                     </div>
-                    <div>
-                        <button
-                            className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 gap-2"
-                            type="button"
-                        >
-                            <span className="material-icons text-gray-500 text-xl">vpn_key</span>
-                            <span>Single Sign-On (SSO)</span>
-                        </button>
-                    </div>
-                    <div className="pt-8 text-center text-xs text-gray-400 dark:text-gray-500">
-                        <p className="mb-2">© 2023 Enterprise HR Systems. All rights reserved.</p>
+                    <Button className="w-full h-12" variant={"outline"}>
+                        <KeyRoundIcon /> Single Sign-On (SSO)
+                    </Button>
+
+                    <div className="pt-8 text-xs text-center text-gray-400 dark:text-gray-500">
+                        <p className="mb-2">© 2026 BOS. All rights reserved.</p>
                         <div className="flex justify-center space-x-4">
-                            <a className="hover:text-primary transition-colors" href="#">
+                            <a className="transition-colors hover:text-primary" href="#">
                                 Privacy Policy
                             </a>
                             <span>•</span>
-                            <a className="hover:text-primary transition-colors" href="#">
+                            <a className="transition-colors hover:text-primary" href="#">
                                 Terms of Service
                             </a>
                             <span>•</span>
-                            <a className="hover:text-primary transition-colors" href="#">
+                            <a className="transition-colors hover:text-primary" href="#">
                                 Help Center
                             </a>
                         </div>

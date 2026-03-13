@@ -29,6 +29,11 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Post('fake')
+  createFakeUser() {
+    return this.usersService.createFakeUser();
+  }
+
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.usersService.findAll(paginationDto);

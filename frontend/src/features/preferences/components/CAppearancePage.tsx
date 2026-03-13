@@ -38,7 +38,7 @@ export default function CAppearancePage() {
                     <label className="relative cursor-pointer group">
                         <input className="peer sr-only" name="theme" type="radio" />
                         <div className="border-2 border-slate-100 dark:border-slate-800 peer-checked:border-primary rounded-lg overflow-hidden transition-all">
-                            <div className="h-24 bg-gradient-to-br from-slate-50 to-slate-900 flex items-center justify-center" data-alt="Split preview of light and dark mode">
+                            <div className="h-24 bg-linear-to-br from-slate-50 to-slate-900 flex items-center justify-center" data-alt="Split preview of light and dark mode">
                                 <div className="w-16 h-10 bg-slate-400/20 backdrop-blur rounded shadow-sm border border-white/20"></div>
                             </div>
                             <div className="p-3 text-center bg-white dark:bg-slate-800">

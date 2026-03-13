@@ -1,44 +1,53 @@
 export interface User {
     _id: string
-    displayName: string
-    username: string
-    avatar: string
+    empId: string
+    fullName: string
     email: string
-    quote: string
-    position: string
-    desc: string
-    aboutMe: string
-    classData: ClassData
-    socialLinks: SocialLinks
-    role: string
-    project: Project[]
-    achievements: Achievement[]
+    roleId: RoleId
+    departmentId: DepartmentId
+    positionId: PositionId
+    gender: string
+    birthDate: string
+    status: boolean
     createdAt: string
     updatedAt: string
 }
 
-interface SocialLinks {
-    linkedin: string
-    github: string
-    facebook: string
+export interface PositionId {
+    _id: string
+    name: string
+    departmentId: DepartmentId
+    __v: number
+    createdAt: string
+    description: string
+    fullName: string
+    level: number
+    updatedAt: string
 }
 
-interface ClassData {
-    numberOfClassesTaught: string
-    totalStudents: string
-    expTeachingYears: string
-}
-interface Project {
-    title: string
-    desc: string
-    imageUrl: string
-    link: string
+export interface DepartmentId {
     _id: string
+    code: string
+    __v: number
+    createdAt: string
+    name: string
+    updatedAt: string
 }
 
-interface Achievement {
-    year: string
-    event: string
-    desc: string
+export interface RoleId {
     _id: string
+    name: string
+    __v: number
+    createdAt: string
+    permissions: Permission[]
+    updatedAt: string
+}
+
+export interface Permission {
+    _id: string
+    code: string
+    __v: number
+    createdAt: string
+    description: string
+    updatedAt: string
 }
