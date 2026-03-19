@@ -1,16 +1,16 @@
 import CAvatarName from "@/components/etc/CAvatarName"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/useAuthStore"
-import { useGenericStore } from "@/store/useGenericStore"
+import { useSidebarStore } from "@/store/useSidebarStore"
 import { BellIcon, Menu } from "lucide-react"
 
 export default function GeneralHeader() {
-    const toggleValue = useGenericStore((state) => state.toggleValue)
+    const toggleSidebar = useSidebarStore((state) => state.toggleSidebar)
     const { user } = useAuthStore()
     return (
         <header className="h-16 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between px-8 shrink-0 z-40">
             <div className="flex gap-2 items-center">
-                <Button variant="ghost" size="icon" onClick={() => toggleValue("isSidebarOpen")}>
+                <Button variant="ghost" size="icon" onClick={toggleSidebar}>
                     <Menu />
                 </Button>
                 <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">Dashboard Overview</h1>

@@ -23,7 +23,7 @@ interface GenericState {
 
 export const useGenericStore = create<GenericState>((set) => ({
     data: {
-        isSidebarOpen: false,
+        // isSidebarOpen: false,
     },
 
     setValue: (key, value) =>

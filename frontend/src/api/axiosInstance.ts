@@ -1,4 +1,4 @@
-import { TokenStorage } from "@/contexts/AuthContext"
+import { storage } from "@/utils/storage"
 import axios from "axios"
 import type { AxiosInstance, AxiosResponse } from "axios"
 
@@ -33,7 +33,7 @@ const processQueue = (error: any = null) => {
 // Request Interceptor - Thêm access token vào header
 axiosInstance.interceptors.request.use(
     (config) => {
-        const accessToken = TokenStorage.getCookieToken()
+        const accessToken = storage.getCookieToken()
         if (accessToken && config.headers) {
             config.headers.Authorization = `Bearer ${accessToken}`
         }
@@ -71,7 +71,7 @@ axiosInstance.interceptors.response.use(
             isRefreshing = true
 
             try {
-                const refreshToken = TokenStorage.getRefreshToken()
+                const refreshToken = storage.getRefreshToken()
 
                 if (!refreshToken) {
                     // Không có refresh token, logout user
@@ -86,7 +86,7 @@ axiosInstance.interceptors.response.use(
                 const { accessToken: newAccessToken } = response.data.data
 
                 // Lưu access token mới
-                TokenStorage.setCookieToken(newAccessToken)
+                storage.setCookieToken(newAccessToken)
 
                 // Cập nhật authorization header
                 if (originalRequest.headers) {
@@ -100,7 +100,7 @@ axiosInstance.interceptors.response.use(
             } catch (refreshError) {
                 // Refresh token failed, clear all tokens và logout
                 processQueue(refreshError)
-                TokenStorage.clearAll()
+                storage.clearAll()
 
                 // Redirect to login page
                 // if (typeof window !== "undefined") {

@@ -7,6 +7,7 @@ import {
   MaxLength,
   IsDate,
   IsOptional,
+  IsPhoneNumber,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -17,6 +18,11 @@ import { ApiProperty } from '@nestjs/swagger';
 // IntersectionType(A, B)	Gộp 2 class lại
 
 export class CreateUserDto {
+  @ApiProperty({ example: '0901234567' })
+  @IsPhoneNumber('VN', { message: 'Số điện thoại không hợp lệ' })
+  @IsNotEmpty({ message: 'Số điện thoại không được để trống' })
+  phone: string;
+
   @ApiProperty({ example: 'user@example.com' })
   @IsEmail({}, { message: 'Email không hợp lệ' })
   @IsNotEmpty({ message: 'Email không được để trống' })
@@ -57,6 +63,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsString({ message: 'gender phải là chuỗi' })
   gender: string;
+
+  @IsOptional()
+  @IsString({ message: 'avatar phải là chuỗi' })
+  avatar: string;
 
   @IsOptional()
   @IsString({ message: 'roleId phải là chuỗi' })

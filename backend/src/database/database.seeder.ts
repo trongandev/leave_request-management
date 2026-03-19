@@ -28,9 +28,9 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     console.log('--- Bắt đầu Seeding dữ liệu ---');
     await this.seedPermissions();
+    await this.createDefaultDepartmentsAndPositions();
     await this.seedRoles();
     await this.seedAdminUser();
-    await this.createDefaultDepartmentsAndPositions();
     console.log('--- Seeding hoàn tất ---');
   }
 
@@ -111,10 +111,13 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     });
     if (!existingAdmin) {
       const hashedPassword = await bcrypt.hash('Admin@123', 10);
+
+      const findDept = await this.departmentModel.findOne({ code: 'SYS' });
       await this.userModel.create({
         email: adminEmail,
         password: hashedPassword,
         roleId: adminRole._id.toString(),
+        departmentId: findDept?._id.toString() || undefined,
         fullName: 'System Administrator',
       });
       console.log('Đã tạo tài khoản Admin mặc định: admin@lrm.com / Admin@123');
@@ -127,7 +130,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       // A. Upsert Department
       const dept = await this.departmentModel.findOneAndUpdate(
         { code: item.code },
-        { name: item.name, code: item.code },
+        { name: item.name, originName: item.originName, code: item.code },
         { upsert: true, returnDocument: 'after' },
       );
 

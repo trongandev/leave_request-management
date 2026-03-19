@@ -19,22 +19,26 @@ import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 
 @Controller('users')
 @ApiBearerAuth()
-@RequirePermissions('MANAGE_USERS')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions('MANAGE_USERS')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Post('fake')
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions('MANAGE_USERS')
   createFakeUser() {
     return this.usersService.createFakeUser();
   }
 
   @Get()
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions('READ_ALL_LEAVE')
   findAll(@Query() paginationDto: PaginationDto) {
     return this.usersService.findAll(paginationDto);
   }

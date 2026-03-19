@@ -41,6 +41,7 @@ export class AuthService {
           model: 'Department',
         },
       })
+      .populate('departmentId')
       .exec();
 
     if (!user) {

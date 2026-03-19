@@ -1,5 +1,6 @@
 export const orgStructure = [
   {
+    originName: 'Production',
     name: 'Sản xuất',
     code: 'PROD',
     positions: [
@@ -30,6 +31,7 @@ export const orgStructure = [
     ],
   },
   {
+    originName: 'Engineering',
     name: 'Kỹ thuật',
     code: 'TECH',
     positions: [
@@ -54,6 +56,7 @@ export const orgStructure = [
     ],
   },
   {
+    originName: 'Human Resources',
     name: 'Nhân sự',
     code: 'HR',
     positions: [
@@ -80,6 +83,7 @@ export const orgStructure = [
 
   // Thêm bộ phận R&D
   {
+    originName: 'Research & Development',
     name: 'R&D',
     code: 'RND',
     positions: [
@@ -112,6 +116,7 @@ export const orgStructure = [
 
   // Thêm bộ phận Kho & Vận chuyển
   {
+    originName: 'Logistics',
     name: 'Kho & Vận chuyển',
     code: 'LOG',
     positions: [
@@ -144,6 +149,7 @@ export const orgStructure = [
 
   // Thêm bộ phận Quản lý chất lượng
   {
+    originName: 'Quality Assurance',
     name: 'Quản lý chất lượng',
     code: 'QA',
     positions: [
@@ -170,6 +176,7 @@ export const orgStructure = [
 
   // Thêm bộ phận Kỹ thuật hệ thống
   {
+    originName: 'Systems',
     name: 'Kỹ thuật hệ thống',
     code: 'SYS',
     positions: [

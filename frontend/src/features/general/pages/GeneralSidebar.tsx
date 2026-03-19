@@ -1,122 +1,169 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+import CAvatarName from "@/components/etc/CAvatarName"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/useAuthStore"
-import { LogOutIcon } from "lucide-react"
+import {
+    AlarmClockIcon,
+    BarChartIcon,
+    BrickWallShieldIcon,
+    CalendarDaysIcon,
+    GlobeIcon,
+    HistoryIcon,
+    HomeIcon,
+    LayoutDashboardIcon,
+    LogOutIcon,
+    NetworkIcon,
+    SettingsIcon,
+    UserIcon,
+    Users,
+    WalletCardsIcon,
+} from "lucide-react"
+import { createElement, useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Link, useLocation } from "react-router-dom"
 
-const requestsNav = [
-    {
-        name: "main menu",
-        items: [
-            { name: "Dashboard", icon: "dashboard", href: "/employee" },
-            { name: "Create New Request", icon: "event_note", href: "/employee/create-new-request-form" },
-            { name: "My Request History", icon: "history", href: "/employee/my-request-history-list" },
-        ],
-    },
-    {
-        name: "settings",
-        items: [
-            { name: "My Profile", icon: "person", href: "/profile" },
-            { name: "Preferences", icon: "settings", href: "/preferences" },
-            { name: "Back to Portal", icon: "home", href: "/" },
-        ],
-    },
-]
-
-const approvalsNav = [
-    {
-        name: "main menu",
-        items: [
-            { name: "Dashboard", icon: "dashboard", href: "/approvals" },
-            { name: "Team Calendar", icon: "groups", href: "/approvals/team-calendar" },
-        ],
-    },
-    {
-        name: "settings",
-        items: [
-            { name: "My Profile", icon: "person", href: "/profile" },
-            { name: "Preferences", icon: "settings", href: "/preferences" },
-            { name: "Back to Portal", icon: "home", href: "/" },
-        ],
-    },
-]
-
-const adminNav = [
-    {
-        name: "main menu",
-        items: [
-            { name: "Dashboard", icon: "dashboard", href: "/admin" },
-            { name: "Employee Management", icon: "groups", href: "/admin/employee-management" },
-            { name: "Attendance Tracking", icon: "access_time", href: "/admin/attendance-tracking" },
-            { name: "Global Requests", icon: "public", href: "/admin/global-request" },
-        ],
-    },
-    {
-        name: "configuration",
-        items: [
-            { name: "Request Types", icon: "person", href: "/admin/request-types" },
-            { name: "Shift Patterns", icon: "alarm", href: "/admin/shift-patterns" },
-            { name: "Payroll & Holiday", icon: "payment", href: "/admin/payroll-and-holiday" },
-            { name: "Approval Workflow", icon: "account_tree", href: "/admin/approval-workflow" },
-            { name: "Back to Portal", icon: "home", href: "/" },
-        ],
-    },
-    {
-        name: "system",
-        items: [
-            { name: "Report & Analytics", icon: "bar_chart", href: "/admin/reports-analytics" },
-            { name: "System Audit Logs", icon: "history", href: "/admin/audit-logs" },
-            { name: "Access Control", icon: "security", href: "/admin/access-control" },
-        ],
-    },
-]
 export default function GeneralSidebar() {
     const { pathname } = useLocation()
     const { user, logout } = useAuthStore()
-    console.log(user)
-    const nav = pathname.startsWith("/approvals") ? approvalsNav : pathname.startsWith("/admin") ? adminNav : requestsNav
+    const { t } = useTranslation()
+
+    const [portalName, setPortalName] = useState("Employee Portal")
+    const roleName = user?.roleId.name
+    const [newNav, setNewNav] = useState<typeof defaultNav>([])
+
+    const defaultNav = useMemo(
+        () => [
+            {
+                name: "main menu",
+                items: [
+                    { name: t("sidebar.home"), icon: HomeIcon, href: "/" },
+                    { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/employee" },
+                    { name: t("sidebar.createNewRequest"), icon: BarChartIcon, href: "/employee/create-new-request-form" },
+                    { name: t("sidebar.myRequestHistory"), icon: HistoryIcon, href: "/employee/my-request-history-list" },
+                ],
+            },
+            {
+                name: "settings",
+                items: [
+                    { name: t("sidebar.profile"), icon: UserIcon, href: "/profile" },
+                    { name: t("sidebar.preference"), icon: SettingsIcon, href: "/preferences" },
+                ],
+            },
+        ],
+        [t],
+    )
+
+    const approvalsNav = useMemo(
+        () => [
+            {
+                name: t("sidebar.mainMenu"),
+                items: [
+                    { name: t("sidebar.home"), icon: HomeIcon, href: "/" },
+                    { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/approvals" },
+                    { name: t("sidebar.teamCalendar"), icon: CalendarDaysIcon, href: "/approvals/team-calendar" },
+                    { name: t("sidebar.leaveBalances"), icon: Users, href: "/approvals/leave-balances" },
+                ],
+            },
+            {
+                name: t("sidebar.setting"),
+                items: [
+                    { name: t("sidebar.profile"), icon: UserIcon, href: "/profile" },
+                    { name: t("sidebar.preference"), icon: SettingsIcon, href: "/preferences" },
+                ],
+            },
+        ],
+        [t],
+    )
+
+    const adminNav = useMemo(
+        () => [
+            {
+                name: t("sidebar.mainMenu"),
+                items: [
+                    { name: t("sidebar.home"), icon: HomeIcon, href: "/" },
+                    { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/admin" },
+                    { name: t("sidebar.employee"), icon: Users, href: "/admin/employee-management" },
+                    { name: t("sidebar.attendanceTracking"), icon: AlarmClockIcon, href: "/admin/attendance-tracking" },
+                    { name: t("sidebar.globalRequests"), icon: GlobeIcon, href: "/admin/global-request" },
+                ],
+            },
+            {
+                name: t("sidebar.configuration"),
+                items: [
+                    { name: t("sidebar.requestTypes"), icon: UserIcon, href: "/admin/request-types" },
+                    { name: t("sidebar.shiftPatterns"), icon: AlarmClockIcon, href: "/admin/shift-patterns" },
+                    { name: t("sidebar.payrollAndHoliday"), icon: WalletCardsIcon, href: "/admin/payroll-and-holiday" },
+                    { name: t("sidebar.approvalWorkflow"), icon: NetworkIcon, href: "/admin/approval-workflow" },
+                ],
+            },
+            {
+                name: t("sidebar.system"),
+                items: [
+                    { name: t("sidebar.reportsAndAnalytics"), icon: BarChartIcon, href: "/admin/reports-analytics" },
+                    { name: t("sidebar.systemAuditLogs"), icon: HistoryIcon, href: "/admin/audit-logs" },
+                    { name: t("sidebar.accessControl"), icon: BrickWallShieldIcon, href: "/admin/access-control" },
+                ],
+            },
+        ],
+        [t],
+    )
+
+    useEffect(() => {
+        switch (roleName) {
+            case "ADMIN":
+                setNewNav(adminNav)
+                setPortalName("Admin Portal")
+                break
+            case "HR":
+            case "MANAGER":
+                setNewNav(approvalsNav)
+                setPortalName("Approval Portal")
+                break
+            default:
+                setNewNav(defaultNav)
+                setPortalName("Employee Portal")
+                break
+        }
+    }, [user, roleName, defaultNav, approvalsNav, adminNav])
+
     return (
         <>
-            <div className="h-16 flex items-center px-6 border-b border-slate-200">
+            <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-white/20">
                 <div className="flex items-center gap-3">
                     <div className="w-9 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg">
-                        {pathname.startsWith("/approvals") ? "AP" : pathname.startsWith("/admin") ? "AD" : "EM"}
+                        {portalName
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
                     </div>
-                    <span className="text-slate-900 font-semibold text-lg tracking-tight">
-                        {pathname.startsWith("/approvals") ? "Approval Portal" : pathname.startsWith("/admin") ? "Admin Portal" : "Employee Portal"}
-                    </span>
+                    <span className="text-foreground font-semibold text-lg tracking-tight">{portalName}</span>
                 </div>
             </div>
             <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-                {nav.map((section) => (
+                {newNav.map((section, index) => (
                     <div key={section.name}>
-                        <div className="px-3 mt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">{section.name}</div>
+                        <div
+                            className={`px-3 mt-3 mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500 ${index === 0 ? "pt-0" : "  pt-5 border-t border-t-slate-200 dark:border-t-white/20"}`}
+                        >
+                            {section.name}
+                        </div>
                         {section.items.map((item) => (
                             <Link
                                 key={item.name}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700  transition-colors group ${pathname === item.href ? "bg-primary/10 text-primary" : ""}`}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-foreground/80  transition-colors group ${pathname === item.href ? "bg-primary/5 text-primary" : ""}`}
                                 to={item.href}
                             >
-                                <span className="material-icons text-[20px] group-hover:text-primary transition-colors ">{item.icon}</span>
+                                {createElement(item.icon, { className: "w-5 h-5" })}
                                 <span className="text-sm">{item.name}</span>
                             </Link>
                         ))}
                     </div>
                 ))}
             </nav>
-            <div className="p-4 border-t border-slate-200">
+            <div className="p-4 border-t border-slate-200 dark:border-white/20">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 flex items-center justify-center bg-primary/10 text-primary rounded-full ring-2 ring-blue-500/30">
-                        {user?.fullName
-                            ?.split(" ")
-                            .map((n: string) => n[0])
-                            .slice(0, 2)
-                            .join("") || "N/A"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-900 truncate">{user?.fullName}</p>
-                        <p className="text-xs text-neutral-500 truncate">{user?.positionId.fullName}</p>
-                    </div>
-                    <Button variant={"ghost"} onClick={logout}>
+                    <CAvatarName user={user} />
+                    <Button variant={"ghost"} onClick={logout} className="text-red-500">
                         <LogOutIcon />
                     </Button>
                 </div>

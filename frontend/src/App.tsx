@@ -21,7 +21,6 @@ import CMyAccountPage from "./features/preferences/components/CMyAccountPage"
 import CSecurityPage from "./features/preferences/components/CSecurityPage"
 import CNotificationPage from "./features/preferences/components/CNotificationPage"
 import CLocalizationPage from "./features/preferences/components/CLocalizationPage"
-import EmployeeManagementPage from "./features/admin/pages/main/EmployeeManagementPage"
 import AdminDashboardPage from "./features/admin/pages/main/AdminDashboardPage"
 import AttendanceTrackingPage from "./features/admin/pages/main/AttendanceTrackingPage"
 import GlobalRequestPage from "./features/admin/pages/main/GlobalRequestPage"
@@ -32,6 +31,7 @@ import ReportAndAnalyticsPage from "./features/admin/pages/system/ReportAndAnaly
 import AuditLogPage from "./features/admin/pages/system/AuditLogPage"
 import AccessControlPage from "./features/admin/pages/system/AccessControlPage"
 import DashboardHomePage from "./features/general/pages/DashboardHomePage"
+import LeaveBalanceEmployeePage from "./features/admin/pages/main/LeaveBalanceEmployeePage"
 
 function App() {
     return (
@@ -50,11 +50,12 @@ function App() {
                     <Route index element={<PendingApprovalsListPage />} />
                     <Route path="/approvals/request-detail-and-approval" element={<RequestDetailAndApprovalPage />} />
                     <Route path="/approvals/team-calendar" element={<TeamLeaveCalendarViewPage />} />
+                    <Route path="/approvals/leave-balances" element={<LeaveBalanceEmployeePage />} />
                 </Route>
                 <Route path="/admin" element={<AdminLayout />}>
                     {/* START MAIN GROUP*/}
                     <Route index element={<AdminDashboardPage />} />
-                    <Route path="/admin/employee-management" element={<EmployeeManagementPage />} />
+                    <Route path="/admin/leave-balances" element={<LeaveBalanceEmployeePage />} />
                     <Route path="/admin/attendance-tracking" element={<AttendanceTrackingPage />} />
                     {/* END MAIN GROUP */}
 

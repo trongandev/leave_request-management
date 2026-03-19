@@ -29,6 +29,13 @@ export class User extends Document {
   })
   email: string;
 
+  @Prop({ unique: true })
+  @ApiProperty({
+    example: '0901234567',
+    description: 'Số điện thoại (unique)',
+  })
+  phone: string;
+
   @Prop({ required: true })
   @ApiProperty({
     example: 'hashedPassword123',
@@ -58,6 +65,7 @@ export class User extends Document {
   })
   departmentId?: string;
 
+  @Prop()
   @ApiProperty({
     description: 'Hình ảnh',
   })

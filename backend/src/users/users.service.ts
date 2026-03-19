@@ -66,7 +66,11 @@ export class UsersService {
       roleId: roleId,
     });
     const saveUser = newUser.save();
-    return saveUser;
+    const populatedUser = await this.userModel
+      .findById((await saveUser)._id)
+      .populate('roleId')
+      .exec();
+    return populatedUser;
   }
 
   async createFakeUser() {
@@ -118,13 +122,14 @@ export class UsersService {
     // Chèn năm sinh vào vị trí ngẫu nhiên
     const insertIndex = Math.floor(Math.random() * (nameParts.length + 1));
     nameParts.splice(insertIndex, 0, birthDateSuffix);
-
     const email = `${nameParts.join('.')}` + '@lrm.com';
     const hashedPassword = await bcrypt.hash('DefAult@passw0rd', 10);
     const fakeData: CreateUserDto = {
+      phone: faker.helpers.fromRegExp(/0[35789][0-9]{8}/),
       email: email,
       password: hashedPassword,
       fullName: fullName,
+      avatar: faker.image.avatar(),
       // Giới hạn năm sinh từ 1980 đến 2005 để phù hợp thực tế đi làm
       gender: faker.person.sex(),
       birthDate: birthDate,
@@ -133,6 +138,7 @@ export class UsersService {
       positionId: String(randomPos ? randomPos._id : null),
       roleId: '',
     };
+    console.log(fakeData);
     try {
       return await this.create(fakeData);
     } catch (error) {
@@ -145,7 +151,27 @@ export class UsersService {
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   async findAll(paginationDto: PaginationDto) {
-    return await paginate(this.userModel, paginationDto);
+    const populateOptions = [
+      {
+        path: 'roleId',
+      },
+      {
+        path: 'positionId',
+        populate: { path: 'departmentId' },
+      },
+      {
+        path: 'departmentId',
+      },
+    ];
+    return await paginate(
+      this.userModel,
+      paginationDto,
+      {},
+      {
+        populate: populateOptions,
+        sort: { createdAt: -1 },
+      },
+    );
   }
 
   findOne(id: string) {

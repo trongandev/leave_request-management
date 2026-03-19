@@ -1,10 +1,20 @@
+import { Card, CardContent } from "@/components/ui/card"
+import { CalendarIcon, HourglassIcon, OctagonAlertIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
+
 export default function PendingApprovalsListPage() {
+    const { t } = useTranslation()
+    const dashboardData = [
+        { id: 1, name: "TOTAL PENDING", icon: HourglassIcon, value: 12, color: "text-orange-500", bgColor: "bg-orange-50" },
+        { id: 2, name: "DUE THIS WEEK", icon: CalendarIcon, value: 5, color: "text-primary", bgColor: "bg-primary/5" },
+        { id: 3, name: "URGENT REQUESTS", icon: OctagonAlertIcon, value: 2, color: "text-red-500", bgColor: "bg-red-50" },
+    ]
     return (
         <main className="">
             <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Pending Approvals</h1>
-                    <p className="text-sm text-slate-500 mt-1">Review and manage requests from your team members.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{t("approvals.dashboard.title")}</h1>
+                    <p className="text-sm text-slate-500 mt-1">{t("approvals.dashboard.desc")}</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="relative">
@@ -22,33 +32,19 @@ export default function PendingApprovalsListPage() {
                 </div>
             </header>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between">
-                    <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Total Pending</p>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">12</h3>
-                    </div>
-                    <div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-600 dark:text-amber-400">
-                        <span className="material-icons">hourglass_empty</span>
-                    </div>
-                </div>
-                <div className="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between">
-                    <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Due This Week</p>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">5</h3>
-                    </div>
-                    <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
-                        <span className="material-icons">event</span>
-                    </div>
-                </div>
-                <div className="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between">
-                    <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Urgent Requests</p>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">2</h3>
-                    </div>
-                    <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600 dark:text-red-400">
-                        <span className="material-icons">priority_high</span>
-                    </div>
-                </div>
+                {dashboardData.map((item) => (
+                    <Card key={item.id}>
+                        <CardContent className="flex justify-between items-center">
+                            <div className="">
+                                <p className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">{item.name}</p>
+                                <h3 className={`text-2xl font-bold `}>{item.value}</h3>
+                            </div>
+                            <div className={`p-2 ${item.color}  ${item.bgColor} rounded-lg`}>
+                                <item.icon className="w-5 h-5 " />
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
             <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-surface-dark">

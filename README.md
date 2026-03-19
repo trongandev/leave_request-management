@@ -62,6 +62,12 @@ client/
 
 ## ⚙️ Cài đặt & Sử dụng
 
+### Cách cài đặt mới:
+
+- Không cần di chuyển vào từng thư mục nữa, đứng ở thư mục gốc và gõ lệnh npm run dev để chạy đồng thời cả backend và frontend
+
+### Ở dưới là cách cài đặt cũ
+
 ### 1. Cài đặt Backend
 
 1. Di chuyển vào thư mục server:

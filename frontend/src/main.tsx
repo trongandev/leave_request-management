@@ -1,15 +1,15 @@
+import "./i18n"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import "./index.css"
 import App from "./App.tsx"
 import { TooltipProvider } from "./components/ui/tooltip.tsx"
 import { BrowserRouter } from "react-router-dom"
-import SidebarProvider from "./contexts/sidebarContext.tsx"
-import { AuthProvider } from "./contexts/AuthContext.tsx"
 
 import { QueryClient, QueryCache, MutationCache, QueryClientProvider } from "@tanstack/react-query"
 import { toast } from "sonner" // Hoặc thư viện toast bạn thích
 import { Toaster } from "./components/ui/sonner.tsx"
+import { ThemeProvider } from "./contexts/ThemeContext.tsx"
 
 export const queryClient = new QueryClient({
     // Cấu hình bắt lỗi cho Query (Lấy dữ liệu)
@@ -48,14 +48,12 @@ createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <BrowserRouter>
             <QueryClientProvider client={queryClient}>
-                <AuthProvider>
-                    <TooltipProvider>
-                        <SidebarProvider>
-                            <App />
-                            <Toaster position="top-center" richColors />
-                        </SidebarProvider>
-                    </TooltipProvider>
-                </AuthProvider>
+                <TooltipProvider>
+                    <ThemeProvider>
+                        <App />
+                        <Toaster position="top-center" richColors />
+                    </ThemeProvider>
+                </TooltipProvider>
             </QueryClientProvider>
         </BrowserRouter>
     </StrictMode>,

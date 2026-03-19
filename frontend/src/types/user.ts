@@ -1,8 +1,21 @@
+export interface UserResponse {
+    data: User[]
+    meta: MetaPag
+}
+
+export interface MetaPag {
+    total: number
+    page: number
+    limit: number
+    last_page: number
+}
 export interface User {
     _id: string
     empId: string
+    phone: string
     fullName: string
     email: string
+    avatar: string
     roleId: RoleId
     departmentId: DepartmentId
     positionId: PositionId
@@ -31,6 +44,7 @@ export interface DepartmentId {
     __v: number
     createdAt: string
     name: string
+    originName: string
     updatedAt: string
 }
 

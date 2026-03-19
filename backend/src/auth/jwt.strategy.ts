@@ -54,6 +54,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           model: 'Department',
         },
       })
+      .populate('departmentId')
       .exec();
 
     if (!user) {

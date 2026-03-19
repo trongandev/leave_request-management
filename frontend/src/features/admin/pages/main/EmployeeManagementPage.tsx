@@ -1,8 +1,19 @@
+import CSelectOptions from "@/components/etc/CSelectOptions"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronsUpDown, CirclePlus, Download, Search } from "lucide-react"
 
 export default function EmployeeManagementPage() {
+    const departmentsData = [
+        { value: "all", label: "All Departments" },
+        { value: "tech", label: "Engineering" },
+        { value: "production", label: "Production" },
+        { value: "r&d", label: "Research & Development" },
+        { value: "hr", label: "Human Resources" },
+        { value: "log", label: "Logistics" },
+        { value: "qa", label: "Quality Assurance" },
+        { value: "sys", label: "System" },
+    ]
     return (
         <div className="flex-1 flex overflow-hidden relative">
             <main className="flex-1 overflow-y-auto p-6 lg:p-8 custom-scrollbar relative z-0">
@@ -32,34 +43,8 @@ export default function EmployeeManagementPage() {
                                 />
                             </div>
                             <div className="flex flex-wrap sm:flex-nowrap gap-3">
-                                <Select>
-                                    <SelectTrigger className="w-full sm:w-48">
-                                        <SelectValue placeholder="Theme" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem value="all">All Departments</SelectItem>
-                                            <SelectItem value="engineering">Engineering</SelectItem>
-                                            <SelectItem value="product_design">Product Design</SelectItem>
-                                            <SelectItem value="marketing">Marketing</SelectItem>
-                                            <SelectItem value="human_resources">Human Resources</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                <Select>
-                                    <SelectTrigger className="w-full sm:w-48">
-                                        <SelectValue placeholder="Theme" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem value="all">All Departments</SelectItem>
-                                            <SelectItem value="engineering">Engineering</SelectItem>
-                                            <SelectItem value="product_design">Product Design</SelectItem>
-                                            <SelectItem value="marketing">Marketing</SelectItem>
-                                            <SelectItem value="human_resources">Human Resources</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
+                                <CSelectOptions data={departmentsData} valueKey="value" displayKey="label" />
+
                                 <Select>
                                     <SelectTrigger className="w-full sm:w-48">
                                         <SelectValue placeholder="Location" />

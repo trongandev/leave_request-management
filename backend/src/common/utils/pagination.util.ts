@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Model } from 'mongoose';
 import { PaginationDto } from '../dto/pagination.dto';
@@ -11,11 +12,27 @@ export async function paginate<T>(
   const { page, limit } = paginationDto;
   const skip = (page - 1) * limit;
 
-  const query = model.find(filter).skip(skip).limit(limit).lean();
+  let query: any = model.find(filter).skip(skip).limit(limit);
 
-  // Cho phép truyền thêm populate nếu cần
-  if (options.populate) query.populate(options.populate);
-  if (options.sort) query.sort(options.sort);
+  // Áp dụng populate nếu có
+  if (options.populate) {
+    if (Array.isArray(options.populate)) {
+      // Nếu là mảng, populate từng cái một
+      options.populate.forEach((pop: any) => {
+        query = query.populate(pop);
+      });
+    } else {
+      // Nếu là object hoặc string, populate trực tiếp
+      query = query.populate(options.populate);
+    }
+  }
+
+  // Áp dụng sort nếu có
+  if (options.sort) {
+    query = query.sort(options.sort);
+  }
+
+  query = query.lean();
 
   const [data, total] = await Promise.all([
     query.exec(),
@@ -32,3 +49,29 @@ export async function paginate<T>(
     },
   };
 }
+
+/**
+ // Cách 1: Populate đơn giản
+await paginate(this.userModel, paginationDto, {}, { 
+  populate: 'roleId' 
+});
+
+// Cách 2: Populate nhiều field
+await paginate(this.userModel, paginationDto, {}, { 
+  populate: ['roleId', 'departmentId'] 
+});
+
+// Cách 3: Populate với select
+await paginate(this.userModel, paginationDto, {}, { 
+  populate: {
+    path: 'roleId',
+    select: 'name permissions', // Chỉ lấy các field này
+  }
+});
+
+// Cách 4: Kết hợp populate + sort
+await paginate(this.userModel, paginationDto, {}, { 
+  populate: populateOptions,
+  sort: { createdAt: -1 }
+});
+ */

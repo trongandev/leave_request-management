@@ -7,6 +7,7 @@ import InputField from "@/components/etc/InputField"
 import authService from "@/services/authService"
 import { toast } from "sonner"
 import { useLocation, useNavigate } from "react-router-dom"
+import { storage } from "@/utils/storage"
 export default function LoginPage() {
     const { setUser } = useAuthStore()
     const location = useLocation()
@@ -30,6 +31,7 @@ export default function LoginPage() {
             const res = await authService.login(values)
             if (res.success) {
                 setUser(res.data.user)
+                storage.setCookieToken(res.data.accessToken)
                 toast.success("Đăng nhập thành công")
                 if (location.state?.from) {
                     navigate(location.state.from.pathname)
