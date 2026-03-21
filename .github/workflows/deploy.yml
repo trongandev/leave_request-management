@@ -16,7 +16,8 @@ jobs:
                   key: ${{ secrets.SSH_PRIVATE_KEY }} # Lưu nội dung file .pem vào GitHub Secret
                   script: |
                       cd /home/leave_request-management
-                      git pull origin main
+                      git fetch origin main
+                      git reset --hard origin/main 
                       npm install --prefix backend
                       npm install --prefix frontend
                       npm run build --prefix backend
