@@ -17,7 +17,9 @@ jobs:
                   script: |
                       cd /home/leave_request-management
                       git pull origin main
-                      npm install
-                      npm run build
-                      pm2 restart frontend
+                      npm install --prefix backend
+                      npm install --prefix frontend
+                      npm run build --prefix backend
+                      npm run build --prefix frontend
+                      pm2 restart --update-env frontend
                       pm2 restart --update-env backend
