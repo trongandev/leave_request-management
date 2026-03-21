@@ -21,5 +21,4 @@ jobs:
                       npm install --prefix frontend
                       npm run build --prefix backend
                       npm run build --prefix frontend
-                      pm2 restart --update-env frontend
                       pm2 restart --update-env backend

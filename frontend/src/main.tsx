@@ -9,7 +9,7 @@ import { BrowserRouter } from "react-router-dom"
 import { QueryClient, QueryCache, MutationCache, QueryClientProvider } from "@tanstack/react-query"
 import { toast } from "sonner" // Hoặc thư viện toast bạn thích
 import { Toaster } from "./components/ui/sonner.tsx"
-import { ThemeProvider } from "./contexts/ThemeContext.tsx"
+import { ThemeProvider } from "./contexts/themeContext.tsx"
 
 export const queryClient = new QueryClient({
     // Cấu hình bắt lỗi cho Query (Lấy dữ liệu)
