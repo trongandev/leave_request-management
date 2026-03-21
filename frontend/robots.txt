@@ -1,0 +1,21 @@
+# Cho phép tất cả các bot (Google, Bing, v.v.)
+User-agent: *
+
+# Chặn các đường dẫn nhạy cảm hoặc nội bộ
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+
+# Chặn các file cấu hình hoặc file tạm
+Disallow: /config/
+Disallow: /temp/
+
+# Đường dẫn tới Sitemap (Thay bằng domain thật của bạn)
+Sitemap: https://lrm.io.vn/sitemap.xml
+
+# Tùy chọn: Chặn các bot "hung hãn" hay đi scan lỗi bảo mật
+User-agent: AhrefsBot
+Disallow: /
