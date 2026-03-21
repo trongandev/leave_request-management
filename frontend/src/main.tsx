@@ -17,6 +17,7 @@ export const queryClient = new QueryClient({
         onError: (error, query) => {
             // Chỉ hiện toast nếu query có định nghĩa meta.errorMessage
             // Tránh việc mọi API lỗi đều bắn toast lung tung
+            console.log(error)
             if (query.meta?.errorMessage) {
                 toast.error(query.meta.errorMessage as string)
             }

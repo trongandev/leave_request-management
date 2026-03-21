@@ -15,7 +15,7 @@ export default function ProfilePage() {
                         <CardContent className="p-0!">
                             <div className="h-24 bg-gradient-to-r from-primary to-blue-400" data-alt="Abstract blue gradient background pattern"></div>
                             <div className="px-6 pb-6 -mt-12 flex flex-col items-center text-center">
-                                <CAvatarProfile user={user} className="h-24 w-24 bg-white text-3xl font-semibold" />
+                                {user && <CAvatarProfile user={user} className="h-24 w-24 bg-white text-3xl font-semibold" />}
                                 <h1 className="text-xl mt-3 font-bold text-slate-900 dark:text-white">{user?.fullName || "Alex Johnson"}</h1>
                                 <p className="text-slate-500 text-sm font-medium">{user?.positionId.fullName || "Senior Frontend Developer"}</p>
                                 <div className="mt-6 w-full space-y-3 pt-6 border-t border-slate-100 dark:border-slate-800">
