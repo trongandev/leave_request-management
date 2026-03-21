@@ -1,0 +1,23 @@
+name: Deploy to Server
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy via SSH
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: 157.66.46.64
+                  username: root
+                  key: ${{ secrets.SSH_PRIVATE_KEY }} # Lưu nội dung file .pem vào GitHub Secret
+                  script: |
+                      cd /home/leave_request-management
+                      git pull origin main
+                      npm install
+                      npm run build
+                      pm2 restart frontend
+                      pm2 restart --update-env backend
