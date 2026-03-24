@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { Badge } from "@/components/ui/badge"
+import { Trans, useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuthStore } from "@/store/useAuthStore"
@@ -23,6 +24,7 @@ import {
 import { useEffect, useState } from "react"
 
 export default function DashboardHomePage() {
+    const { t } = useTranslation()
     const { user } = useAuthStore()
     const [namePointDay, setNamePointDay] = useState("")
     const roleName = user?.roleId.name
@@ -30,11 +32,11 @@ export default function DashboardHomePage() {
         // kiểm tra xem giờ là buổi sáng trưa hay chiều
         const hour = new Date().getHours()
         if (hour < 12) {
-            setNamePointDay("buổi sáng")
+            setNamePointDay(t("general.dashboard.greeting.morning"))
         } else if (hour < 18) {
-            setNamePointDay("buổi chiều")
+            setNamePointDay(t("general.dashboard.greeting.afternoon"))
         } else {
-            setNamePointDay("buổi tối")
+            setNamePointDay(t("general.dashboard.greeting.evening"))
         }
     }, [user])
 
@@ -43,13 +45,18 @@ export default function DashboardHomePage() {
             <section className="mb-10">
                 <div className="flex flex-col gap-1 bg-white p-5 rounded-xl shadow-xs">
                     <h1 className="text-2xl  tracking-tight text-slate-700 dark:text-white">
-                        Chào {namePointDay}, <span className="text-primary font-bold text-3xl uppercase">{user?.fullName || "Người dùng"}</span>
+                        {t("general.dashboard.greeting.hello")} {namePointDay}, <span className="text-primary font-bold text-3xl uppercase">{user?.fullName || t("general.dashboard.greeting.user")}</span>
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1">
-                        Hôm nay là Thứ Tư, ngày 24 tháng 5, 2024. {/*  chỉ hiển thị phần này khi người dùng là HR hoặc MANAGER */}
+                        {t("general.dashboard.greeting.datePattern", { date: "Thứ Tư, ngày 24 tháng 5, 2024" })} {/*  chỉ hiển thị phần này khi người dùng là HR hoặc MANAGER */}
                         {(roleName === "HR" || roleName === "MANAGER") && (
                             <>
-                                Bạn có <span className="bg-yellow-500 text-white px-1.5 py-px rounded-sm">3 phê duyệt</span> đang chờ xử lý.
+                                <br />
+                                <Trans
+                                    i18nKey="general.dashboard.greeting.pendingApprovals"
+                                    values={{ count: 3 }}
+                                    components={{ 1: <span className="bg-yellow-500 text-white px-1.5 py-px rounded-sm" /> }}
+                                />
                             </>
                         )}
                     </p>
@@ -60,7 +67,7 @@ export default function DashboardHomePage() {
                 <section className="flex flex-col  bg-white shadow rounded-xl overflow-hidden">
                     <div className="flex items-center gap-4 shadow p-5">
                         <UserPenIcon className="text-primary" />
-                        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Công việc của tôi</h2>
+                        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">{t("general.dashboard.myWork.title")}</h2>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-5">
                         <Card className="shadow-none border-gray-200">
@@ -69,8 +76,8 @@ export default function DashboardHomePage() {
                                     <CalendarOffIcon />
                                 </div>
                                 <div className="flex flex-col flex-1">
-                                    <h3 className="font-bold text-slate-900 dark:text-white">Tạo đơn nghỉ phép</h3>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Đăng ký nghỉ phép năm hoặc việc riêng</p>
+                                    <h3 className="font-bold text-slate-900 dark:text-white">{t("general.dashboard.myWork.createLeave.title")}</h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("general.dashboard.myWork.createLeave.desc")}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -80,8 +87,8 @@ export default function DashboardHomePage() {
                                     <WalletIcon />
                                 </div>
                                 <div className="flex flex-col flex-1">
-                                    <h3 className="font-bold text-slate-900 dark:text-white">Xem số dư phép</h3>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Bạn còn 12.5 ngày phép</p>
+                                    <h3 className="font-bold text-slate-900 dark:text-white">{t("general.dashboard.myWork.viewBalance.title")}</h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("general.dashboard.myWork.viewBalance.desc", { days: 12.5 })}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -91,8 +98,8 @@ export default function DashboardHomePage() {
                                     <IdCardIcon />
                                 </div>
                                 <div className="flex flex-col flex-1">
-                                    <h3 className="font-bold text-slate-900 dark:text-white">Cập nhật hồ sơ</h3>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Chỉnh sửa thông tin cá nhân và tài khoản ngân hàng</p>
+                                    <h3 className="font-bold text-slate-900 dark:text-white">{t("general.dashboard.myWork.updateProfile.title")}</h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("general.dashboard.myWork.updateProfile.desc")}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -105,7 +112,7 @@ export default function DashboardHomePage() {
                         <section className="flex flex-col bg-white shadow rounded-xl overflow-hidden">
                             <div className="flex items-center gap-4 shadow p-5">
                                 <UserRoundIcon className="text-green-600" />
-                                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Quản lý đội ngũ</h2>
+                                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">{t("general.dashboard.teamManagement.title")}</h2>
                             </div>
                             <div className="grid grid-cols-1 gap-3 p-5">
                                 <Card className="shadow-none border-gray-200">
@@ -114,8 +121,8 @@ export default function DashboardHomePage() {
                                             <ListTodoIcon />
                                         </div>
                                         <div className="flex flex-col flex-1">
-                                            <h3 className="font-bold text-slate-900 dark:text-white">Duyệt đơn nhân viên</h3>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Bạn có 3 yêu cầu đang chờ</p>
+                                            <h3 className="font-bold text-slate-900 dark:text-white">{t("general.dashboard.teamManagement.approveRequests.title")}</h3>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("general.dashboard.teamManagement.approveRequests.desc", { count: 3 })}</p>
                                         </div>
                                         <div className="w-6 h-6 flex items-center justify-center rounded-full bg-green-600 text-white text-xs font-bold">3</div>
                                     </CardContent>
@@ -126,8 +133,8 @@ export default function DashboardHomePage() {
                                             <NotebookPenIcon />
                                         </div>
                                         <div className="flex flex-col flex-1">
-                                            <h3 className="font-bold text-slate-900 dark:text-white">Báo cáo vắng mặt team</h3>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Tổng quan lịch nghỉ phép trong tuần</p>
+                                            <h3 className="font-bold text-slate-900 dark:text-white">{t("general.dashboard.teamManagement.absenceReport.title")}</h3>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("general.dashboard.teamManagement.absenceReport.desc")}</p>
                                         </div>
                                         <ChevronRightIcon className="text-gray-400" />
                                     </CardContent>
@@ -137,7 +144,7 @@ export default function DashboardHomePage() {
                         <section className="flex flex-col  bg-white shadow rounded-xl overflow-hidden">
                             <div className="flex items-center gap-4 shadow p-5">
                                 <UserCog2Icon className="text-amber-600" />
-                                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Quản trị nhân sự</h2>
+                                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">{t("general.dashboard.hrManagement.title")}</h2>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-5">
                                 <Card className="shadow-none border-gray-200">
@@ -146,12 +153,12 @@ export default function DashboardHomePage() {
                                             <UserRoundIcon />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-slate-900 dark:text-white">Danh sách nhân viên</h3>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Quản lý 245 nhân sự trong hệ thống</p>
+                                            <h3 className="font-bold text-slate-900 dark:text-white">{t("general.dashboard.hrManagement.employeeList.title")}</h3>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("general.dashboard.hrManagement.employeeList.desc", { count: 245 })}</p>
                                         </div>
                                         <div className="">
                                             <Button className="text-xs" variant={"link"}>
-                                                Xem chi tiết <ExternalLinkIcon size={14} />
+                                                {t("general.dashboard.hrManagement.employeeList.viewDetails")} <ExternalLinkIcon size={14} />
                                             </Button>
                                         </div>
                                     </CardContent>
@@ -162,8 +169,8 @@ export default function DashboardHomePage() {
                                             <ShieldUserIcon />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-slate-900 dark:text-white">Cấu hình chính sách</h3>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Thiết lập quy định nghỉ phép &amp; phúc lợi</p>
+                                            <h3 className="font-bold text-slate-900 dark:text-white">{t("general.dashboard.hrManagement.policyConfig.title")}</h3>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("general.dashboard.hrManagement.policyConfig.desc")}</p>
                                         </div>
                                         <div className="">
                                             <Button className="text-xs" variant={"link"}>
@@ -181,28 +188,28 @@ export default function DashboardHomePage() {
                     <section className="flex flex-col  bg-white shadow rounded-xl overflow-hidden">
                         <div className="flex items-center gap-4 shadow p-5">
                             <MonitorCogIcon />
-                            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Hệ thống</h2>
+                            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">{t("general.dashboard.system.title")}</h2>
                         </div>
                         <div className="">
                             <div className="flex flex-col divide-y divide-slate-100 dark:divide-slate-800">
                                 <div className="flex justify-between items-center p-5 text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 cursor-pointer">
                                     <div className="flex items-center gap-3">
                                         <SettingsIcon />
-                                        <span className="font-medium">Cài đặt hệ thống</span>
+                                        <span className="font-medium">{t("general.dashboard.system.settings")}</span>
                                     </div>
                                     <ChevronRightIcon />
                                 </div>
                                 <div className="flex justify-between items-center p-5 text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 cursor-pointer">
                                     <div className="flex items-center gap-3">
                                         <ScrollTextIcon />
-                                        <span className="font-medium">Audit Logs</span>
+                                        <span className="font-medium">{t("general.dashboard.system.auditLogs")}</span>
                                     </div>
                                     <ChevronRightIcon />
                                 </div>
                                 <div className="flex justify-between items-center p-5 text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 cursor-pointer">
                                     <div className="flex items-center gap-3">
                                         <DoorClosedLockedIcon />
-                                        <span className="font-medium">Phân quyền RBAC</span>
+                                        <span className="font-medium">{t("general.dashboard.system.rbac")}</span>
                                     </div>
                                     <ChevronRightIcon />
                                 </div>
@@ -215,30 +222,30 @@ export default function DashboardHomePage() {
                 <div className="rounded-xl bg-primary/10 p-1">
                     <div className="rounded-lg bg-white dark:bg-slate-900 p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                            <h3 className="text-lg font-bold">Tình hình nhân sự tháng này</h3>
+                            <h3 className="text-lg font-bold">{t("general.dashboard.stats.title")}</h3>
                             <div className="flex gap-2">
                                 <Badge variant={"outline"} className="text-xs">
-                                    +12 Nhân viên mới
+                                    {t("general.dashboard.stats.newEmployees", { count: 12 })}
                                 </Badge>
-                                <Badge variant={"outline"}>5 Vị trí đang tuyển</Badge>
+                                <Badge variant={"outline"}>{t("general.dashboard.stats.openPositions", { count: 5 })}</Badge>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             <div className="flex flex-col">
-                                <span className="text-xs text-slate-500 uppercase font-semibold">Tổng nhân sự</span>
-                                <span className="text-2xl font-black text-slate-900 dark:text-white">1,284</span>
+                                <span className="text-xs text-slate-500 uppercase font-semibold">{t("general.dashboard.stats.totalEmployees.label")}</span>
+                                <span className="text-2xl font-black text-slate-900 dark:text-white">{t("general.dashboard.stats.totalEmployees.value")}</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-xs text-slate-500 uppercase font-semibold">Nghỉ phép hôm nay</span>
-                                <span className="text-2xl font-black text-slate-900 dark:text-white">18</span>
+                                <span className="text-xs text-slate-500 uppercase font-semibold">{t("general.dashboard.stats.leavesToday.label")}</span>
+                                <span className="text-2xl font-black text-slate-900 dark:text-white">{t("general.dashboard.stats.leavesToday.value")}</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-xs text-slate-500 uppercase font-semibold">Tỉ lệ biến động</span>
-                                <span className="text-2xl font-black text-emerald">2.4%</span>
+                                <span className="text-xs text-slate-500 uppercase font-semibold">{t("general.dashboard.stats.turnoverRate.label")}</span>
+                                <span className="text-2xl font-black text-emerald">{t("general.dashboard.stats.turnoverRate.value")}</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-xs text-slate-500 uppercase font-semibold">Yêu cầu chờ duyệt</span>
-                                <span className="text-2xl font-black text-amber">42</span>
+                                <span className="text-xs text-slate-500 uppercase font-semibold">{t("general.dashboard.stats.pendingRequests.label")}</span>
+                                <span className="text-2xl font-black text-amber">{t("general.dashboard.stats.pendingRequests.value")}</span>
                             </div>
                         </div>
                     </div>

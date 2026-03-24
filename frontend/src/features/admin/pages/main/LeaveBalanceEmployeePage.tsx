@@ -8,32 +8,34 @@ import type { User, UserResponse } from "@/types/user"
 import { useQuery } from "@tanstack/react-query"
 import { CirclePlus, Download, Edit, SaveIcon, Search, X } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 export default function LeaveBalanceEmployeePage() {
+    const { t } = useTranslation();
     const departmentsData = [
-        { value: "all", label: "All Departments" },
-        { value: "tech", label: "Engineering" },
-        { value: "production", label: "Production" },
-        { value: "r&d", label: "Research & Development" },
-        { value: "hr", label: "Human Resources" },
-        { value: "log", label: "Logistics" },
-        { value: "qa", label: "Quality Assurance" },
-        { value: "sys", label: "System" },
+        { value: "all", label: t("admin.employees.filters.allDepartments", "All Departments") },
+        { value: "tech", label: t("admin.common.departments.engineering") },
+        { value: "production", label: t("admin.common.departments.production") },
+        { value: "r&d", label: t("admin.common.departments.rnd") },
+        { value: "hr", label: t("admin.common.departments.hr") },
+        { value: "log", label: t("admin.common.departments.logistics") },
+        { value: "qa", label: t("admin.common.departments.qa") },
+        { value: "sys", label: t("admin.common.departments.system") },
     ]
 
     const annualsData = [
-        { value: "all", label: "All Annuals" },
-        { value: "sick", label: "Sick Leave" },
-        { value: "personal", label: "Personal Leave" },
-        { value: "compensatory", label: "Compensatory Leave" },
-        { value: "vacation", label: "Vacation Leave" },
+        { value: "all", label: t("admin.employees.filters.allAnnuals", "All Annuals") },
+        { value: "sick", label: t("admin.employees.filters.sickLeave", "Sick Leave") },
+        { value: "personal", label: t("admin.employees.filters.personalLeave", "Personal Leave") },
+        { value: "compensatory", label: t("admin.employees.filters.compensatoryLeave", "Compensatory Leave") },
+        { value: "vacation", label: t("admin.employees.filters.vacationLeave", "Vacation Leave") },
     ]
 
     const locationData = [
-        { value: "all", label: "All Locations" },
-        { value: "new_york", label: "New York" },
-        { value: "london", label: "London" },
-        { value: "remote", label: "Remote" },
+        { value: "all", label: t("admin.employees.filters.allLocations", "All Locations") },
+        { value: "new_york", label: t("admin.employees.filters.newYork", "New York") },
+        { value: "london", label: t("admin.employees.filters.london", "London") },
+        { value: "remote", label: t("admin.employees.filters.remote", "Remote") },
     ]
 
     const { data, isLoading } = useQuery<UserResponse>({
@@ -42,7 +44,14 @@ export default function LeaveBalanceEmployeePage() {
     })
     const [adjustEmp, setAdjustEmp] = useState<User | null>(null)
 
-    const columns = ["EMPLOYEE", "DEPARTMENT", "LEAVE TYPE", "USED / TOTAL", "BALANCE", "ACTIONS"]
+    const columns = [
+        t("admin.employees.table.employee", "EMPLOYEE"),
+        t("admin.employees.table.department", "DEPARTMENT"),
+        t("admin.employees.table.leaveType", "LEAVE TYPE"),
+        t("admin.employees.table.usedTotal", "USED / TOTAL"),
+        t("admin.employees.table.balance", "BALANCE"),
+        t("admin.employees.table.actions", "ACTIONS")
+    ]
 
     console.log(data)
 
@@ -58,15 +67,15 @@ export default function LeaveBalanceEmployeePage() {
                         <CardContent>
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div>
-                                    <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Leave Balances</h1>
-                                    <p className="text-sm text-neutral-500 mt-1">Manage and audit employee leave entitlements and usage.</p>
+                                    <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">{t("admin.employees.title")}</h1>
+                                    <p className="text-sm text-neutral-500 mt-1">{t("admin.employees.subtitle")}</p>
                                 </div>
                                 <div className="flex gap-3">
                                     <Button className="h-10" variant={"outline"}>
-                                        <Download /> Export Report
+                                        <Download /> {t("admin.employees.exportReport")}
                                     </Button>
                                     <Button className="h-10">
-                                        <CirclePlus /> New Adjustment
+                                        <CirclePlus /> {t("admin.employees.newAdjustment")}
                                     </Button>
                                 </div>
                             </div>
@@ -77,13 +86,13 @@ export default function LeaveBalanceEmployeePage() {
                             <div className="flex flex-col lg:flex-row gap-4">
                                 <div className="flex-1 relative h-12">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 " size={20} />
-                                    <Input className="w-full h-full pl-10" placeholder="Search by name, ID or email..." type="text" />
+                                    <Input className="w-full h-full pl-10" placeholder={t("admin.employees.searchPlaceholder")} type="text" />
                                 </div>
                                 <div className="flex flex-wrap sm:flex-nowrap gap-3">
-                                    <CSelectOptions data={departmentsData} valueKey="value" displayKey="label" placeholder="Department" />
+                                    <CSelectOptions data={departmentsData} valueKey="value" displayKey="label" placeholder={t("admin.employees.filters.department", "Department")} />
 
-                                    <CSelectOptions data={locationData} valueKey="value" displayKey="label" placeholder="Location" />
-                                    <CSelectOptions data={annualsData} valueKey="value" displayKey="label" placeholder="Leave Type" />
+                                    <CSelectOptions data={locationData} valueKey="value" displayKey="label" placeholder={t("admin.employees.filters.location", "Location")} />
+                                    <CSelectOptions data={annualsData} valueKey="value" displayKey="label" placeholder={t("admin.employees.filters.leaveType", "Leave Type")} />
                                 </div>
                             </div>
                         </CardContent>
@@ -114,16 +123,16 @@ export default function LeaveBalanceEmployeePage() {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">{item?.departmentId?.originName || "System"}</td>
+                                                <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">{item?.departmentId?.originName || t("admin.employees.adjustModal.system")}</td>
                                                 <td className="py-4 px-6">
                                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                                        Annual Leave
+                                                        {t("admin.employees.filters.annual", "Annual Leave")}
                                                     </span>
                                                 </td>
                                                 <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">12 / 20</td>
                                                 <td className="py-4 px-6 text-right">
                                                     <span className="font-bold text-neutral-900 dark:text-white font-mono text-base">8.0</span>
-                                                    <span className="text-xs text-neutral-400 ml-1">days</span>
+                                                    <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
                                                 </td>
                                                 <td className="py-4 px-6 text-right">
                                                     <Button variant={"ghost"} onClick={() => setAdjustEmp(item)}>
@@ -137,16 +146,16 @@ export default function LeaveBalanceEmployeePage() {
                             </div>
                             <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between">
                                 <div className="text-sm text-neutral-500">
-                                    Showing <span className="font-medium text-neutral-900 dark:text-white">1</span> to{" "}
-                                    <span className="font-medium text-neutral-900 dark:text-white">{data?.meta.limit}</span> of{" "}
-                                    <span className="font-medium text-neutral-900 dark:text-white">{data?.meta.total}</span> employees
+                                    {t("admin.employees.pagination.showing")} <span className="font-medium text-neutral-900 dark:text-white">1</span> {t("admin.employees.pagination.to")}{" "}
+                                    <span className="font-medium text-neutral-900 dark:text-white">{data?.meta.limit}</span> {t("admin.employees.pagination.of")}{" "}
+                                    <span className="font-medium text-neutral-900 dark:text-white">{data?.meta.total}</span> {t("admin.employees.pagination.employees")}
                                 </div>
                                 <div className="flex gap-2">
                                     <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 disabled:opacity-50 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-                                        Previous
+                                        {t("admin.employees.pagination.previous")}
                                     </button>
                                     <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-                                        Next
+                                        {t("admin.employees.pagination.next")}
                                     </button>
                                 </div>
                             </div>
@@ -160,8 +169,8 @@ export default function LeaveBalanceEmployeePage() {
             >
                 <div className="px-6 py-5 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between bg-neutral-50 dark:bg-neutral-800/50">
                     <div>
-                        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Adjust Balance</h2>
-                        <p className="text-xs text-neutral-500 mt-0.5">Edit leave details for selected employee.</p>
+                        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">{t("admin.employees.adjustModal.title")}</h2>
+                        <p className="text-xs text-neutral-500 mt-0.5">{t("admin.employees.adjustModal.subtitle")}</p>
                     </div>
                     <Button variant={"ghost"} onClick={() => setAdjustEmp(null)}>
                         <X />
@@ -177,39 +186,39 @@ export default function LeaveBalanceEmployeePage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="p-3 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800/50">
-                            <div className="text-xs text-neutral-500 mb-1">Current Balance</div>
+                            <div className="text-xs text-neutral-500 mb-1">{t("admin.employees.adjustModal.currentBalance")}</div>
                             <div className="text-xl font-bold text-neutral-900 dark:text-white font-mono">
-                                8.0 <span className="text-xs font-normal text-neutral-400">days</span>
+                                8.0 <span className="text-xs font-normal text-neutral-400">{t("admin.employees.adjustModal.days")}</span>
                             </div>
                         </div>
                         <div className="p-3 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800/50">
-                            <div className="text-xs text-neutral-500 mb-1">Annual Limit</div>
+                            <div className="text-xs text-neutral-500 mb-1">{t("admin.employees.adjustModal.annualLimit")}</div>
                             <div className="text-xl font-bold text-neutral-900 dark:text-white font-mono">
-                                20 <span className="text-xs font-normal text-neutral-400">days</span>
+                                20 <span className="text-xs font-normal text-neutral-400">{t("admin.employees.adjustModal.days")}</span>
                             </div>
                         </div>
                     </div>
                     <form className="space-y-5">
                         <div>
-                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Adjustment Type</label>
+                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">{t("admin.employees.adjustModal.adjType")}</label>
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="cursor-pointer">
                                     <input className="peer sr-only" name="adj-type" type="radio" />
                                     <div className="text-center py-2 px-3 border border-neutral-200 dark:border-neutral-600 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition-colors">
-                                        Add Days (+)
+                                        {t("admin.employees.adjustModal.addDays")}
                                     </div>
                                 </label>
                                 <label className="cursor-pointer">
                                     <input className="peer sr-only" name="adj-type" type="radio" />
                                     <div className="text-center py-2 px-3 border border-neutral-200 dark:border-neutral-600 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition-colors">
-                                        Deduct Days (-)
+                                        {t("admin.employees.adjustModal.deductDays")}
                                     </div>
                                 </label>
                             </div>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5" htmlFor="days">
-                                Number of Days
+                                {t("admin.employees.adjustModal.numDays")}
                             </label>
                             <div className="relative">
                                 <input
@@ -219,29 +228,29 @@ export default function LeaveBalanceEmployeePage() {
                                     type="number"
                                     value="2.0"
                                 />
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-medium pointer-events-none">Days</div>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-medium pointer-events-none">{t("admin.employees.adjustModal.days")}</div>
                             </div>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5" htmlFor="reason">
-                                Reason for Adjustment
+                                {t("admin.employees.adjustModal.reason")}
                             </label>
                             <textarea
                                 className="w-full px-4 py-2.5 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white resize-none text-sm placeholder-neutral-400"
                                 id="reason"
-                                placeholder="e.g., Correction of data entry error..."
+                                placeholder={t("admin.employees.adjustModal.reasonPlaceholder")}
                                 rows={3}
                             ></textarea>
                         </div>
                         <div className="pt-4 border-t border-neutral-200 dark:border-neutral-700">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">New Balance Preview</span>
-                                <span className="text-lg font-bold text-primary dark:text-blue-400 font-mono">10.0 days</span>
+                                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">{t("admin.employees.adjustModal.preview")}</span>
+                                <span className="text-lg font-bold text-primary dark:text-blue-400 font-mono">10.0 {t("admin.employees.adjustModal.days")}</span>
                             </div>
                         </div>
                     </form>
                     <div className="pt-2">
-                        <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Recent Changes</h3>
+                        <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">{t("admin.employees.adjustModal.recentChanges")}</h3>
                         <div className="relative border-l border-neutral-200 dark:border-neutral-700 ml-2 space-y-4">
                             <div className="ml-4 relative">
                                 <div className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
@@ -261,10 +270,10 @@ export default function LeaveBalanceEmployeePage() {
                 <div className="p-6 border-t border-neutral-200 dark:border-neutral-700 bg-surface-light dark:bg-surface-dark mt-auto">
                     <div className="flex gap-3">
                         <Button variant={"outline"} className="flex-1" onClick={() => setAdjustEmp(null)}>
-                            Cancel
+                            {t("admin.employees.adjustModal.cancel")}
                         </Button>
                         <Button className="flex-1" onClick={handleSaveChanges}>
-                            <SaveIcon /> Save Changes
+                            <SaveIcon /> {t("admin.employees.adjustModal.save")}
                         </Button>
                     </div>
                 </div>

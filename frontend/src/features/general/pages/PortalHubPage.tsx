@@ -1,46 +1,48 @@
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "react-i18next"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronRight } from "lucide-react"
 
 import { Link } from "react-router-dom"
 
 export default function PortalHubPage() {
+    const { t } = useTranslation()
     const portalHubs = [
         {
-            name: "Employee Portal",
-            description: "View your payslips, request time off, manage your personal profile, and access your benefits information.",
+            name: t("general.portalHub.portals.employee.name"),
+            description: t("general.portalHub.portals.employee.desc"),
             icon: "badge",
             bgColor: "bg-blue-500/10",
             color: "text-blue-900",
             link: "/employee",
         },
         {
-            name: "Manager Panel",
-            description: "Approve leave requests, review team performance, manage schedules, and oversee departmental goals.",
+            name: t("general.portalHub.portals.manager.name"),
+            description: t("general.portalHub.portals.manager.desc"),
             icon: "supervised_user_circle",
             bgColor: "bg-sky-500/10",
             color: "text-sky-900",
             link: "/approvals",
         },
         {
-            name: "Admin Settings",
-            description: "Configure system settings, manage user roles, update global policies, and view system audit logs.",
+            name: t("general.portalHub.portals.admin.name"),
+            description: t("general.portalHub.portals.admin.desc"),
             icon: "settings",
             bgColor: "bg-gray-500/10",
             color: "text-gray-900",
             link: "/admin",
         },
         {
-            name: "Login Page",
-            description: "Login page for the application.",
+            name: t("general.portalHub.portals.login.name"),
+            description: t("general.portalHub.portals.login.desc"),
             icon: "verified_user",
             bgColor: "bg-red-500/10",
             color: "text-red-900",
             link: "/auth/login",
         },
         {
-            name: "NotFound Page",
-            description: "Notfound page for the application.",
+            name: t("general.portalHub.portals.notFound.name"),
+            description: t("general.portalHub.portals.notFound.desc"),
             icon: "sync_problem",
             bgColor: "bg-red-500/10",
             color: "text-red-900",
@@ -51,8 +53,8 @@ export default function PortalHubPage() {
         <div className="max-w-5xl mx-auto py-10 ">
             <div className="space-y-5">
                 <div className="text-center mb-12">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome to the Hub</h1>
-                    <p className="text-gray-500 dark:text-gray-400 text-lg">Select a module to continue your session.</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t("general.portalHub.welcomeTitle")}</h1>
+                    <p className="text-gray-500 dark:text-gray-400 text-lg">{t("general.portalHub.welcomeDesc")}</p>
                 </div>
                 <div className="grid grid-cols-3 gap-5">
                     {portalHubs.map((hub) => (
@@ -69,7 +71,7 @@ export default function PortalHubPage() {
                                 </div>
                                 <Link to={hub.link}>
                                     <Button className="w-full">
-                                        Visit <ChevronRight />
+                                        {t("general.portalHub.visit")} <ChevronRight />
                                     </Button>
                                 </Link>
                             </CardContent>
@@ -79,11 +81,11 @@ export default function PortalHubPage() {
 
                 <div className="mt-8 flex justify-center gap-6 text-sm text-gray-400 dark:text-gray-500">
                     <a className="hover:text-primary dark:hover:text-primary-300 transition-colors" href="#">
-                        Help Center
+                        {t("general.portalHub.helpCenter")}
                     </a>
                     <span className="text-gray-300 dark:text-gray-600">•</span>
                     <a className="hover:text-primary dark:hover:text-primary-300 transition-colors" href="#">
-                        Privacy Policy
+                        {t("general.portalHub.privacyPolicy")}
                     </a>
                     <span className="text-gray-300 dark:text-gray-600">•</span>
                     <span className="cursor-default">v4.2.0</span>

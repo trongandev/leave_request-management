@@ -1,45 +1,49 @@
+import { useTranslation } from "react-i18next";
+
 export default function ApprovalWorkflowConfigPage() {
+    const { t } = useTranslation();
+
     return (
         <main className="">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Approval Workflow Configuration</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Define and manage multi-level approval sequences for department requests.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t("admin.configuration.approvalWorkflow.title")}</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("admin.configuration.approvalWorkflow.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
                     <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-button text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
-                        Export Config
+                        {t("admin.configuration.approvalWorkflow.exportConfig")}
                     </button>
                     <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-button text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">add</span>
-                        Create New Workflow
+                        {t("admin.configuration.approvalWorkflow.createNew")}
                     </button>
                 </div>
             </div>
             <div className="mb-8 flex items-center gap-4 bg-white dark:bg-neutral-dark p-4 rounded-lg border border-slate-200 dark:border-slate-800">
                 <div className="flex-1 max-w-xs">
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Filter by Department</label>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t("admin.configuration.approvalWorkflow.filters.department")}</label>
                     <select className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-button text-sm focus:ring-primary focus:border-primary">
-                        <option>All Departments</option>
-                        <option>Engineering</option>
-                        <option>Human Resources</option>
-                        <option>Sales &amp; Marketing</option>
-                        <option>Finance</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.allDepts")}</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.engineering")}</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.hr")}</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.sales")}</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.finance")}</option>
                     </select>
                 </div>
                 <div className="flex-1 max-w-xs">
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Request Type</label>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t("admin.configuration.approvalWorkflow.filters.requestType")}</label>
                     <select className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-button text-sm focus:ring-primary focus:border-primary">
-                        <option>All Types</option>
-                        <option>Annual Leave</option>
-                        <option>Sick Leave</option>
-                        <option>Remote Work</option>
-                        <option>Overtime</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.allTypes")}</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.annualLeave")}</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.sickLeave")}</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.remoteWork")}</option>
+                        <option>{t("admin.configuration.approvalWorkflow.filters.overtime")}</option>
                     </select>
                 </div>
                 <div className="ml-auto flex items-center gap-2 text-slate-400 italic text-sm">
                     <span className="material-icons text-[18px]">info</span>
-                    Changes apply to new requests only
+                    {t("admin.configuration.approvalWorkflow.infoMsg")}
                 </div>
             </div>
             <div className="space-y-6">
@@ -50,8 +54,8 @@ export default function ApprovalWorkflowConfigPage() {
                                 <span className="material-icons">engineering</span>
                             </div>
                             <div>
-                                <h3 className="text-base font-bold text-slate-900 dark:text-white">Engineering Department</h3>
-                                <p className="text-xs text-slate-500">Standard Leave Approval Workflow</p>
+                                <h3 className="text-base font-bold text-slate-900 dark:text-white">{t("admin.configuration.approvalWorkflow.engineeringDept.title")}</h3>
+                                <p className="text-xs text-slate-500">{t("admin.configuration.approvalWorkflow.engineeringDept.subtitle")}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -68,7 +72,7 @@ export default function ApprovalWorkflowConfigPage() {
                             <div className="shrink-0 w-64 workflow-connector">
                                 <div className="flex items-center gap-2 mb-3">
                                     <span className="w-6 h-6 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">01</span>
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Initial Review</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("admin.configuration.approvalWorkflow.engineeringDept.step1.title")}</span>
                                 </div>
                                 <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 rounded-lg">
                                     <div className="flex items-center gap-3">
@@ -76,8 +80,8 @@ export default function ApprovalWorkflowConfigPage() {
                                             <span className="material-icons text-slate-400 text-[18px]">person</span>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Dept Manager</p>
-                                            <p className="text-[11px] text-slate-500">Direct Supervisor</p>
+                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t("admin.configuration.approvalWorkflow.engineeringDept.step1.role")}</p>
+                                            <p className="text-[11px] text-slate-500">{t("admin.configuration.approvalWorkflow.engineeringDept.step1.desc")}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -85,7 +89,7 @@ export default function ApprovalWorkflowConfigPage() {
                             <div className="shrink-0 w-64 workflow-connector">
                                 <div className="flex items-center gap-2 mb-3">
                                     <span className="w-6 h-6 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">02</span>
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Resource Check</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("admin.configuration.approvalWorkflow.engineeringDept.step2.title")}</span>
                                 </div>
                                 <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 rounded-lg">
                                     <div className="flex items-center gap-3">
@@ -93,8 +97,8 @@ export default function ApprovalWorkflowConfigPage() {
                                             <span className="material-icons text-slate-400 text-[18px]">badge</span>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">HR Specialist</p>
-                                            <p className="text-[11px] text-slate-500">Leave Coordinator</p>
+                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t("admin.configuration.approvalWorkflow.engineeringDept.step2.role")}</p>
+                                            <p className="text-[11px] text-slate-500">{t("admin.configuration.approvalWorkflow.engineeringDept.step2.desc")}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -104,11 +108,11 @@ export default function ApprovalWorkflowConfigPage() {
                                     <span className="w-6 h-6 rounded-full border-2 border-dashed border-slate-300 dark:border-slate-600 text-slate-400 text-[10px] font-bold flex items-center justify-center">
                                         03
                                     </span>
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Final Step</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("admin.configuration.approvalWorkflow.engineeringDept.step3")}</span>
                                 </div>
                                 <button className="w-full h-[62px] border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-center gap-2 text-slate-400 hover:border-primary hover:text-primary transition-all group">
                                     <span className="material-icons text-[18px]">add_circle_outline</span>
-                                    <span className="text-sm font-medium">Add Approval Step</span>
+                                    <span className="text-sm font-medium">{t("admin.configuration.approvalWorkflow.addStep")}</span>
                                 </button>
                             </div>
                         </div>
@@ -121,8 +125,8 @@ export default function ApprovalWorkflowConfigPage() {
                                 <span className="material-icons">payments</span>
                             </div>
                             <div>
-                                <h3 className="text-base font-bold text-slate-900 dark:text-white">Finance &amp; Operations</h3>
-                                <p className="text-xs text-slate-500">Executive Leave &amp; Expense Workflow</p>
+                                <h3 className="text-base font-bold text-slate-900 dark:text-white">{t("admin.configuration.approvalWorkflow.financeDept.title")}</h3>
+                                <p className="text-xs text-slate-500">{t("admin.configuration.approvalWorkflow.financeDept.subtitle")}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -139,7 +143,7 @@ export default function ApprovalWorkflowConfigPage() {
                             <div className="shrink-0 w-64 workflow-connector">
                                 <div className="flex items-center gap-2 mb-3">
                                     <span className="w-6 h-6 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">01</span>
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Dept Head Approval</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("admin.configuration.approvalWorkflow.financeDept.step1.title")}</span>
                                 </div>
                                 <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 rounded-lg">
                                     <div className="flex items-center gap-3">
@@ -147,8 +151,8 @@ export default function ApprovalWorkflowConfigPage() {
                                             <span className="material-icons text-slate-400 text-[18px]">manage_accounts</span>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Finance Director</p>
-                                            <p className="text-[11px] text-slate-500">Primary Approver</p>
+                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t("admin.configuration.approvalWorkflow.financeDept.step1.role")}</p>
+                                            <p className="text-[11px] text-slate-500">{t("admin.configuration.approvalWorkflow.financeDept.step1.desc")}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -156,7 +160,7 @@ export default function ApprovalWorkflowConfigPage() {
                             <div className="shrink-0 w-64 workflow-connector">
                                 <div className="flex items-center gap-2 mb-3">
                                     <span className="w-6 h-6 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">02</span>
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Executive Sanction</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("admin.configuration.approvalWorkflow.financeDept.step2.title")}</span>
                                 </div>
                                 <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 rounded-lg">
                                     <div className="flex items-center gap-3">
@@ -164,8 +168,8 @@ export default function ApprovalWorkflowConfigPage() {
                                             <span className="material-icons text-slate-400 text-[18px]">account_balance</span>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">CFO</p>
-                                            <p className="text-[11px] text-slate-500">Financial Oversight</p>
+                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t("admin.configuration.approvalWorkflow.financeDept.step2.role")}</p>
+                                            <p className="text-[11px] text-slate-500">{t("admin.configuration.approvalWorkflow.financeDept.step2.desc")}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -173,7 +177,7 @@ export default function ApprovalWorkflowConfigPage() {
                             <div className="shrink-0 w-64">
                                 <div className="flex items-center gap-2 mb-3">
                                     <span className="w-6 h-6 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">03</span>
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">HR Compliance</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("admin.configuration.approvalWorkflow.financeDept.step3.title")}</span>
                                 </div>
                                 <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 rounded-lg">
                                     <div className="flex items-center gap-3">
@@ -181,8 +185,8 @@ export default function ApprovalWorkflowConfigPage() {
                                             <span className="material-icons text-slate-400 text-[18px]">gavel</span>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">HR Director</p>
-                                            <p className="text-[11px] text-slate-500">Legal Verification</p>
+                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t("admin.configuration.approvalWorkflow.financeDept.step3.role")}</p>
+                                            <p className="text-[11px] text-slate-500">{t("admin.configuration.approvalWorkflow.financeDept.step3.desc")}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -194,7 +198,7 @@ export default function ApprovalWorkflowConfigPage() {
             <div className="mt-8 flex justify-center">
                 <button className="flex items-center gap-2 px-6 py-3 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg text-slate-500 hover:text-primary hover:border-primary transition-all font-medium">
                     <span className="material-icons">add_circle</span>
-                    Configure Workflow for another Department
+                    {t("admin.configuration.approvalWorkflow.configureAnother")}
                 </button>
             </div>
         </main>

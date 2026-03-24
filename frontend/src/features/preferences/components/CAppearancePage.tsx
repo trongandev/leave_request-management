@@ -10,26 +10,26 @@ export default function CAppearancePage() {
     const { t, i18n } = useTranslation()
     const { theme, setTheme } = useTheme()
     const dateFormats = [
-        { value: "DD/MM/YYYY", label: "DD/MM/YYYY" },
-        { value: "MM/DD/YYYY", label: "MM/DD/YYYY" },
-        { value: "YYYY-MM-DD", label: "YYYY-MM-DD" },
+        { value: "DD/MM/YYYY", label: t("preferences.localization.format.dateOptions.dayMonthYear") },
+        { value: "MM/DD/YYYY", label: t("preferences.localization.format.dateOptions.monthDayYear") },
+        { value: "YYYY-MM-DD", label: t("preferences.localization.format.dateOptions.yearMonthDay") },
     ]
     const systemFonts = [
-        { value: "Inter", label: "Inter" },
-        { value: "Roboto", label: "Roboto" },
-        { value: "Open Sans", label: "Open Sans" },
+        { value: "Inter", label: t("preferences.appearance.interface.fontOptions.inter") },
+        { value: "Roboto", label: t("preferences.appearance.interface.fontOptions.roboto") },
+        { value: "Open Sans", label: t("preferences.appearance.interface.fontOptions.openSans") },
     ]
     const accentColors = [
-        { value: "blue", label: "Ocean Blue", bgDot: "bg-primary", borderColor: "border-primary", className: "text-primary! bg-primary/5" },
-        { value: "green", label: "Emerald Green", bgDot: "bg-green-500", borderColor: "border-emerald-500", className: "text-green-700! hover:border-emerald-500" },
-        { value: "purple", label: "Royal purple", bgDot: "bg-purple-500", borderColor: "border-purple-500", className: "text-purple-700! hover:border-purple-500  " },
+        { value: "blue", label: t("preferences.appearance.interface.theme.colors.blue"), bgDot: "bg-primary", borderColor: "border-primary", className: "text-primary! bg-primary/5" },
+        { value: "green", label: t("preferences.appearance.interface.theme.colors.green"), bgDot: "bg-green-500", borderColor: "border-emerald-500", className: "text-green-700! hover:border-emerald-500" },
+        { value: "purple", label: t("preferences.appearance.interface.theme.colors.purple"), bgDot: "bg-purple-500", borderColor: "border-purple-500", className: "text-purple-700! hover:border-purple-500  " },
     ]
     const themeData = [
-        { value: "light", label: "Light Mode", bgColor: "bg-slate-50", bgColor2: "bg-white", borderColor: "border-slate-200", borderColor2: "border-slate-200" },
-        { value: "dark", label: "Dark Mode", bgColor: "bg-slate-900", bgColor2: "bg-slate-800", borderColor: "border-slate-800", borderColor2: "border-slate-700" },
+        { value: "light", label: t("preferences.appearance.interface.theme.label.light"), bgColor: "bg-slate-50", bgColor2: "bg-white", borderColor: "border-slate-200", borderColor2: "border-slate-200" },
+        { value: "dark", label: t("preferences.appearance.interface.theme.label.dark"), bgColor: "bg-slate-900", bgColor2: "bg-slate-800", borderColor: "border-slate-800", borderColor2: "border-slate-700" },
         {
             value: "system",
-            label: "System Default",
+            label: t("preferences.appearance.interface.theme.label.system"),
             bgColor: "bg-linear-to-br from-slate-50 to-slate-900",
             bgColor2: "bg-slate-400/20 backdrop-blur",
             borderColor: "border-slate-300",
@@ -37,8 +37,8 @@ export default function CAppearancePage() {
         },
     ]
     const sidebarData = [
-        { value: "left", label: "Left" },
-        { value: "right", label: "Right" },
+        { value: "left", label: t("preferences.appearance.interface.sidebarData.left") },
+        { value: "right", label: t("preferences.appearance.interface.sidebarData.right") },
     ]
 
     const [selectedDateFormat, setSelectedDateFormat] = useState(dateFormats[0].value)
@@ -95,7 +95,7 @@ export default function CAppearancePage() {
                         ))}
                     </div>
                     <div className="space-y-4">
-                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Accent Color</p>
+                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("preferences.appearance.interface.theme.accentColor")}</p>
                         <div className="flex gap-4">
                             {accentColors.map((item) => (
                                 <Button
@@ -149,18 +149,18 @@ export default function CAppearancePage() {
                     </div>
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label className="mb-2">{t("preferences.localization.language")}</Label>
+                            <Label className="mb-2">{t("preferences.localization.language.title")}</Label>
                             <div className="flex gap-2">
                                 <Button variant={i18n.language === "en" ? "default" : "secondary"} className="" onClick={() => handleChangeLng("en")}>
-                                    {t("preferences.localization.en")}
+                                    {t("preferences.localization.language.options.en")}
                                 </Button>
                                 <Button variant={i18n.language === "vi" ? "default" : "secondary"} className="" onClick={() => handleChangeLng("vi")}>
-                                    {t("preferences.localization.vi")}
+                                    {t("preferences.localization.language.options.vi")}
                                 </Button>
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label className="">{t("preferences.localization.date")}</Label>
+                            <Label className="">{t("preferences.localization.format.date")}</Label>
                             <CSelectOptions data={dateFormats} valueKey="value" displayKey="label" value={selectedDateFormat} onChangeValue={setSelectedDateFormat} />
                         </div>
                     </div>
@@ -170,16 +170,16 @@ export default function CAppearancePage() {
             <Card>
                 <CardContent>
                     <div className="mb-6">
-                        <h3 className="text-slate-900 dark:text-white text-lg font-bold">Notifications</h3>
-                        <p className="text-slate-500 text-sm">Manage how and when you receive system alerts.</p>
+                        <h3 className="text-slate-900 dark:text-white text-lg font-bold">{t("preferences.notification.title")}</h3>
+                        <p className="text-slate-500 text-sm">{t("preferences.notification.desc")}</p>
                     </div>
                     <div className="space-y-4">
                         <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-slate-400">mail</span>
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-900 dark:text-white">Email Notifications</p>
-                                    <p className="text-xs text-slate-500">Receive summaries of pending tasks and approvals.</p>
+                                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.notification.mail.title")}</p>
+                                    <p className="text-xs text-slate-500">{t("preferences.notification.mail.desc")}</p>
                                 </div>
                             </div>
                             <button className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-primary transition-colors duration-200 ease-in-out focus:outline-none">
@@ -190,8 +190,8 @@ export default function CAppearancePage() {
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-slate-400">volume_up</span>
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-900 dark:text-white">System Sounds</p>
-                                    <p className="text-xs text-slate-500">Play a sound for new messages and status updates.</p>
+                                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.notification.sound.title")}</p>
+                                    <p className="text-xs text-slate-500">{t("preferences.notification.sound.desc")}</p>
                                 </div>
                             </div>
                             <button className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-slate-200 dark:bg-slate-700 transition-colors duration-200 ease-in-out focus:outline-none">
@@ -202,8 +202,8 @@ export default function CAppearancePage() {
                 </CardContent>
             </Card>
             <div className="flex items-center justify-end gap-3 pb-20">
-                <button className="px-6 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">Discard Changes</button>
-                <button className="px-8 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-lg shadow-primary/20 transition-all">Save Preferences</button>
+                <button className="px-6 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">{t("preferences.changes.discard")}</button>
+                <button className="px-8 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-lg shadow-primary/20 transition-all">{t("preferences.changes.save")}</button>
             </div>
         </div>
     )

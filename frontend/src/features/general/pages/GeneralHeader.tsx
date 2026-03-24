@@ -1,10 +1,12 @@
 import CAvatarName from "@/components/etc/CAvatarName"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/useAuthStore"
 import { useSidebarStore } from "@/store/useSidebarStore"
 import { BellIcon, Menu } from "lucide-react"
 
 export default function GeneralHeader() {
+    const { t } = useTranslation()
     const toggleSidebar = useSidebarStore((state) => state.toggleSidebar)
     const { user } = useAuthStore()
     return (
@@ -13,7 +15,7 @@ export default function GeneralHeader() {
                 <Button variant="ghost" size="icon" onClick={toggleSidebar}>
                     <Menu />
                 </Button>
-                <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">Dashboard Overview</h1>
+                <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">{t("general.header.overview")}</h1>
             </div>
             <div className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" className="relative text-primary">

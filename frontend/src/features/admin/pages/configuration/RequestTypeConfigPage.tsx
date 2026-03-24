@@ -1,18 +1,22 @@
+import { useTranslation } from "react-i18next";
+
 export default function RequestTypeConfigPage() {
+    const { t } = useTranslation();
+
     return (
         <main className=" ">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Request Type Configuration</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage leave types, overtime rules, and approval workflows.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t("admin.configuration.requestType.title")}</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("admin.configuration.requestType.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
                     <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
-                        Export Rules
+                        {t("admin.configuration.requestType.export")}
                     </button>
                     <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">add</span>
-                        New Request Type
+                        {t("admin.configuration.requestType.newType")}
                     </button>
                 </div>
             </div>
@@ -23,15 +27,15 @@ export default function RequestTypeConfigPage() {
                     </span>
                     <input
                         className="block w-full pl-10 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg leading-5 bg-white dark:bg-neutral-dark text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm shadow-sm"
-                        placeholder="Search request types..."
+                        placeholder={t("admin.configuration.requestType.searchPlaceholder")}
                         type="text"
                     />
                 </div>
                 <div className="flex gap-2">
                     <select className="block w-full pl-3 pr-10 py-2 text-base border-slate-200 dark:border-slate-700 bg-white dark:bg-neutral-dark focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg shadow-sm text-slate-700 dark:text-slate-300">
-                        <option>All Statuses</option>
-                        <option>Active</option>
-                        <option>Inactive</option>
+                        <option>{t("admin.configuration.requestType.filters.allStatus")}</option>
+                        <option>{t("admin.configuration.requestType.filters.active")}</option>
+                        <option>{t("admin.configuration.requestType.filters.inactive")}</option>
                     </select>
                 </div>
             </div>
@@ -41,22 +45,22 @@ export default function RequestTypeConfigPage() {
                         <thead className="bg-slate-50 dark:bg-slate-800/50">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/4" scope="col">
-                                    Request Type
+                                    {t("admin.configuration.requestType.table.requestType")}
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/6" scope="col">
-                                    Code
+                                    {t("admin.configuration.requestType.table.code")}
                                 </th>
                                 <th className="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/6" scope="col">
-                                    Approval Levels
+                                    {t("admin.configuration.requestType.table.approvalLevels")}
                                 </th>
                                 <th className="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/6" scope="col">
-                                    Require Attachment
+                                    {t("admin.configuration.requestType.table.requireAttachment")}
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/6" scope="col">
-                                    Status
+                                    {t("admin.configuration.requestType.table.status")}
                                 </th>
                                 <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/12" scope="col">
-                                    Actions
+                                    {t("admin.configuration.requestType.table.actions")}
                                 </th>
                             </tr>
                         </thead>
@@ -68,8 +72,8 @@ export default function RequestTypeConfigPage() {
                                             <span className="material-icons text-[20px]">flight_takeoff</span>
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-slate-900 dark:text-white">Annual Leave</div>
-                                            <div className="text-xs text-slate-500">Paid Time Off</div>
+                                            <div className="text-sm font-medium text-slate-900 dark:text-white">{t("admin.configuration.requestType.types.annual")}</div>
+                                            <div className="text-xs text-slate-500">{t("admin.configuration.requestType.types.annualDesc")}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -107,7 +111,7 @@ export default function RequestTypeConfigPage() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ghost-tag-active">
                                         <span className="w-1.5 h-1.5 bg-primary rounded-full mr-1.5"></span>
-                                        Active
+                                        {t("admin.configuration.requestType.filters.active")}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -126,8 +130,8 @@ export default function RequestTypeConfigPage() {
                                             <span className="material-icons text-[20px]">local_hospital</span>
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-slate-900 dark:text-white">Sick Leave</div>
-                                            <div className="text-xs text-slate-500">Medical Certificate</div>
+                                            <div className="text-sm font-medium text-slate-900 dark:text-white">{t("admin.configuration.requestType.types.sick")}</div>
+                                            <div className="text-xs text-slate-500">{t("admin.configuration.requestType.types.sickDesc")}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -165,7 +169,7 @@ export default function RequestTypeConfigPage() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ghost-tag-active">
                                         <span className="w-1.5 h-1.5 bg-primary rounded-full mr-1.5"></span>
-                                        Active
+                                        {t("admin.configuration.requestType.filters.active")}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -184,8 +188,8 @@ export default function RequestTypeConfigPage() {
                                             <span className="material-icons text-[20px]">access_time</span>
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-slate-900 dark:text-white">Overtime Request</div>
-                                            <div className="text-xs text-slate-500">Hourly Compensation</div>
+                                            <div className="text-sm font-medium text-slate-900 dark:text-white">{t("admin.configuration.requestType.types.overtime")}</div>
+                                            <div className="text-xs text-slate-500">{t("admin.configuration.requestType.types.overtimeDesc")}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -223,7 +227,7 @@ export default function RequestTypeConfigPage() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ghost-tag-inactive">
                                         <span className="w-1.5 h-1.5 bg-slate-400 rounded-full mr-1.5"></span>
-                                        Inactive
+                                        {t("admin.configuration.requestType.filters.inactive")}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -242,8 +246,8 @@ export default function RequestTypeConfigPage() {
                                             <span className="material-icons text-[20px]">receipt_long</span>
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-slate-900 dark:text-white">Expense Claim</div>
-                                            <div className="text-xs text-slate-500">Travel &amp; Meals</div>
+                                            <div className="text-sm font-medium text-slate-900 dark:text-white">{t("admin.configuration.requestType.types.expense")}</div>
+                                            <div className="text-xs text-slate-500">{t("admin.configuration.requestType.types.expenseDesc")}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -281,7 +285,7 @@ export default function RequestTypeConfigPage() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ghost-tag-active">
                                         <span className="w-1.5 h-1.5 bg-primary rounded-full mr-1.5"></span>
-                                        Active
+                                        {t("admin.configuration.requestType.filters.active")}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -300,8 +304,8 @@ export default function RequestTypeConfigPage() {
                                             <span className="material-icons text-[20px]">home_work</span>
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-slate-900 dark:text-white">Remote Work</div>
-                                            <div className="text-xs text-slate-500">WFH Request</div>
+                                            <div className="text-sm font-medium text-slate-900 dark:text-white">{t("admin.configuration.requestType.types.remote")}</div>
+                                            <div className="text-xs text-slate-500">{t("admin.configuration.requestType.types.remoteDesc")}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -339,7 +343,7 @@ export default function RequestTypeConfigPage() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ghost-tag-active">
                                         <span className="w-1.5 h-1.5 bg-primary rounded-full mr-1.5"></span>
-                                        Active
+                                        {t("admin.configuration.requestType.filters.active")}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -358,8 +362,8 @@ export default function RequestTypeConfigPage() {
                     <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p className="text-sm text-slate-700 dark:text-slate-400">
-                                Showing <span className="font-medium text-slate-900 dark:text-white">1</span> to <span className="font-medium text-slate-900 dark:text-white">5</span> of{" "}
-                                <span className="font-medium text-slate-900 dark:text-white">12</span> results
+                                {t("admin.configuration.requestType.pagination.showing")} <span className="font-medium text-slate-900 dark:text-white">1</span> {t("admin.configuration.requestType.pagination.to")} <span className="font-medium text-slate-900 dark:text-white">5</span> {t("admin.configuration.requestType.pagination.of")}{" "}
+                                <span className="font-medium text-slate-900 dark:text-white">12</span> {t("admin.configuration.requestType.pagination.results")}
                             </p>
                         </div>
                         <div>
@@ -368,7 +372,7 @@ export default function RequestTypeConfigPage() {
                                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-neutral-dark text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
                                     href="#"
                                 >
-                                    <span className="sr-only">Previous</span>
+                                    <span className="sr-only">{t("admin.configuration.requestType.pagination.previous")}</span>
                                     <span className="material-icons text-[20px]">chevron_left</span>
                                 </a>
                                 <a aria-current="page" className="z-10 bg-primary/10 border-primary text-primary relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">
@@ -390,7 +394,7 @@ export default function RequestTypeConfigPage() {
                                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-neutral-dark text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
                                     href="#"
                                 >
-                                    <span className="sr-only">Next</span>
+                                    <span className="sr-only">{t("admin.configuration.requestType.pagination.next")}</span>
                                     <span className="material-icons text-[20px]">chevron_right</span>
                                 </a>
                             </nav>
@@ -401,7 +405,7 @@ export default function RequestTypeConfigPage() {
             <div className="mt-8 flex justify-end">
                 <button className="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg shadow-lg font-medium transition-transform active:scale-95 flex items-center gap-2">
                     <span className="material-icons">save</span>
-                    Save All Changes
+                    {t("admin.configuration.requestType.saveAll")}
                 </button>
             </div>
         </main>

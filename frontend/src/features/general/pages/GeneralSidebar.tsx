@@ -27,7 +27,7 @@ export default function GeneralSidebar() {
     const { user, logout } = useAuthStore()
     const { t } = useTranslation()
 
-    const [portalName, setPortalName] = useState("Employee Portal")
+    const [portalName, setPortalName] = useState(t("general.sidebar.portals.employee"))
     const roleName = user?.roleId.name
     const [newNav, setNewNav] = useState<typeof defaultNav>([])
 
@@ -112,16 +112,16 @@ export default function GeneralSidebar() {
         switch (roleName) {
             case "ADMIN":
                 setNewNav(adminNav)
-                setPortalName("Admin Portal")
+                setPortalName(t("general.sidebar.portals.admin"))
                 break
             case "HR":
             case "MANAGER":
                 setNewNav(approvalsNav)
-                setPortalName("Approval Portal")
+                setPortalName(t("general.sidebar.portals.approval"))
                 break
             default:
                 setNewNav(defaultNav)
-                setPortalName("Employee Portal")
+                setPortalName(t("general.sidebar.portals.employee"))
                 break
         }
     }, [user, roleName, defaultNav, approvalsNav, adminNav])

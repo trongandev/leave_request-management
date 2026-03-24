@@ -1,15 +1,26 @@
 import { Button } from "@/components/ui/button"
+import { useTranslation, Trans } from "react-i18next"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar, CircleCheck, ClipboardClock, ContactRound, Download, Edit, Eye, Search, Thermometer, Umbrella, Venus } from "lucide-react"
 
 export default function MyRequestHistoryListPage() {
+    const { t } = useTranslation()
     const dataDashboard = [
-        { label: "Pending", value: 3, icon: <ClipboardClock />, bgColor: "bg-yellow-50 text-yellow-600" },
-        { label: "Approved (YTD)", value: 12, icon: <CircleCheck />, bgColor: "bg-green-50 text-green-600" },
-        { label: "Leave Balance", value: 14, icon: <Calendar />, bgColor: "bg-blue-50 text-blue-600" },
+        { label: t("requests.history.stats.pending"), value: 3, icon: <ClipboardClock />, bgColor: "bg-yellow-50 text-yellow-600" },
+        { label: t("requests.history.stats.approvedYTD"), value: 12, icon: <CircleCheck />, bgColor: "bg-green-50 text-green-600" },
+        { label: t("requests.history.stats.leaveBalance"), value: 14, icon: <Calendar />, bgColor: "bg-blue-50 text-blue-600" },
     ]
-    const dataHeader = ["Request ID", "Group Type", "Type", "Submitted", "Dates", "Duration", "Status", "Action"]
+    const dataHeader = [
+        t("requests.history.columns.requestId"),
+        t("requests.history.columns.groupType"),
+        t("requests.history.columns.type"),
+        t("requests.history.columns.submitted"),
+        t("requests.history.columns.dates"),
+        t("requests.history.columns.duration"),
+        t("requests.history.columns.status"),
+        t("requests.history.columns.action")
+    ]
     const data = [
         {
             id: "#REQ-2023-045",
@@ -196,37 +207,37 @@ export default function MyRequestHistoryListPage() {
                 <div className="p-5 border-b border-border-light dark:border-border-dark flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="relative w-full md:w-72 h-10">
                         <Search className="absolute inset-y-0 h-10 text-gray-600 left-0 pl-2 flex items-center pointer-events-none" />
-                        <Input className="pl-8 h-full" placeholder="Search requests..." />
+                        <Input className="pl-8 h-full" placeholder={t("requests.history.searchPlaceholder")} />
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3 ">
                         <Select>
                             <SelectTrigger className="bg-white">
-                                <SelectValue placeholder="Status" />
+                                <SelectValue placeholder={t("requests.history.filters.status")} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectItem value="all">All</SelectItem>
-                                    <SelectItem value="approved">Approved</SelectItem>
-                                    <SelectItem value="pending">Pending</SelectItem>
-                                    <SelectItem value="rejected">Rejected</SelectItem>
+                                    <SelectItem value="all">{t("requests.history.filters.all")}</SelectItem>
+                                    <SelectItem value="approved">{t("requests.history.filters.approved")}</SelectItem>
+                                    <SelectItem value="pending">{t("requests.history.filters.pending")}</SelectItem>
+                                    <SelectItem value="rejected">{t("requests.history.filters.rejected")}</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
 
                         <Select>
                             <SelectTrigger className="bg-white">
-                                <SelectValue placeholder="Date Range" />
+                                <SelectValue placeholder={t("requests.history.filters.dateRange")} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectItem value="last-day">Last Day</SelectItem>
-                                    <SelectItem value="last-week">Last Week</SelectItem>
-                                    <SelectItem value="last-month">Last Month</SelectItem>
+                                    <SelectItem value="last-day">{t("requests.history.filters.lastDay")}</SelectItem>
+                                    <SelectItem value="last-week">{t("requests.history.filters.lastWeek")}</SelectItem>
+                                    <SelectItem value="last-month">{t("requests.history.filters.lastMonth")}</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
                         <Button>
-                            Download <Download />
+                            {t("requests.history.downloadBtn")} <Download />
                         </Button>
                     </div>
                 </div>
@@ -282,7 +293,7 @@ export default function MyRequestHistoryListPage() {
                     <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p className="text-sm text-neutral-700 dark:text-neutral-300">
-                                Showing <span className="font-medium">1</span> to <span className="font-medium">6</span> of <span className="font-medium">42</span> results
+                                <Trans i18nKey="requests.history.pagination.showing" values={{from: 1, to: 6, total: 42}} components={{1: <span className="font-medium" />, 3: <span className="font-medium" />, 5: <span className="font-medium" />}} />
                             </p>
                         </div>
                         <div>
@@ -333,19 +344,19 @@ export default function MyRequestHistoryListPage() {
                             className="relative inline-flex items-center px-4 py-2 border border-neutral-300 dark:border-neutral-600 text-sm font-medium rounded-md text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700"
                             href="#"
                         >
-                            Previous
+                            {t("requests.history.pagination.previous")}
                         </a>
                         <a
                             className="ml-3 relative inline-flex items-center px-4 py-2 border border-neutral-300 dark:border-neutral-600 text-sm font-medium rounded-md text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700"
                             href="#"
                         >
-                            Next
+                            {t("requests.history.pagination.next")}
                         </a>
                     </div>
                 </div>
             </div>
             <div className="mt-8 mb-4 text-center">
-                <p className="text-xs text-neutral-400">© 2023 Enterprise HR System. All rights reserved.</p>
+                <p className="text-xs text-neutral-400">{t("requests.history.footerText")}</p>
             </div>
         </div>
     )

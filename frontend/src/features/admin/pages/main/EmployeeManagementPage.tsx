@@ -2,17 +2,19 @@ import CSelectOptions from "@/components/etc/CSelectOptions"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronsUpDown, CirclePlus, Download, Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 export default function EmployeeManagementPage() {
+    const { t } = useTranslation();
     const departmentsData = [
-        { value: "all", label: "All Departments" },
-        { value: "tech", label: "Engineering" },
-        { value: "production", label: "Production" },
-        { value: "r&d", label: "Research & Development" },
-        { value: "hr", label: "Human Resources" },
-        { value: "log", label: "Logistics" },
-        { value: "qa", label: "Quality Assurance" },
-        { value: "sys", label: "System" },
+        { value: "all", label: t("admin.attendance.filters.allDepts", "All Departments") },
+        { value: "tech", label: t("admin.common.departments.engineering") },
+        { value: "production", label: t("admin.common.departments.production") },
+        { value: "r&d", label: t("admin.common.departments.rnd") },
+        { value: "hr", label: t("admin.common.departments.hr") },
+        { value: "log", label: t("admin.common.departments.logistics") },
+        { value: "qa", label: t("admin.common.departments.qa") },
+        { value: "sys", label: t("admin.common.departments.system") },
     ]
     return (
         <div className="flex-1 flex overflow-hidden relative">
@@ -20,15 +22,15 @@ export default function EmployeeManagementPage() {
                 <div className="space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Leave Balances</h1>
-                            <p className="text-sm text-neutral-500 mt-1">Manage and audit employee leave entitlements and usage.</p>
+                            <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">{t("admin.employees.title")}</h1>
+                            <p className="text-sm text-neutral-500 mt-1">{t("admin.employees.subtitle")}</p>
                         </div>
                         <div className="flex gap-3">
                             <Button className="h-10" variant={"outline"}>
-                                <Download /> Export Report
+                                <Download /> {t("admin.employees.exportReport")}
                             </Button>
                             <Button className="h-10">
-                                <CirclePlus /> New Adjustment
+                                <CirclePlus /> {t("admin.employees.newAdjustment")}
                             </Button>
                         </div>
                     </div>
@@ -38,7 +40,7 @@ export default function EmployeeManagementPage() {
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
                                 <input
                                     className="w-full pl-10 pr-4 py-2.5 text-sm border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400"
-                                    placeholder="Search by name, ID or email..."
+                                    placeholder={t("admin.employees.filters.searchPlaceholder")}
                                     type="text"
                                 />
                             </div>
@@ -47,27 +49,27 @@ export default function EmployeeManagementPage() {
 
                                 <Select>
                                     <SelectTrigger className="w-full sm:w-48">
-                                        <SelectValue placeholder="Location" />
+                                        <SelectValue placeholder={t("admin.employees.filters.location")} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>
-                                            <SelectItem value="all">All Locations</SelectItem>
-                                            <SelectItem value="new_york">New York</SelectItem>
-                                            <SelectItem value="london">London</SelectItem>
-                                            <SelectItem value="remote">Remote</SelectItem>
+                                            <SelectItem value="all">{t("admin.employees.filters.allLocations")}</SelectItem>
+                                            <SelectItem value="new_york">{t("admin.employees.filters.newYork")}</SelectItem>
+                                            <SelectItem value="london">{t("admin.employees.filters.london")}</SelectItem>
+                                            <SelectItem value="remote">{t("admin.employees.filters.remote")}</SelectItem>
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
                                 <Select>
                                     <SelectTrigger className="w-full sm:w-48">
-                                        <SelectValue placeholder="Leave Type" />
+                                        <SelectValue placeholder={t("admin.employees.filters.leaveType")} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>
-                                            <SelectItem value="annual">Annual</SelectItem>
-                                            <SelectItem value="sick">Sick Leave</SelectItem>
-                                            <SelectItem value="parental">Parental Leave</SelectItem>
-                                            <SelectItem value="unpaid">Unpaid</SelectItem>
+                                            <SelectItem value="annual">{t("admin.employees.filters.annual")}</SelectItem>
+                                            <SelectItem value="sick">{t("admin.employees.filters.sick")}</SelectItem>
+                                            <SelectItem value="parental">{t("admin.employees.filters.parental")}</SelectItem>
+                                            <SelectItem value="unpaid">{t("admin.employees.filters.unpaid")}</SelectItem>
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
@@ -84,20 +86,20 @@ export default function EmployeeManagementPage() {
                                         </th>
                                         <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700 dark:hover:text-neutral-300 group">
                                             <div className="flex items-center gap-1">
-                                                Employee
+                                                {t("admin.employees.table.employee")}
                                                 <span className="material-icons-round text-base opacity-0 group-hover:opacity-100 transition-opacity">arrow_downward</span>
                                             </div>
                                         </th>
-                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Department</th>
-                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Leave Type</th>
-                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">Used / Total</th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">{t("admin.employees.table.department")}</th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">{t("admin.employees.table.leaveType")}</th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">{t("admin.employees.table.usedTotal")}</th>
                                         <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right cursor-pointer hover:text-neutral-700 dark:hover:text-neutral-300 group">
                                             <div className="flex items-center justify-end gap-2">
-                                                Balance
+                                                {t("admin.employees.table.balance")}
                                                 <ChevronsUpDown size={14} />
                                             </div>
                                         </th>
-                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">Actions</th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">{t("admin.employees.table.actions")}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700 text-sm">
@@ -121,18 +123,18 @@ export default function EmployeeManagementPage() {
                                         <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Engineering</td>
                                         <td className="py-4 px-6">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                                Annual Leave
+                                                {t("admin.employees.filters.annual")}
                                             </span>
                                         </td>
                                         <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">12 / 20</td>
                                         <td className="py-4 px-6 text-right">
                                             <span className="font-bold text-neutral-900 dark:text-white font-mono text-base">8.0</span>
-                                            <span className="text-xs text-neutral-400 ml-1">days</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
                                         </td>
                                         <td className="py-4 px-6 text-right">
                                             <button className="text-primary hover:text-primary-700 font-medium text-sm inline-flex items-center gap-1 transition-colors">
                                                 <span className="material-icons-round text-lg">edit</span>
-                                                Adjust
+                                                {t("admin.employees.table.adjust")}
                                             </button>
                                         </td>
                                     </tr>
@@ -154,18 +156,18 @@ export default function EmployeeManagementPage() {
                                         <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Marketing</td>
                                         <td className="py-4 px-6">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                                Annual Leave
+                                                {t("admin.employees.filters.annual")}
                                             </span>
                                         </td>
                                         <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">18 / 20</td>
                                         <td className="py-4 px-6 text-right">
                                             <span className="font-bold text-orange-600 dark:text-orange-400 font-mono text-base">2.0</span>
-                                            <span className="text-xs text-neutral-400 ml-1">days</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
                                         </td>
                                         <td className="py-4 px-6 text-right">
                                             <button className="text-neutral-400 hover:text-primary font-medium text-sm inline-flex items-center gap-1 transition-colors">
                                                 <span className="material-icons-round text-lg">edit</span>
-                                                Adjust
+                                                {t("admin.employees.table.adjust")}
                                             </button>
                                         </td>
                                     </tr>
@@ -189,18 +191,18 @@ export default function EmployeeManagementPage() {
                                         <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Sales</td>
                                         <td className="py-4 px-6">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                Sick Leave
+                                                {t("admin.employees.filters.sick")}
                                             </span>
                                         </td>
                                         <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">2 / 10</td>
                                         <td className="py-4 px-6 text-right">
                                             <span className="font-bold text-neutral-900 dark:text-white font-mono text-base">8.0</span>
-                                            <span className="text-xs text-neutral-400 ml-1">days</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
                                         </td>
                                         <td className="py-4 px-6 text-right">
                                             <button className="text-neutral-400 hover:text-primary font-medium text-sm inline-flex items-center gap-1 transition-colors">
                                                 <span className="material-icons-round text-lg">edit</span>
-                                                Adjust
+                                                {t("admin.employees.table.adjust")}
                                             </button>
                                         </td>
                                     </tr>
@@ -224,18 +226,18 @@ export default function EmployeeManagementPage() {
                                         <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Product</td>
                                         <td className="py-4 px-6">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                                Annual Leave
+                                                {t("admin.employees.filters.annual")}
                                             </span>
                                         </td>
                                         <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">21 / 20</td>
                                         <td className="py-4 px-6 text-right">
                                             <span className="font-bold text-red-600 dark:text-red-400 font-mono text-base">-1.0</span>
-                                            <span className="text-xs text-neutral-400 ml-1">days</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
                                         </td>
                                         <td className="py-4 px-6 text-right">
                                             <button className="text-neutral-400 hover:text-primary font-medium text-sm inline-flex items-center gap-1 transition-colors">
                                                 <span className="material-icons-round text-lg">edit</span>
-                                                Adjust
+                                                {t("admin.employees.table.adjust")}
                                             </button>
                                         </td>
                                     </tr>
@@ -257,18 +259,18 @@ export default function EmployeeManagementPage() {
                                         <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Engineering</td>
                                         <td className="py-4 px-6">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                                Annual Leave
+                                                {t("admin.employees.filters.annual")}
                                             </span>
                                         </td>
                                         <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">5 / 20</td>
                                         <td className="py-4 px-6 text-right">
                                             <span className="font-bold text-neutral-900 dark:text-white font-mono text-base">15.0</span>
-                                            <span className="text-xs text-neutral-400 ml-1">days</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
                                         </td>
                                         <td className="py-4 px-6 text-right">
                                             <button className="text-neutral-400 hover:text-primary font-medium text-sm inline-flex items-center gap-1 transition-colors">
                                                 <span className="material-icons-round text-lg">edit</span>
-                                                Adjust
+                                                {t("admin.employees.table.adjust")}
                                             </button>
                                         </td>
                                     </tr>
@@ -277,15 +279,15 @@ export default function EmployeeManagementPage() {
                         </div>
                         <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between">
                             <div className="text-sm text-neutral-500">
-                                Showing <span className="font-medium text-neutral-900 dark:text-white">1</span> to <span className="font-medium text-neutral-900 dark:text-white">5</span> of{" "}
-                                <span className="font-medium text-neutral-900 dark:text-white">128</span> employees
+                                {t("admin.employees.pagination.showing")} <span className="font-medium text-neutral-900 dark:text-white">1</span> {t("admin.employees.pagination.to")} <span className="font-medium text-neutral-900 dark:text-white">5</span> {t("admin.employees.pagination.of")}{" "}
+                                <span className="font-medium text-neutral-900 dark:text-white">128</span> {t("admin.employees.pagination.employees")}
                             </div>
                             <div className="flex gap-2">
                                 <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 disabled:opacity-50 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-                                    Previous
+                                    {t("admin.employees.pagination.previous")}
                                 </button>
                                 <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-                                    Next
+                                    {t("admin.employees.pagination.next")}
                                 </button>
                             </div>
                         </div>

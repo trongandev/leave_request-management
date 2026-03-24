@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "react-i18next"
 import { useToggleSidebar } from "@/contexts/sidebarContext"
 import { Menu } from "lucide-react"
 
 export default function HeaderRequest() {
+    const { t } = useTranslation()
     const { toggleSidebar } = useToggleSidebar()
     return (
         <header className="h-16 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between px-8 shrink-0 z-40">
@@ -10,7 +12,7 @@ export default function HeaderRequest() {
                 <Button variant="ghost" size="icon" onClick={toggleSidebar}>
                     <Menu />
                 </Button>
-                <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">Dashboard Overview</h1>
+                <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">{t("requests.header.overview")}</h1>
             </div>
             <div className="flex items-center gap-4">
                 <button className="relative p-2 text-neutral-500 hover:text-primary transition-colors">

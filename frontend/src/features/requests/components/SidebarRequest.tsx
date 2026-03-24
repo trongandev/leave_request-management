@@ -1,43 +1,47 @@
 import { Link, useLocation } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
-const requestsNav = [
-    {
-        name: "main menu",
-        items: [
-            { name: "Dashboard", icon: "dashboard", href: "/employee" },
-            { name: "Create New Request", icon: "event_note", href: "/employee/create-new-request-form" },
-            { name: "My Request History", icon: "history", href: "/employee/my-request-history-list" },
-            { name: "Team Calendar", icon: "groups", href: "/employee/team-calendar" },
-        ],
-    },
-    {
-        name: "settings",
-        items: [
-            { name: "My Profile", icon: "person", href: "/profile" },
-            { name: "Preferences", icon: "settings", href: "/preferences" },
-            { name: "Back to Portal", icon: "home", href: "/" },
-        ],
-    },
-]
-
-const approvalsNav = [
-    {
-        name: "main menu",
-        items: [
-            { name: "Dashboard", icon: "dashboard", href: "/approvals" },
-            { name: "Team Calendar", icon: "groups", href: "/approvals/team-calendar" },
-        ],
-    },
-    {
-        name: "settings",
-        items: [
-            { name: "My Profile", icon: "person", href: "/profile" },
-            { name: "Preferences", icon: "settings", href: "/preferences" },
-            { name: "Back to Portal", icon: "home", href: "/" },
-        ],
-    },
-]
 export default function SidebarRequest() {
+    const { t } = useTranslation()
+    
+    const requestsNav = [
+        {
+            name: t("requests.sidebar.menus.mainMenu"),
+            items: [
+                { name: t("requests.sidebar.items.dashboard"), icon: "dashboard", href: "/employee" },
+                { name: t("requests.sidebar.items.createNew"), icon: "event_note", href: "/employee/create-new-request-form" },
+                { name: t("requests.sidebar.items.history"), icon: "history", href: "/employee/my-request-history-list" },
+                { name: t("requests.sidebar.items.teamCalendar"), icon: "groups", href: "/employee/team-calendar" },
+            ],
+        },
+        {
+            name: t("requests.sidebar.menus.settings"),
+            items: [
+                { name: t("requests.sidebar.items.profile"), icon: "person", href: "/profile" },
+                { name: t("requests.sidebar.items.preferences"), icon: "settings", href: "/preferences" },
+                { name: t("requests.sidebar.items.backToPortal"), icon: "home", href: "/" },
+            ],
+        },
+    ]
+
+    const approvalsNav = [
+        {
+            name: t("requests.sidebar.menus.mainMenu"),
+            items: [
+                { name: t("requests.sidebar.items.dashboard"), icon: "dashboard", href: "/approvals" },
+                { name: t("requests.sidebar.items.teamCalendar"), icon: "groups", href: "/approvals/team-calendar" },
+            ],
+        },
+        {
+            name: t("requests.sidebar.menus.settings"),
+            items: [
+                { name: t("requests.sidebar.items.profile"), icon: "person", href: "/profile" },
+                { name: t("requests.sidebar.items.preferences"), icon: "settings", href: "/preferences" },
+                { name: t("requests.sidebar.items.backToPortal"), icon: "home", href: "/" },
+            ],
+        },
+    ]
+
     const { pathname } = useLocation()
     const nav = pathname.startsWith("/approvals") ? approvalsNav : requestsNav
     return (
@@ -45,7 +49,7 @@ export default function SidebarRequest() {
             <div className="h-16 flex items-center px-6 border-b border-slate-200">
                 <div className="flex items-center gap-3">
                     <div className="w-9 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg">EM</div>
-                    <span className="text-slate-900 font-semibold text-lg tracking-tight">Request Portal</span>
+                    <span className="text-slate-900 font-semibold text-lg tracking-tight">{t("requests.sidebar.portalName")}</span>
                 </div>
             </div>
             <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
@@ -75,7 +79,7 @@ export default function SidebarRequest() {
                     />
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-900 truncate">Tom Cook</p>
-                        <p className="text-xs text-neutral-500 truncate">Software Engineer</p>
+                        <p className="text-xs text-neutral-500 truncate">{t("requests.sidebar.userRoles.softwareEngineer")}</p>
                     </div>
                     <button className="text-neutral-400 hover:text-slate-900 transition-colors">
                         <span className="material-icons text-[20px]">logout</span>

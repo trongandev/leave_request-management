@@ -1,40 +1,43 @@
+import { useTranslation } from "react-i18next"
+
 export default function TeamLeaveCalendarViewPage() {
+    const { t } = useTranslation()
     return (
         <div className="bg-background-light dark:bg-background-dark font-display text-neutral-800 dark:text-neutral-100 min-h-screen flex flex-col overflow-hidden">
             <div className="flex flex-1 overflow-hidden">
                 <aside className="w-72 bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 flex flex-col z-10 hidden md:flex shrink-0">
                     <div className="p-5 border-b border-neutral-200 dark:border-neutral-700">
-                        <h2 className="text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-4">Filters</h2>
+                        <h2 className="text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-4">{t("approvals.calendar.filters.title")}</h2>
                         <div className="relative">
                             <span className="material-icons absolute left-3 top-2.5 text-neutral-400 text-[18px]">search</span>
                             <input
                                 className="w-full pl-9 pr-4 py-2 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-neutral-700 dark:text-neutral-200 placeholder-neutral-400"
-                                placeholder="Find employee..."
+                                placeholder={t("approvals.calendar.filters.placeholder")}
                                 type="text"
                             />
                         </div>
                     </div>
                     <div className="px-5 py-4 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/50">
-                        <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-3 uppercase">Legend</h3>
+                        <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-3 uppercase">{t("approvals.calendar.filters.legendTitle")}</h3>
                         <div className="space-y-2">
                             <div className="flex items-center gap-2">
                                 <span className="w-3 h-3 rounded-full bg-blue-100 border border-blue-200 dark:bg-blue-900 dark:border-blue-700"></span>
-                                <span className="text-sm text-neutral-600 dark:text-neutral-300">Approved Leave</span>
+                                <span className="text-sm text-neutral-600 dark:text-neutral-300">{t("approvals.calendar.filters.approvedLeave")}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="w-3 h-3 rounded-full bg-amber-100 border border-amber-200 dark:bg-amber-900 dark:border-amber-700"></span>
-                                <span className="text-sm text-neutral-600 dark:text-neutral-300">Overtime (OT)</span>
+                                <span className="text-sm text-neutral-600 dark:text-neutral-300">{t("approvals.calendar.filters.overtime")}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="w-3 h-3 rounded-full bg-purple-100 border border-purple-200 dark:bg-purple-900 dark:border-purple-700"></span>
-                                <span className="text-sm text-neutral-600 dark:text-neutral-300">Public Holiday</span>
+                                <span className="text-sm text-neutral-600 dark:text-neutral-300">{t("approvals.calendar.filters.publicHoliday")}</span>
                             </div>
                         </div>
                     </div>
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-5">
                         <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase">Team Members</h3>
-                            <button className="text-xs text-primary hover:text-primary-dark font-medium">Select All</button>
+                            <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase">{t("approvals.calendar.teamMembers.title")}</h3>
+                            <button className="text-xs text-primary hover:text-primary-dark font-medium">{t("approvals.calendar.teamMembers.selectAll")}</button>
                         </div>
                         <div className="space-y-3">
                             <label className="flex items-center gap-3 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-lg cursor-pointer group transition-colors">
@@ -129,29 +132,29 @@ export default function TeamLeaveCalendarViewPage() {
                                 <span className="material-icons">chevron_right</span>
                             </button>
                             <div className="w-px h-6 bg-neutral-200 dark:bg-neutral-700 mx-1"></div>
-                            <button className="text-sm font-medium text-primary hover:text-primary-dark px-2 transition-colors">Today</button>
+                            <button className="text-sm font-medium text-primary hover:text-primary-dark px-2 transition-colors">{t("approvals.calendar.header.today")}</button>
                         </div>
                         <div className="flex items-center gap-3 w-full sm:w-auto">
                             <div className="flex bg-neutral-100 dark:bg-neutral-900 p-1 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                                <button className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-neutral-700 text-neutral-800 dark:text-white rounded shadow-sm">Month</button>
-                                <button className="px-3 py-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white transition-colors">Week</button>
-                                <button className="px-3 py-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white transition-colors">Day</button>
+                                <button className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-neutral-700 text-neutral-800 dark:text-white rounded shadow-sm">{t("approvals.calendar.header.month")}</button>
+                                <button className="px-3 py-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white transition-colors">{t("approvals.calendar.header.week")}</button>
+                                <button className="px-3 py-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white transition-colors">{t("approvals.calendar.header.day")}</button>
                             </div>
                             <button className="ml-auto sm:ml-0 flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md shadow-primary/20 transition-all">
                                 <span className="material-icons text-[18px]">add</span>
-                                <span>Request Time Off</span>
+                                <span>{t("approvals.calendar.header.requestTimeOff")}</span>
                             </button>
                         </div>
                     </div>
                     <div className="flex-1 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-hidden flex flex-col">
                         <div className="grid grid-cols-7 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 shrink-0">
-                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">Sun</div>
-                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">Mon</div>
-                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">Tue</div>
-                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">Wed</div>
-                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">Thu</div>
-                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">Fri</div>
-                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">Sat</div>
+                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{t("approvals.calendar.days.sun")}</div>
+                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{t("approvals.calendar.days.mon")}</div>
+                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{t("approvals.calendar.days.tue")}</div>
+                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{t("approvals.calendar.days.wed")}</div>
+                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{t("approvals.calendar.days.thu")}</div>
+                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{t("approvals.calendar.days.fri")}</div>
+                            <div className="py-3 text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{t("approvals.calendar.days.sat")}</div>
                         </div>
                         <div className="flex-1 overflow-y-auto grid grid-cols-7 auto-rows-fr bg-neutral-200 dark:bg-neutral-700 gap-px border-b border-neutral-200 dark:border-neutral-700">
                             <div className="bg-neutral-50/50 dark:bg-neutral-900/50 p-2 min-h-[120px] flex flex-col">
@@ -200,7 +203,7 @@ export default function TeamLeaveCalendarViewPage() {
                                 <span className="text-neutral-700 dark:text-neutral-300 text-sm font-medium mb-1">8</span>
                                 <div className="bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-100 text-xs px-2 py-1 rounded-md mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-1">
                                     <span className="material-icons text-[10px]">celebration</span>
-                                    Company Day
+                                    {t("approvals.calendar.companyDay")}
                                 </div>
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
@@ -273,7 +276,7 @@ export default function TeamLeaveCalendarViewPage() {
                             <div className="bg-purple-50/30 dark:bg-purple-900/10 p-2 min-h-[120px] flex flex-col group hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors relative">
                                 <span className="text-neutral-700 dark:text-neutral-300 text-sm font-medium mb-1">25</span>
                                 <div className="bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-100 text-xs px-2 py-1 rounded-md mb-1 truncate cursor-pointer hover:opacity-80 transition-opacity w-full text-center font-medium border border-purple-200 dark:border-purple-800">
-                                    Public Holiday
+                                    {t("approvals.calendar.filters.publicHoliday")}
                                 </div>
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
@@ -291,7 +294,7 @@ export default function TeamLeaveCalendarViewPage() {
                                     Alice: OT
                                 </div>
                                 <div className="mt-auto">
-                                    <span className="text-[10px] text-neutral-400 font-medium hover:text-primary cursor-pointer">+2 more</span>
+                                    <span className="text-[10px] text-neutral-400 font-medium hover:text-primary cursor-pointer">{t("approvals.calendar.more", { count: 2 })}</span>
                                 </div>
                             </div>
                             <div className="bg-white dark:bg-neutral-800 p-2 min-h-[120px] flex flex-col group hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors relative">
