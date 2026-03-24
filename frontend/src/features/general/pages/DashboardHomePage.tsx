@@ -41,7 +41,7 @@ export default function DashboardHomePage() {
     return (
         <main className="">
             <section className="mb-10">
-                <div className="flex flex-col gap-1 bg-white p-5 rounded-xl shadow-xs">
+                <div className="flex flex-col gap-1 bg-card p-5 rounded-xl shadow-xs">
                     <h1 className="text-2xl  tracking-tight text-slate-700 dark:text-white">
                         Chào {namePointDay}, <span className="text-primary font-bold text-3xl uppercase">{user?.fullName || "Người dùng"}</span>
                     </h1>
@@ -57,7 +57,7 @@ export default function DashboardHomePage() {
             </section>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Công việc của tôi, hiển thị cho tất cả người dùng kể cả EMPLOYEE */}
-                <section className="flex flex-col  bg-white shadow rounded-xl overflow-hidden">
+                <section className="flex flex-col  bg-card shadow rounded-xl overflow-hidden">
                     <div className="flex items-center gap-4 shadow p-5">
                         <UserPenIcon className="text-primary" />
                         <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Công việc của tôi</h2>
@@ -134,7 +134,7 @@ export default function DashboardHomePage() {
                                 </Card>
                             </div>
                         </section>
-                        <section className="flex flex-col  bg-white shadow rounded-xl overflow-hidden">
+                        <section className="flex flex-col  bg-card shadow rounded-xl overflow-hidden">
                             <div className="flex items-center gap-4 shadow p-5">
                                 <UserCog2Icon className="text-amber-600" />
                                 <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Quản trị nhân sự</h2>
@@ -178,7 +178,7 @@ export default function DashboardHomePage() {
                 )}
                 {/* Quản lý hệ thống, chỉ hiển thị cho role ADMIN */}
                 {roleName === "ADMIN" && (
-                    <section className="flex flex-col  bg-white shadow rounded-xl overflow-hidden">
+                    <section className="flex flex-col  bg-card shadow rounded-xl overflow-hidden">
                         <div className="flex items-center gap-4 shadow p-5">
                             <MonitorCogIcon />
                             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Hệ thống</h2>
@@ -213,7 +213,7 @@ export default function DashboardHomePage() {
             </div>
             <section className="mt-12">
                 <div className="rounded-xl bg-primary/10 p-1">
-                    <div className="rounded-lg bg-white dark:bg-slate-900 p-6">
+                    <div className="rounded-lg bg-card p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <h3 className="text-lg font-bold">Tình hình nhân sự tháng này</h3>
                             <div className="flex gap-2">

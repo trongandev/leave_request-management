@@ -110,10 +110,10 @@
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 .dark {
-    --background: #0f172a;
+    --background: #1f1f1f;
     --foreground: #e2e8f0;
 
-    --card: #111827;
+    --card: #1f1f1f;
     --card-foreground: #e2e8f0;
 
     --popover: #0b1220;
@@ -134,8 +134,8 @@
     --destructive: #ef4444;
     --destructive-foreground: #0b1220;
 
-    --border: #1f2937;
-    --input: #1e293b;
+    --border: rgba(255, 255, 255, 0.1);
+    --input: #334155;
     --ring: rgba(59, 130, 246, 0.25);
 
     --success: #22c55e;

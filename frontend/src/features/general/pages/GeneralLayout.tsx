@@ -12,15 +12,15 @@ export default function GeneralLayout() {
         return <Navigate to="/auth/login" state={{ from: location }} />
     }
     return (
-        <div className="flex transition-all duration-300">
+        <div className="flex transition-all duration-300 bg-background">
             <div
-                className={`bg-white dark:bg-background  font-display text-background antialiased shrink-0 flex flex-col h-screen fixed left-0 top-0 z-50  w-64  transition-all duration-300 border-r border-slate-200 dark:border-white/20 ${isSidebarOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"}`}
+                className={` font-display text-background antialiased shrink-0 flex flex-col h-screen fixed left-0 top-0 z-50  w-64  transition-all duration-300 border-r border-slate-200 dark:border-white/20 ${isSidebarOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"}`}
             >
                 <GeneralSidebar />
             </div>
             <div className={`flex-1 ${isSidebarOpen ? "ml-64" : "ml-0"} flex flex-col min-h-screen`}>
                 <GeneralHeader />
-                <div className="w-full p-5 bg-gray-50/10! ">
+                <div className="w-full p-8">
                     <Outlet />
                 </div>
             </div>

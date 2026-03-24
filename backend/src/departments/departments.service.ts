@@ -1,26 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Department } from './departments.schema';
+import { Model } from 'mongoose';
+import { paginate } from 'src/common/utils/pagination.util';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class DepartmentsService {
+  constructor(
+    @InjectModel('Department')
+    private readonly departmentModel: Model<Department>,
+  ) {}
+
   create(createDepartmentDto: CreateDepartmentDto) {
-    return 'This action adds a new department';
+    const createNewDepartment = new this.departmentModel(createDepartmentDto);
+    return createNewDepartment.save();
   }
 
-  findAll() {
-    return `This action returns all departments`;
+  findAll(paginationDto: PaginationDto) {
+    return paginate(this.departmentModel, paginationDto);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} department`;
+  findOne(id: string) {
+    return this.departmentModel.findById(id);
   }
 
-  update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
-    return `This action updates a #${id} department`;
+  update(id: string, updateDepartmentDto: UpdateDepartmentDto) {
+    return this.departmentModel.findByIdAndUpdate(id, updateDepartmentDto, {
+      new: true,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} department`;
+  remove(id: string) {
+    return this.departmentModel.findByIdAndDelete(id);
   }
 }

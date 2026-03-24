@@ -49,6 +49,17 @@ const resources = {
                     date: "Date Format",
                 },
             },
+            etc: {
+                pagination: {
+                    prev: "Previous",
+                    next: "Next",
+                    page: "Page",
+                    show: "Showing",
+                    to: "to",
+                    of: "of",
+                    employee: "employees",
+                },
+            },
         },
     },
     vi: {
@@ -95,6 +106,17 @@ const resources = {
                     en: "Tiếng anh",
                     vi: "Tiếng Việt",
                     date: "Định dạng ngày",
+                },
+            },
+            etc: {
+                pagination: {
+                    prev: "Quay về",
+                    next: "Tiến tới",
+                    page: "Trang",
+                    show: "Hiển thị",
+                    to: "tới",
+                    of: "trong",
+                    employee: "nhân viên",
                 },
             },
         },

@@ -1,13 +1,15 @@
 export interface UserResponse {
     data: User[]
-    meta: MetaPag
+    meta: IMetaTag
 }
 
-export interface MetaPag {
+export interface IMetaTag {
     total: number
     page: number
     limit: number
     last_page: number
+    has_next: boolean
+    has_prev: boolean
 }
 export interface User {
     _id: string

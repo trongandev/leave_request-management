@@ -32,6 +32,7 @@ import AuditLogPage from "./features/admin/pages/system/AuditLogPage"
 import AccessControlPage from "./features/admin/pages/system/AccessControlPage"
 import DashboardHomePage from "./features/general/pages/DashboardHomePage"
 import LeaveBalanceEmployeePage from "./features/admin/pages/main/LeaveBalanceEmployeePage"
+import EmployeeManagementPage from "./features/admin/pages/main/EmployeeManagementPage"
 
 function App() {
     return (
@@ -55,7 +56,7 @@ function App() {
                 <Route path="/admin" element={<AdminLayout />}>
                     {/* START MAIN GROUP*/}
                     <Route index element={<AdminDashboardPage />} />
-                    <Route path="/admin/leave-balances" element={<LeaveBalanceEmployeePage />} />
+                    <Route path="/admin/employee-management" element={<EmployeeManagementPage />} />
                     <Route path="/admin/attendance-tracking" element={<AttendanceTrackingPage />} />
                     {/* END MAIN GROUP */}
 

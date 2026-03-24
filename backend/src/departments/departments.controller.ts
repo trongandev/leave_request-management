@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { DepartmentsService } from './departments.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('departments')
 export class DepartmentsController {
@@ -21,13 +23,13 @@ export class DepartmentsController {
   }
 
   @Get()
-  findAll() {
-    return this.departmentsService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.departmentsService.findAll(paginationDto);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.departmentsService.findOne(+id);
+    return this.departmentsService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,11 +37,11 @@ export class DepartmentsController {
     @Param('id') id: string,
     @Body() updateDepartmentDto: UpdateDepartmentDto,
   ) {
-    return this.departmentsService.update(+id, updateDepartmentDto);
+    return this.departmentsService.update(id, updateDepartmentDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.departmentsService.remove(+id);
+    return this.departmentsService.remove(id);
   }
 }

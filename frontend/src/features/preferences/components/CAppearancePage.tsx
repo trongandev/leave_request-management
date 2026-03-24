@@ -127,7 +127,7 @@ export default function CAppearancePage() {
                                 <span className="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
                             </button>
                         </div>
-                        <div className="grid grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <div className="grid grid-cols-2 gap-6 pt-4 border-t ">
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("preferences.appearance.interface.font")}</Label>
                                 <CSelectOptions data={systemFonts} valueKey="value" displayKey="label" value={selectedSystemFont} onChangeValue={setSelectedSystemFont} />
@@ -151,10 +151,10 @@ export default function CAppearancePage() {
                         <div className="space-y-2">
                             <Label className="mb-2">{t("preferences.localization.language")}</Label>
                             <div className="flex gap-2">
-                                <Button variant={i18n.language === "en" ? "default" : "secondary"} className="" onClick={() => handleChangeLng("en")}>
+                                <Button variant={i18n.language === "en" ? "default" : "outline"} className="" onClick={() => handleChangeLng("en")}>
                                     {t("preferences.localization.en")}
                                 </Button>
-                                <Button variant={i18n.language === "vi" ? "default" : "secondary"} className="" onClick={() => handleChangeLng("vi")}>
+                                <Button variant={i18n.language === "vi" ? "default" : "outline"} className="" onClick={() => handleChangeLng("vi")}>
                                     {t("preferences.localization.vi")}
                                 </Button>
                             </div>

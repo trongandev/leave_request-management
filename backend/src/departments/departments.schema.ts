@@ -5,6 +5,8 @@ import { Document } from 'mongoose';
 export class Department extends Document {
   @Prop({ required: true })
   originName: string; // Tên gốc của phòng ban (tiếng anh)
+
+  @Prop()
   name: string; // Tên phòng ban (VD: Kỹ thuật) (tiếng việt)
 
   @Prop({ required: true, unique: true })
