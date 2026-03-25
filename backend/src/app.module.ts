@@ -19,7 +19,6 @@ import { CountersModule } from './counters/counters.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { PositionsModule } from './positions/positions.module';
 import { LogsModule } from './logs/logs.module';
-import { ErrorLog, ErrorLogSchema } from './logs/error-log.schema';
 
 @Module({
   imports: [
@@ -34,10 +33,6 @@ import { ErrorLog, ErrorLogSchema } from './logs/error-log.schema';
         uri: configService.get<string>('MONGO_URI') as string,
       }),
     }),
-    MongooseModule.forFeature([
-      { name: ErrorLog.name, schema: ErrorLogSchema },
-    ]),
-
     UsersModule,
 
     LogsModule,

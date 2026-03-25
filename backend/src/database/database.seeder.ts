@@ -77,7 +77,8 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         p.code.includes('OWN') ||
         p.code === 'VIEW_REPORT' ||
         p.code === 'READ_ALL_LEAVE' ||
-        p.code === 'MANAGE_LEAVE_TYPES',
+        p.code === 'MANAGE_LEAVE_TYPES'||
+        p.code === 'ASSIGN_MANAGER', // Quyền mới cho HR
     );
     await this.roleModel.updateOne(
       { name: 'HR' },

@@ -77,6 +77,12 @@ export const PERMISSIONS_METADATA = [
     description: 'Quản lý sơ đồ phòng ban',
     module: 'ADMIN',
   },
+  // THÊM MỚI: CẤP QUYỀN GÁN MANAGER CHO HR
+  {
+    code: 'ASSIGN_MANAGER',
+    description: 'Gán manager cho user (HR only)',
+    module: 'ADMIN',
+  },
 ];
 
 // Tạo một Object giả lập Enum để bạn dùng trong Code: Permission.CREATE_LEAVE

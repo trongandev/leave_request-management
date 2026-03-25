@@ -1,9 +1,9 @@
-import { Get, Injectable } from '@nestjs/common';
+import { BadRequestException, Get, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './users.schema';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 import { ApiOperation } from '@nestjs/swagger';
 import { paginate } from '../common/utils/pagination.util';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -14,6 +14,11 @@ import { Department } from 'src/departments/departments.schema';
 import { Position } from 'src/positions/positions.schema';
 import * as bcrypt from 'bcrypt';
 import { removeVietnameseTones } from 'src/common/utils/utils';
+import { AuthGuard, UseGuards, UsePipes } from '@nestjs/common';
+import { ZodValidationPipe } from 'nestjs-zod';
+import { AssignManagerDto } from './dto/assign-manager.dto';
+import { Permission } from 'src/permissions/permissions.schema';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -60,11 +65,14 @@ export class UsersService {
       roleId = role ? String(role._id) : createUserDto.roleId;
     }
 
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const newUser = new this.userModel({
-      ...createUserDto,
-      empId: finalEmployeeId,
-      roleId: roleId,
+    ...createUserDto,
+    password: hashedPassword,
+    empId: finalEmployeeId,
+    roleId: roleId,
     });
+
     const saveUser = newUser.save();
     const populatedUser = await this.userModel
       .findById((await saveUser)._id)
@@ -123,11 +131,11 @@ export class UsersService {
     const insertIndex = Math.floor(Math.random() * (nameParts.length + 1));
     nameParts.splice(insertIndex, 0, birthDateSuffix);
     const email = `${nameParts.join('.')}` + '@lrm.com';
-    const hashedPassword = await bcrypt.hash('DefAult@passw0rd', 10);
+    const defaultPassword = 'DefAult@passw0rd';
     const fakeData: CreateUserDto = {
       phone: faker.helpers.fromRegExp(/0[35789][0-9]{8}/),
       email: email,
-      password: hashedPassword,
+      password: defaultPassword,
       fullName: fullName,
       avatar: faker.image.avatar(),
       // Giới hạn năm sinh từ 1980 đến 2005 để phù hợp thực tế đi làm
@@ -177,14 +185,119 @@ export class UsersService {
   findOne(id: string) {
     return this.userModel.findById(id).exec();
   }
-
+  /*
   update(id: string, updateUserDto: UpdateUserDto) {
     return this.userModel
       .findByIdAndUpdate(id, updateUserDto, { new: true })
       .exec();
   }
+  */
+ 
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.managerId) {
+      throw new BadRequestException(
+        'Use PATCH /users/:empId/manager to assign manager',
+      );
+    }
 
-  remove(id: string) {
-    return this.userModel.findByIdAndDelete(id).exec();
+    return this.userModel
+      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
+      .exec();
+  }
+
+  // Helper function để kiểm tra vòng lặp quản lý
+  private async assertNoManagerCycle(userId: string, newManagerId: string) {
+    let currentManagerId: string | null = newManagerId;
+    const visited = new Set<string>();
+
+    while (currentManagerId) {
+      if (currentManagerId === userId) {
+        throw new BadRequestException('Manager assignment creates a cycle');
+      }
+
+      if (visited.has(currentManagerId)) {
+        // Dữ liệu cũ trong DB đã bị vòng lặp từ trước
+        throw new BadRequestException('Detected existing cycle in manager chain');
+      }
+
+      visited.add(currentManagerId);
+
+      const current = await this.userModel
+        .findById(currentManagerId)
+        .select('managerId')
+        .lean<{ managerId?: unknown }>()
+        .exec();
+
+      if (!current?.managerId) {
+        break;
+      }
+
+      currentManagerId = String(current.managerId);
+    }
+  }
+
+  async assignManagerByEmpId(userEmpId: string, managerEmpId: string, actor: any) {
+    const actorRoleName = actor?.roleId?.name;
+    if (actorRoleName !== 'HR') {
+      throw new BadRequestException('Only HR can assign manager');
+    }
+
+    if (!userEmpId || !managerEmpId) {
+      throw new BadRequestException('userEmpId and managerId are required');
+    }
+
+    if (userEmpId === managerEmpId) {
+      throw new BadRequestException('Cannot self-assign manager');
+    }
+
+    const user = await this.userModel.findOne({ empId: userEmpId }).select('_id empId').exec();
+    if (!user) {
+     throw new NotFoundException('User not found');
+    }
+
+    const manager = await this.userModel.findOne({ empId: managerEmpId }).select('_id empId').exec();
+    if (!manager) {
+      throw new NotFoundException('Manager not found');
+    }
+
+    await this.assertNoManagerCycle(String(user._id), String(manager._id));
+
+    const updated = await this.userModel
+    .findByIdAndUpdate( user._id,{ managerId: manager._id },{ new: true })
+    .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
+    .exec();
+    return updated;
+  }
+
+  async removeManagerByEmpId(userEmpId: string, actor: any) {
+    const actorRoleName = actor?.roleId?.name;
+    if (actorRoleName !== 'HR') {
+      throw new BadRequestException('Only HR can remove manager');
+    }
+
+    if (!userEmpId) {
+      throw new BadRequestException('userEmpId is required');
+    }
+
+    const user = await this.userModel
+      .findOne({ empId: userEmpId })
+      .select('_id empId')
+      .exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updated = await this.userModel
+      .findByIdAndUpdate(
+        user._id,
+        { managerId: null },
+        { new: true },
+      )
+      .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
+      .exec();
+
+    return updated;
   }
 }
+
