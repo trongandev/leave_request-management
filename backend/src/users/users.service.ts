@@ -253,20 +253,37 @@ export class UsersService {
 
     const user = await this.userModel.findOne({ empId: userEmpId }).select('_id empId').exec();
     if (!user) {
-     throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found');
     }
 
-    const manager = await this.userModel.findOne({ empId: managerEmpId }).select('_id empId').exec();
+    // Sửa: Populate roleId để kiểm tra role
+    const manager = await this.userModel
+      .findOne({ empId: managerEmpId })
+      .select('_id empId roleId')
+      .populate('roleId', 'name') // Lấy role name
+      .exec();
     if (!manager) {
       throw new NotFoundException('Manager not found');
+    }
+
+    // Kiểm tra manager phải có role là MANAGER
+    const managerRoleName = manager.roleId?.name;
+    if (managerRoleName !== 'MANAGER') {
+      throw new BadRequestException(
+        `User "${managerEmpId}" is not a manager. Only users with MANAGER role can be assigned as manager.`
+      );
     }
 
     await this.assertNoManagerCycle(String(user._id), String(manager._id));
 
     const updated = await this.userModel
-    .findByIdAndUpdate( user._id,{ managerId: manager._id },{ new: true })
-    .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
-    .exec();
+      .findByIdAndUpdate(
+        user._id,
+        { managerId: manager._id },
+        { new: true },
+      )
+      .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
+      .exec();
     return updated;
   }
 
