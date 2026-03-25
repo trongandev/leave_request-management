@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next"
+
 export default function RequestDetailAndApprovalPage() {
+    const { t } = useTranslation()
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 font-display min-h-screen flex flex-col">
             <nav className="bg-surface-light dark:bg-surface-dark border-b border-slate-200 dark:border-slate-700 h-16 sticky top-0 z-30">
@@ -8,11 +11,11 @@ export default function RequestDetailAndApprovalPage() {
                             <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-white">
                                 <span className="material-icons text-xl">dataset</span>
                             </div>
-                            <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">HR Portal</span>
+                            <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">{t("approvals.details.header.portal")}</span>
                         </div>
                         <div className="hidden md:flex h-6 w-px bg-slate-300 dark:bg-slate-600 mx-2"></div>
                         <div className="hidden md:flex items-center text-sm text-slate-500 dark:text-slate-400 gap-2">
-                            <span className="hover:text-primary cursor-pointer transition-colors">Requests</span>
+                            <span className="hover:text-primary cursor-pointer transition-colors">{t("approvals.details.header.requests")}</span>
                             <span className="material-icons text-base">chevron_right</span>
                             <span className="font-medium text-slate-900 dark:text-white">LR-2023-892</span>
                         </div>
@@ -36,21 +39,21 @@ export default function RequestDetailAndApprovalPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div>
                         <div className="flex items-center gap-3 mb-1">
-                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Leave Request Details</h1>
+                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t("approvals.details.title")}</h1>
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 border border-amber-200 dark:border-amber-800">
-                                Pending Approval
+                                {t("approvals.details.status.pending")}
                             </span>
                         </div>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Submitted on Oct 10, 2023 at 09:42 AM</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{t("approvals.details.submittedOn", { date: "Oct 10, 2023", time: "09:42 AM" })}</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <button className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-surface-dark border border-slate-300 dark:border-slate-600 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
                             <span className="material-icons text-base">print</span>
-                            Print
+                            {t("approvals.details.header.print")}
                         </button>
                         <button className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-surface-dark border border-slate-300 dark:border-slate-600 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
                             <span className="material-icons text-base">share</span>
-                            Share
+                            {t("approvals.details.header.share")}
                         </button>
                     </div>
                 </div>
@@ -82,38 +85,37 @@ export default function RequestDetailAndApprovalPage() {
                                     </div>
                                 </div>
                                 <div className="text-right hidden sm:block">
-                                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold mb-1">Current Balance</p>
+                                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold mb-1">{t("approvals.details.employeeInfo.currentBalance")}</p>
                                     <div className="text-2xl font-bold text-slate-900 dark:text-white">
-                                        12.5 <span className="text-sm font-medium text-slate-500">days</span>
+                                        12.5 <span className="text-sm font-medium text-slate-500">{t("approvals.details.employeeInfo.days")}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className="bg-surface-light dark:bg-surface-dark rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                             <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
-                                <h3 className="font-semibold text-slate-900 dark:text-white">Request Information</h3>
+                                <h3 className="font-semibold text-slate-900 dark:text-white">{t("approvals.details.requestInfo.title")}</h3>
                                 <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                    <span className="material-icons text-sm">schedule</span> 3 Days Total
+                                    <span className="material-icons text-sm">schedule</span> {t("approvals.details.requestInfo.daysTotal", { count: 3 })}
                                 </span>
                             </div>
                             <div className="p-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-4">
                                     <div>
-                                        <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Leave Type</p>
+                                        <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">{t("approvals.details.requestInfo.leaveType")}</p>
                                         <div className="flex items-center gap-2">
                                             <span className="h-2 w-2 rounded-full bg-purple-500"></span>
                                             <span className="text-slate-900 dark:text-white font-medium">Personal Leave</span>
                                         </div>
                                     </div>
                                     <div>
-                                        <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Date Range</p>
+                                        <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">{t("approvals.details.requestInfo.dateRange")}</p>
                                         <div className="text-slate-900 dark:text-white font-medium">Oct 12, 2023 — Oct 14, 2023</div>
                                     </div>
                                     <div className="sm:col-span-2">
-                                        <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-2">Reason</p>
+                                        <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-2">{t("approvals.details.requestInfo.reason")}</p>
                                         <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-md border border-slate-100 dark:border-slate-700 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                                            I need to take time off to attend a family wedding out of state. I have already handed over my pending tasks to Marcus for these three days. I will be
-                                            available via email for urgent matters.
+                                            {t("approvals.details.requestInfo.reasonText")}
                                         </div>
                                     </div>
                                 </div>
@@ -121,7 +123,7 @@ export default function RequestDetailAndApprovalPage() {
                         </div>
                         <div className="bg-surface-light dark:bg-surface-dark rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                             <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-                                <h3 className="font-semibold text-slate-900 dark:text-white">Attachments</h3>
+                                <h3 className="font-semibold text-slate-900 dark:text-white">{t("approvals.details.attachments.title")}</h3>
                             </div>
                             <div className="p-6">
                                 <div className="flex items-center p-3 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer w-full sm:w-auto sm:inline-flex pr-6">
@@ -142,19 +144,19 @@ export default function RequestDetailAndApprovalPage() {
                             <div className="bg-primary/5 dark:bg-primary/10 p-4 border-b border-primary/10">
                                 <h3 className="font-semibold text-primary dark:text-primary-100 flex items-center gap-2">
                                     <span className="material-icons text-sm">gavel</span>
-                                    Approval Action
+                                    {t("approvals.details.action.title")}
                                 </h3>
                             </div>
                             <div className="p-6 space-y-6">
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        Manager's Comments <span className="text-slate-400 font-normal">(Optional)</span>
+                                        {t("approvals.details.action.commentsLabel")} <span className="text-slate-400 font-normal">{t("approvals.details.action.optional")}</span>
                                     </label>
                                     <div className="relative">
                                         <textarea
                                             className="block w-full rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-800 shadow-sm focus:border-primary focus:ring-primary sm:text-sm resize-none p-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                             id="comment"
-                                            placeholder="Add a note explaining your decision..."
+                                            placeholder={t("approvals.details.action.commentsPlaceholder")}
                                         ></textarea>
                                         <div className="absolute bottom-2 right-2 text-xs text-slate-400">0/500</div>
                                     </div>
@@ -165,25 +167,25 @@ export default function RequestDetailAndApprovalPage() {
                                         type="button"
                                     >
                                         <span className="material-icons text-sm mr-2">close</span>
-                                        Reject
+                                        {t("approvals.details.action.rejectBtn")}
                                     </button>
                                     <button
                                         className="w-full inline-flex justify-center items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-success hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all"
                                         type="button"
                                     >
                                         <span className="material-icons text-sm mr-2">check</span>
-                                        Approve
+                                        {t("approvals.details.action.approveBtn")}
                                     </button>
                                 </div>
                                 <div className="flex items-center justify-center pt-2">
                                     <a className="text-xs text-primary hover:text-primary-600 flex items-center gap-1 font-medium" href="#">
-                                        <span className="material-icons text-[14px]">history</span> View full history
+                                        <span className="material-icons text-[14px]">history</span> {t("approvals.details.action.viewHistory")}
                                     </a>
                                 </div>
                             </div>
                         </div>
                         <div className="bg-surface-light dark:bg-surface-dark rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                            <h3 className="font-semibold text-slate-900 dark:text-white mb-4 text-sm uppercase tracking-wide">Request Timeline</h3>
+                            <h3 className="font-semibold text-slate-900 dark:text-white mb-4 text-sm uppercase tracking-wide">{t("approvals.details.timeline.title")}</h3>
                             <div className="flow-root">
                                 <ul className="-mb-8" role="list">
                                     <li>
@@ -197,8 +199,8 @@ export default function RequestDetailAndApprovalPage() {
                                                 </div>
                                                 <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                                                     <div>
-                                                        <p className="text-sm text-slate-900 dark:text-slate-200 font-medium">Request Submitted</p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400">By Sarah Jenkins</p>
+                                                        <p className="text-sm text-slate-900 dark:text-slate-200 font-medium">{t("approvals.details.timeline.submitted")}</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">{t("approvals.details.timeline.by", { name: "Sarah Jenkins" })}</p>
                                                     </div>
                                                     <div className="whitespace-nowrap text-right text-xs text-slate-500 dark:text-slate-400">
                                                         <time>Oct 10</time>
@@ -217,8 +219,8 @@ export default function RequestDetailAndApprovalPage() {
                                                 </div>
                                                 <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                                                     <div>
-                                                        <p className="text-sm text-slate-900 dark:text-slate-200 font-medium">Review Started</p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400">System Auto-Assign</p>
+                                                        <p className="text-sm text-slate-900 dark:text-slate-200 font-medium">{t("approvals.details.timeline.reviewStarted")}</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">{t("approvals.details.timeline.autoAssign")}</p>
                                                     </div>
                                                     <div className="whitespace-nowrap text-right text-xs text-slate-500 dark:text-slate-400">
                                                         <time>Oct 10</time>
@@ -234,9 +236,9 @@ export default function RequestDetailAndApprovalPage() {
                             <div className="flex gap-3">
                                 <span className="material-icons text-primary text-xl shrink-0">info</span>
                                 <div>
-                                    <h4 className="text-sm font-semibold text-primary dark:text-primary-100 mb-1">Company Policy</h4>
+                                    <h4 className="text-sm font-semibold text-primary dark:text-primary-100 mb-1">{t("approvals.details.policy.title")}</h4>
                                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                                        Personal leave requests exceeding 3 days require at least 1 week notice. This request meets the notice period criteria.
+                                        {t("approvals.details.policy.desc")}
                                     </p>
                                 </div>
                             </div>

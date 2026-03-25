@@ -3,6 +3,9 @@ import LoadingUI from "@/components/etc/LoadingUI"
 import PaginationUI from "@/components/etc/PaginationUI"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ChevronsUpDown, CirclePlus, Download, Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
@@ -13,15 +16,16 @@ import { CirclePlus, Download, Edit, SaveIcon, Search, X } from "lucide-react"
 import { useState } from "react"
 
 export default function EmployeeManagementPage() {
+    const { t } = useTranslation();
     const departmentsData = [
-        { value: "all", label: "All Departments" },
-        { value: "tech", label: "Engineering" },
-        { value: "production", label: "Production" },
-        { value: "r&d", label: "Research & Development" },
-        { value: "hr", label: "Human Resources" },
-        { value: "log", label: "Logistics" },
-        { value: "qa", label: "Quality Assurance" },
-        { value: "sys", label: "System" },
+        { value: "all", label: t("admin.attendance.filters.allDepts", "All Departments") },
+        { value: "tech", label: t("admin.common.departments.engineering") },
+        { value: "production", label: t("admin.common.departments.production") },
+        { value: "r&d", label: t("admin.common.departments.rnd") },
+        { value: "hr", label: t("admin.common.departments.hr") },
+        { value: "log", label: t("admin.common.departments.logistics") },
+        { value: "qa", label: t("admin.common.departments.qa") },
+        { value: "sys", label: t("admin.common.departments.system") },
     ]
 
     const annualsData = [
@@ -62,6 +66,29 @@ export default function EmployeeManagementPage() {
         <div className="flex-1 flex relative overflow-hidden">
             <main className="flex-1  relative  z-0">
                 <div className="space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">{t("admin.employees.title")}</h1>
+                            <p className="text-sm text-neutral-500 mt-1">{t("admin.employees.subtitle")}</p>
+                        </div>
+                        <div className="flex gap-3">
+                            <Button className="h-10" variant={"outline"}>
+                                <Download /> {t("admin.employees.exportReport")}
+                            </Button>
+                            <Button className="h-10">
+                                <CirclePlus /> {t("admin.employees.newAdjustment")}
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm bg-white border border-neutral-200 dark:border-neutral-700 p-4">
+                        <div className="flex flex-col lg:flex-row gap-4">
+                            <div className="flex-1 relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                                <input
+                                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400"
+                                    placeholder={t("admin.employees.filters.searchPlaceholder")}
+                                    type="text"
+                                />
                     <Card>
                         <CardContent>
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -90,6 +117,248 @@ export default function EmployeeManagementPage() {
                                 <div className="flex flex-wrap sm:flex-nowrap gap-3">
                                     <CSelectOptions data={departmentsData} valueKey="value" displayKey="label" placeholder="Department" />
 
+                                <Select>
+                                    <SelectTrigger className="w-full sm:w-48">
+                                        <SelectValue placeholder={t("admin.employees.filters.location")} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectItem value="all">{t("admin.employees.filters.allLocations")}</SelectItem>
+                                            <SelectItem value="new_york">{t("admin.employees.filters.newYork")}</SelectItem>
+                                            <SelectItem value="london">{t("admin.employees.filters.london")}</SelectItem>
+                                            <SelectItem value="remote">{t("admin.employees.filters.remote")}</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                <Select>
+                                    <SelectTrigger className="w-full sm:w-48">
+                                        <SelectValue placeholder={t("admin.employees.filters.leaveType")} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectItem value="annual">{t("admin.employees.filters.annual")}</SelectItem>
+                                            <SelectItem value="sick">{t("admin.employees.filters.sick")}</SelectItem>
+                                            <SelectItem value="parental">{t("admin.employees.filters.parental")}</SelectItem>
+                                            <SelectItem value="unpaid">{t("admin.employees.filters.unpaid")}</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border bg-white border-neutral-200 dark:border-neutral-700 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-neutral-50 dark:bg-neutral-800/50 border-b border-neutral-200 dark:border-neutral-700">
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider w-12">
+                                            <input className="rounded border-neutral-300 text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                                        </th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700 dark:hover:text-neutral-300 group">
+                                            <div className="flex items-center gap-1">
+                                                {t("admin.employees.table.employee")}
+                                                <span className="material-icons-round text-base opacity-0 group-hover:opacity-100 transition-opacity">arrow_downward</span>
+                                            </div>
+                                        </th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">{t("admin.employees.table.department")}</th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">{t("admin.employees.table.leaveType")}</th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">{t("admin.employees.table.usedTotal")}</th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right cursor-pointer hover:text-neutral-700 dark:hover:text-neutral-300 group">
+                                            <div className="flex items-center justify-end gap-2">
+                                                {t("admin.employees.table.balance")}
+                                                <ChevronsUpDown size={14} />
+                                            </div>
+                                        </th>
+                                        <th className="py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">{t("admin.employees.table.actions")}</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700 text-sm">
+                                    <tr className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors bg-primary-50/50 dark:bg-primary/5">
+                                        <td className="py-4 px-6">
+                                            <input className="rounded border-neutral-300 text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    className="h-9 w-9 rounded-full object-cover"
+                                                    data-alt="Close up of a man with glasses smiling"
+                                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuC513_j1nMw1rlfKKemQqGV6yAwYwx5udfuXac5Vm7oT0m4qutrwe7K9djjvwq-w7dFqOkIkt3N7blgYa-F6_6OWMdLl3b_h9o0FiUmuS_BE6CXq3rSBYPRXgbc5MuoSoweZrs7VOmsrLE-pQzZq6vZuGK5Aq-8eMa59JndxgNOAA7_CzzG8lkwPek072poRqlCJl9Z1jbZ_bR3rqqINhdne7NaJ_Jm_BeTcoNMda3ze6MdP06wcR3GTWSjBCkHcFrUHwgH3wumXgI"
+                                                />
+                                                <div>
+                                                    <div className="font-medium text-neutral-900 dark:text-white">Alex Morgan</div>
+                                                    <div className="text-xs text-neutral-500">ID: EMP-001</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Engineering</td>
+                                        <td className="py-4 px-6">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                {t("admin.employees.filters.annual")}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">12 / 20</td>
+                                        <td className="py-4 px-6 text-right">
+                                            <span className="font-bold text-neutral-900 dark:text-white font-mono text-base">8.0</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right">
+                                            <button className="text-primary hover:text-primary-700 font-medium text-sm inline-flex items-center gap-1 transition-colors">
+                                                <span className="material-icons-round text-lg">edit</span>
+                                                {t("admin.employees.table.adjust")}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                        <td className="py-4 px-6">
+                                            <input className="rounded border-neutral-300 text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-9 w-9 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 flex items-center justify-center font-bold text-sm">
+                                                    JD
+                                                </div>
+                                                <div>
+                                                    <div className="font-medium text-neutral-900 dark:text-white">Jessica Doe</div>
+                                                    <div className="text-xs text-neutral-500">ID: EMP-042</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Marketing</td>
+                                        <td className="py-4 px-6">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                {t("admin.employees.filters.annual")}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">18 / 20</td>
+                                        <td className="py-4 px-6 text-right">
+                                            <span className="font-bold text-orange-600 dark:text-orange-400 font-mono text-base">2.0</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right">
+                                            <button className="text-neutral-400 hover:text-primary font-medium text-sm inline-flex items-center gap-1 transition-colors">
+                                                <span className="material-icons-round text-lg">edit</span>
+                                                {t("admin.employees.table.adjust")}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                        <td className="py-4 px-6">
+                                            <input className="rounded border-neutral-300 text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    className="h-9 w-9 rounded-full object-cover"
+                                                    data-alt="Profile photo of a man in business casual attire"
+                                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIXvZh4qqiKrlCVcomsvXG3_SwdL1ZTlFwDRq_snF3o5RpocmPNa3cfWqbpDtmnGKSVFLdT6A4tTB6HWsf_28BbbbXXLXJutiu8q4gFlr3LnL5chFmsydCfnfUsRMA_7Y31ZAZaJqyfro-8Wrh6a3iX5aICryE8mSZtoGM-dgspth06L8E9oSh5Bb_YjxrAKCV259bFclacGIanSXZX0-etZZFHlrqeeoA-n4vLKZPtuWaLuqginJft-FWaodPgCgfNyCFFzWzrtE"
+                                                />
+                                                <div>
+                                                    <div className="font-medium text-neutral-900 dark:text-white">Marcus Chen</div>
+                                                    <div className="text-xs text-neutral-500">ID: EMP-103</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Sales</td>
+                                        <td className="py-4 px-6">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                {t("admin.employees.filters.sick")}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">2 / 10</td>
+                                        <td className="py-4 px-6 text-right">
+                                            <span className="font-bold text-neutral-900 dark:text-white font-mono text-base">8.0</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right">
+                                            <button className="text-neutral-400 hover:text-primary font-medium text-sm inline-flex items-center gap-1 transition-colors">
+                                                <span className="material-icons-round text-lg">edit</span>
+                                                {t("admin.employees.table.adjust")}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                        <td className="py-4 px-6">
+                                            <input className="rounded border-neutral-300 text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    className="h-9 w-9 rounded-full object-cover"
+                                                    data-alt="Woman with blonde hair looking professional"
+                                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSVkQnLndrypbd8TOuj785WyB86o9PSzHRLEPds710bqToK5Drab1HaK7RzvNYzMJQMYd5cuzJwu-L4e489LC6a6Oy2GYJ5xwofKYMSpHPk1vY5m-tlGD_Lw6IGxX-jcJpdjeMejobvUDM355MXW4jTRTWW3t9QIByi8z8d4HfvzRKEh576nmXZ2ZZyEYTItL5zbVjteXbZwpQERnz0Kst3ALMJat5FCjGg7RT44Pb42gJoYSdUh150SULL32oYM8KjJhhep09k7g"
+                                                />
+                                                <div>
+                                                    <div className="font-medium text-neutral-900 dark:text-white">Emily Parker</div>
+                                                    <div className="text-xs text-neutral-500">ID: EMP-156</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Product</td>
+                                        <td className="py-4 px-6">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                {t("admin.employees.filters.annual")}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">21 / 20</td>
+                                        <td className="py-4 px-6 text-right">
+                                            <span className="font-bold text-red-600 dark:text-red-400 font-mono text-base">-1.0</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right">
+                                            <button className="text-neutral-400 hover:text-primary font-medium text-sm inline-flex items-center gap-1 transition-colors">
+                                                <span className="material-icons-round text-lg">edit</span>
+                                                {t("admin.employees.table.adjust")}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                        <td className="py-4 px-6">
+                                            <input className="rounded border-neutral-300 text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-9 w-9 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-300 flex items-center justify-center font-bold text-sm">
+                                                    DK
+                                                </div>
+                                                <div>
+                                                    <div className="font-medium text-neutral-900 dark:text-white">David Kim</div>
+                                                    <div className="text-xs text-neutral-500">ID: EMP-088</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">Engineering</td>
+                                        <td className="py-4 px-6">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                {t("admin.employees.filters.annual")}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 font-mono">5 / 20</td>
+                                        <td className="py-4 px-6 text-right">
+                                            <span className="font-bold text-neutral-900 dark:text-white font-mono text-base">15.0</span>
+                                            <span className="text-xs text-neutral-400 ml-1">{t("admin.employees.table.days")}</span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right">
+                                            <button className="text-neutral-400 hover:text-primary font-medium text-sm inline-flex items-center gap-1 transition-colors">
+                                                <span className="material-icons-round text-lg">edit</span>
+                                                {t("admin.employees.table.adjust")}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between">
+                            <div className="text-sm text-neutral-500">
+                                {t("admin.employees.pagination.showing")} <span className="font-medium text-neutral-900 dark:text-white">1</span> {t("admin.employees.pagination.to")} <span className="font-medium text-neutral-900 dark:text-white">5</span> {t("admin.employees.pagination.of")}{" "}
+                                <span className="font-medium text-neutral-900 dark:text-white">128</span> {t("admin.employees.pagination.employees")}
+                            </div>
+                            <div className="flex gap-2">
+                                <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 disabled:opacity-50 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                                    {t("admin.employees.pagination.previous")}
+                                </button>
+                                <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                                    {t("admin.employees.pagination.next")}
+                                </button>
                                     <CSelectOptions data={locationData} valueKey="value" displayKey="label" placeholder="Location" />
                                     <CSelectOptions data={annualsData} valueKey="value" displayKey="label" placeholder="Leave Type" />
                                 </div>

@@ -1,19 +1,22 @@
+import { useTranslation } from "react-i18next";
+
 export default function GlobalRequestPage() {
+    const { t } = useTranslation();
     return (
         <main className="">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Global Requests Management</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Review and manage all employee leave and administrative requests.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t("admin.globalRequests.title")}</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("admin.globalRequests.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
                     <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">download</span>
-                        Export
+                        {t("admin.globalRequests.export")}
                     </button>
                     <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">add</span>
-                        New Request
+                        {t("admin.globalRequests.newRequest")}
                     </button>
                 </div>
             </div>
@@ -24,29 +27,29 @@ export default function GlobalRequestPage() {
                             <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
                             <input
                                 className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 dark:bg-slate-800 rounded-lg text-sm focus:ring-primary focus:border-primary"
-                                placeholder="Search employee..."
+                                placeholder={t("admin.globalRequests.filters.searchPlaceholder")}
                                 type="text"
                             />
                         </div>
                         <select className="w-full border border-slate-200 dark:border-slate-700 dark:bg-slate-800 rounded-lg text-sm focus:ring-primary focus:border-primary">
-                            <option value="">All Departments</option>
-                            <option value="engineering">Engineering</option>
-                            <option value="design">Design</option>
-                            <option value="sales">Sales</option>
-                            <option value="hr">Human Resources</option>
+                            <option value="">{t("admin.globalRequests.filters.allDepartments")}</option>
+                            <option value="engineering">{t("admin.globalRequests.filters.engineering")}</option>
+                            <option value="design">{t("admin.globalRequests.filters.design")}</option>
+                            <option value="sales">{t("admin.globalRequests.filters.sales")}</option>
+                            <option value="hr">{t("admin.globalRequests.filters.hr")}</option>
                         </select>
                         <select className="w-full border border-slate-200 dark:border-slate-700 dark:bg-slate-800 rounded-lg text-sm focus:ring-primary focus:border-primary">
-                            <option value="">All Request Types</option>
-                            <option value="annual">Annual Leave</option>
-                            <option value="sick">Sick Leave</option>
-                            <option value="emergency">Emergency Leave</option>
-                            <option value="remote">Remote Work</option>
+                            <option value="">{t("admin.globalRequests.filters.allRequestTypes")}</option>
+                            <option value="annual">{t("admin.globalRequests.filters.annual")}</option>
+                            <option value="sick">{t("admin.globalRequests.filters.sick")}</option>
+                            <option value="emergency">{t("admin.globalRequests.filters.emergency")}</option>
+                            <option value="remote">{t("admin.globalRequests.filters.remote")}</option>
                         </select>
                         <select className="w-full border border-slate-200 dark:border-slate-700 dark:bg-slate-800 rounded-lg text-sm focus:ring-primary focus:border-primary">
-                            <option value="">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
+                            <option value="">{t("admin.globalRequests.filters.allStatus")}</option>
+                            <option value="pending">{t("admin.globalRequests.filters.pending")}</option>
+                            <option value="approved">{t("admin.globalRequests.filters.approved")}</option>
+                            <option value="rejected">{t("admin.globalRequests.filters.rejected")}</option>
                         </select>
                     </div>
                 </div>
@@ -54,12 +57,12 @@ export default function GlobalRequestPage() {
                     <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
                         <thead className="bg-slate-50 dark:bg-slate-800/50">
                             <tr>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Employee</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Duration</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Applied Date</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.globalRequests.table.employee")}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.globalRequests.table.type")}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.globalRequests.table.duration")}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.globalRequests.table.appliedDate")}</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.globalRequests.table.status")}</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.globalRequests.table.actions")}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -80,18 +83,18 @@ export default function GlobalRequestPage() {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Annual Leave</span>
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">{t("admin.globalRequests.filters.annual")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-slate-900 dark:text-white font-medium">3 Days</div>
+                                    <div className="text-sm text-slate-900 dark:text-white font-medium">3 {t("admin.globalRequests.table.days")}</div>
                                     <div className="text-xs text-slate-500">Oct 12 - Oct 14</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">Oct 08, 2023</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2.5 py-1 rounded text-[11px] font-bold uppercase ghost-tag-pending">Pending</span>
+                                    <span className="px-2.5 py-1 rounded text-[11px] font-bold uppercase ghost-tag-pending">{t("admin.globalRequests.filters.pending")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button className="text-primary hover:text-primary-hover">View Detail</button>
+                                    <button className="text-primary hover:text-primary-hover">{t("admin.globalRequests.table.viewDetail")}</button>
                                 </td>
                             </tr>
                             <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -105,18 +108,18 @@ export default function GlobalRequestPage() {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Sick Leave</span>
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">{t("admin.globalRequests.filters.sick")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-slate-900 dark:text-white font-medium">2 Days</div>
+                                    <div className="text-sm text-slate-900 dark:text-white font-medium">2 {t("admin.globalRequests.table.days")}</div>
                                     <div className="text-xs text-slate-500">Oct 10 - Oct 11</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">Oct 09, 2023</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2.5 py-1 rounded text-[11px] font-bold uppercase ghost-tag-approved">Approved</span>
+                                    <span className="px-2.5 py-1 rounded text-[11px] font-bold uppercase ghost-tag-approved">{t("admin.globalRequests.filters.approved")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button className="text-primary hover:text-primary-hover">View Detail</button>
+                                    <button className="text-primary hover:text-primary-hover">{t("admin.globalRequests.table.viewDetail")}</button>
                                 </td>
                             </tr>
                             <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -130,18 +133,18 @@ export default function GlobalRequestPage() {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Emergency</span>
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">{t("admin.globalRequests.filters.emergency")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-slate-900 dark:text-white font-medium">1 Day</div>
+                                    <div className="text-sm text-slate-900 dark:text-white font-medium">1 {t("admin.globalRequests.table.day")}</div>
                                     <div className="text-xs text-slate-500">Oct 10</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">Oct 10, 2023</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2.5 py-1 rounded text-[11px] font-bold uppercase ghost-tag-approved">Approved</span>
+                                    <span className="px-2.5 py-1 rounded text-[11px] font-bold uppercase ghost-tag-approved">{t("admin.globalRequests.filters.approved")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button className="text-primary hover:text-primary-hover">View Detail</button>
+                                    <button className="text-primary hover:text-primary-hover">{t("admin.globalRequests.table.viewDetail")}</button>
                                 </td>
                             </tr>
                             <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -157,18 +160,18 @@ export default function GlobalRequestPage() {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Remote Work</span>
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">{t("admin.globalRequests.filters.remote")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-slate-900 dark:text-white font-medium">5 Days</div>
+                                    <div className="text-sm text-slate-900 dark:text-white font-medium">5 {t("admin.globalRequests.table.days")}</div>
                                     <div className="text-xs text-slate-500">Oct 20 - Oct 24</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">Oct 11, 2023</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2.5 py-1 rounded text-[11px] font-bold uppercase ghost-tag-rejected">Rejected</span>
+                                    <span className="px-2.5 py-1 rounded text-[11px] font-bold uppercase ghost-tag-rejected">{t("admin.globalRequests.filters.rejected")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button className="text-primary hover:text-primary-hover">View Detail</button>
+                                    <button className="text-primary hover:text-primary-hover">{t("admin.globalRequests.table.viewDetail")}</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -176,13 +179,13 @@ export default function GlobalRequestPage() {
                 </div>
                 <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                     <p className="text-sm text-slate-500">
-                        Showing <span className="font-medium text-slate-900 dark:text-white">1-4</span> of <span className="font-medium text-slate-900 dark:text-white">152</span> requests
+                        {t("admin.globalRequests.pagination.showing")} <span className="font-medium text-slate-900 dark:text-white">1-4</span> {t("admin.globalRequests.pagination.of")} <span className="font-medium text-slate-900 dark:text-white">152</span> {t("admin.globalRequests.pagination.requests")}
                     </p>
                     <div className="flex gap-2">
-                        <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded text-sm disabled:opacity-50">Previous</button>
+                        <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded text-sm disabled:opacity-50">{t("admin.globalRequests.pagination.previous")}</button>
                         <button className="px-3 py-1 bg-primary text-white rounded text-sm">1</button>
                         <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-800">2</button>
-                        <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-800">Next</button>
+                        <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-800">{t("admin.globalRequests.pagination.next")}</button>
                     </div>
                 </div>
             </div>

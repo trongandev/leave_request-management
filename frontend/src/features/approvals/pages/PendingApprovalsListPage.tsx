@@ -1,13 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { CalendarIcon, HourglassIcon, OctagonAlertIcon } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 
 export default function PendingApprovalsListPage() {
     const { t } = useTranslation()
     const dashboardData = [
-        { id: 1, name: "TOTAL PENDING", icon: HourglassIcon, value: 12, color: "text-orange-500", bgColor: "bg-orange-50" },
-        { id: 2, name: "DUE THIS WEEK", icon: CalendarIcon, value: 5, color: "text-primary", bgColor: "bg-primary/5" },
-        { id: 3, name: "URGENT REQUESTS", icon: OctagonAlertIcon, value: 2, color: "text-red-500", bgColor: "bg-red-50" },
+        { id: 1, name: t("approvals.metrics.totalPending"), icon: HourglassIcon, value: 12, color: "text-orange-500", bgColor: "bg-orange-50" },
+        { id: 2, name: t("approvals.metrics.dueThisWeek"), icon: CalendarIcon, value: 5, color: "text-primary", bgColor: "bg-primary/5" },
+        { id: 3, name: t("approvals.metrics.urgentRequests"), icon: OctagonAlertIcon, value: 2, color: "text-red-500", bgColor: "bg-red-50" },
     ]
     return (
         <main className="">
@@ -21,13 +21,13 @@ export default function PendingApprovalsListPage() {
                         <span className="material-icons absolute left-3 top-2.5 text-slate-400 text-lg">search</span>
                         <input
                             className="pl-9 pr-4 py-2 bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 w-full sm:w-64"
-                            placeholder="Search requests..."
+                            placeholder={t("approvals.searchPlaceholder")}
                             type="text"
                         />
                     </div>
                     <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
                         <span className="material-icons text-lg">filter_list</span>
-                        Filter
+                        {t("approvals.filterBtn")}
                     </button>
                 </div>
             </header>
@@ -48,7 +48,7 @@ export default function PendingApprovalsListPage() {
             </div>
             <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-surface-dark">
-                    <h3 className="font-semibold text-slate-800 dark:text-white">Request Queue</h3>
+                    <h3 className="font-semibold text-slate-800 dark:text-white">{t("approvals.queue.title")}</h3>
                     <div className="flex items-center gap-2">
                         <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
                             <span className="material-icons text-xl">refresh</span>
@@ -62,12 +62,12 @@ export default function PendingApprovalsListPage() {
                     <table className="w-full text-left text-sm text-slate-600 dark:text-slate-400">
                         <thead className="bg-slate-50 dark:bg-slate-800/50 uppercase text-xs font-medium text-slate-500 border-b border-slate-200 dark:border-slate-700">
                             <tr>
-                                <th className="px-6 py-3 tracking-wider w-1/4">Employee</th>
-                                <th className="px-6 py-3 tracking-wider">Request Type</th>
-                                <th className="px-6 py-3 tracking-wider">Date Range</th>
-                                <th className="px-6 py-3 tracking-wider">Requested On</th>
-                                <th className="px-6 py-3 tracking-wider">Status</th>
-                                <th className="px-6 py-3 tracking-wider text-right">Action</th>
+                                <th className="px-6 py-3 tracking-wider w-1/4">{t("approvals.queue.columns.employee")}</th>
+                                <th className="px-6 py-3 tracking-wider">{t("approvals.queue.columns.requestType")}</th>
+                                <th className="px-6 py-3 tracking-wider">{t("approvals.queue.columns.dateRange")}</th>
+                                <th className="px-6 py-3 tracking-wider">{t("approvals.queue.columns.requestedOn")}</th>
+                                <th className="px-6 py-3 tracking-wider">{t("approvals.queue.columns.status")}</th>
+                                <th className="px-6 py-3 tracking-wider text-right">{t("approvals.queue.columns.action")}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -101,7 +101,7 @@ export default function PendingApprovalsListPage() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right">
                                     <button className="text-primary hover:text-primary-dark font-medium text-sm transition-colors focus:outline-none focus:underline decoration-2 underline-offset-2">
-                                        Review
+                                        {t("approvals.queue.actions.review")}
                                     </button>
                                 </td>
                             </tr>
@@ -130,7 +130,7 @@ export default function PendingApprovalsListPage() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right">
                                     <button className="text-primary hover:text-primary-dark font-medium text-sm transition-colors focus:outline-none focus:underline decoration-2 underline-offset-2">
-                                        Review
+                                        {t("approvals.queue.actions.review")}
                                     </button>
                                 </td>
                             </tr>
@@ -164,7 +164,7 @@ export default function PendingApprovalsListPage() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right">
                                     <button className="text-primary hover:text-primary-dark font-medium text-sm transition-colors focus:outline-none focus:underline decoration-2 underline-offset-2">
-                                        Review
+                                        {t("approvals.queue.actions.review")}
                                     </button>
                                 </td>
                             </tr>
@@ -198,7 +198,7 @@ export default function PendingApprovalsListPage() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right">
                                     <button className="text-primary hover:text-primary-dark font-medium text-sm transition-colors focus:outline-none focus:underline decoration-2 underline-offset-2">
-                                        Review
+                                        {t("approvals.queue.actions.review")}
                                     </button>
                                 </td>
                             </tr>
@@ -227,7 +227,7 @@ export default function PendingApprovalsListPage() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right">
                                     <button className="text-primary hover:text-primary-dark font-medium text-sm transition-colors focus:outline-none focus:underline decoration-2 underline-offset-2">
-                                        Review
+                                        {t("approvals.queue.actions.review")}
                                     </button>
                                 </td>
                             </tr>
@@ -238,7 +238,7 @@ export default function PendingApprovalsListPage() {
                     <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p className="text-sm text-slate-500">
-                                Showing <span className="font-medium">1</span> to <span className="font-medium">5</span> of <span className="font-medium">12</span> results
+                                <Trans i18nKey="approvals.queue.pagination.showing" values={{from: 1, to: 5, total: 12}} components={{1: <span className="font-medium" />, 3: <span className="font-medium" />, 5: <span className="font-medium" />}} />
                             </p>
                         </div>
                         <div>

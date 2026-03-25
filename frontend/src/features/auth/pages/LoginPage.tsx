@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/useAuthStore"
-import { KeyRoundIcon, LockIcon, MailIcon, VerifiedIcon } from "lucide-react"
+import { KeyRoundIcon, LockIcon, MailIcon, VerifiedIcon, GlobeIcon } from "lucide-react"
 import { useFormik } from "formik"
 import * as Yup from "yup"
 import InputField from "@/components/etc/InputField"
@@ -8,7 +8,11 @@ import authService from "@/services/authService"
 import { toast } from "sonner"
 import { useLocation, useNavigate } from "react-router-dom"
 import { storage } from "@/utils/storage"
+import { useTranslation } from "react-i18next"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 export default function LoginPage() {
+    const { t, i18n } = useTranslation()
     const { setUser } = useAuthStore()
     const location = useLocation()
     const navigate = useNavigate()
@@ -18,8 +22,8 @@ export default function LoginPage() {
             password: "",
         },
         validationSchema: Yup.object({
-            email: Yup.string().email("Invalid email address").required("Email is required"),
-            password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+            email: Yup.string().email(t("auth.login.invalidEmail")).required(t("auth.login.emailRequired")),
+            password: Yup.string().min(6, t("auth.login.passwordMin")).required(t("auth.login.passwordRequired")),
         }),
         onSubmit: async (values) => {
             await handleLogin(values)
@@ -32,7 +36,7 @@ export default function LoginPage() {
             if (res.success) {
                 setUser(res.data.user)
                 storage.setCookieToken(res.data.accessToken)
-                toast.success("Đăng nhập thành công")
+                toast.success(t("auth.login.success"))
                 if (location.state?.from) {
                     navigate(location.state.from.pathname)
                 } else {
@@ -41,7 +45,7 @@ export default function LoginPage() {
             }
         } catch (error: any) {
             console.log(error)
-            toast.error("Đăng nhập thất bại", {
+            toast.error(t("auth.login.failed"), {
                 description: error?.response?.data?.message,
             })
         }
@@ -68,7 +72,7 @@ export default function LoginPage() {
                     <div className="p-2 border rounded-lg bg-white/10 backdrop-blur-sm border-white/20">
                         <span className="text-3xl text-white material-icons">corporate_fare</span>
                     </div>
-                    <span className="text-2xl font-bold tracking-tight text-white">LRM Enterprise</span>
+                    <span className="text-2xl font-bold tracking-tight text-white">{t("auth.login.brandName")}</span>
                 </div>
                 <div className="relative z-10 flex flex-col items-center justify-center py-12 grow">
                     <div className="relative w-80 h-80">
@@ -96,14 +100,14 @@ export default function LoginPage() {
                         </div>
                         <div className="absolute -right-4 top-20 bg-white text-primary px-4 py-2 rounded-lg shadow-lg text-sm font-semibold flex items-center gap-2 animate-[bounce_3s_infinite]">
                             <VerifiedIcon />
-                            Secure Access
+                            {t("auth.login.secureAccess")}
                         </div>
                     </div>
                 </div>
                 <div className="relative z-10 max-w-md">
-                    <h2 className="mb-4 text-3xl font-bold leading-snug">Streamline your workforce management.</h2>
+                    <h2 className="mb-4 text-3xl font-bold leading-snug">{t("auth.login.slogan")}</h2>
                     <p className="text-lg font-light leading-relaxed text-blue-100">
-                        Access your LRM tools, leave management, and payroll in one secure, unified platform designed for the modern enterprise.
+                        {t("auth.login.description")}
                     </p>
                     <div className="flex gap-2 mt-8">
                         <div className="w-8 h-1 bg-white rounded-full"></div>
@@ -115,32 +119,32 @@ export default function LoginPage() {
             <div className="relative flex flex-col items-center justify-center w-full p-8 bg-white lg:w-1/2 dark:bg-background-dark lg:p-16">
                 <div className="absolute flex items-center space-x-2 lg:hidden top-8 left-8">
                     <span className="text-3xl material-icons text-primary">corporate_fare</span>
-                    <span className="text-xl font-bold text-gray-900 dark:text-white">HR Enterprise</span>
+                    <span className="text-xl font-bold text-gray-900 dark:text-white">{t("auth.login.brandName")}</span>
                 </div>
                 <div className="w-full max-w-md space-y-8">
                     <div className="space-y-2 text-left">
-                        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Welcome back</h1>
-                        <p className="text-base text-neutral-text dark:text-gray-400">Please enter your details to sign in.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{t("auth.login.welcomeBack")}</h1>
+                        <p className="text-base text-neutral-text dark:text-gray-400">{t("auth.login.enterDetails")}</p>
                     </div>
                     <form className="space-y-6" onSubmit={formik.handleSubmit}>
-                        <InputField iconLeft={MailIcon} label="Work Email" name="email" placeholder="name@example.com" type="email" formik={formik} />
-                        <InputField iconLeft={LockIcon} label="Password" name="password" placeholder="••••••••" type="password" formik={formik} />
+                        <InputField iconLeft={MailIcon} label={t("auth.login.email")} name="email" placeholder={t("auth.login.emailPlaceholder")} type="email" formik={formik} />
+                        <InputField iconLeft={LockIcon} label={t("auth.login.password")} name="password" placeholder={t("auth.login.passwordPlaceholder")} type="password" formik={formik} />
 
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
                                 <input className="w-4 h-4 border-gray-300 rounded cursor-pointer text-primary focus:ring-primary" id="remember-me" name="remember-me" type="checkbox" />
                                 <label className="block ml-2 text-sm text-gray-600 cursor-pointer dark:text-gray-400" htmlFor="remember-me">
-                                    Remember me
+                                    {t("auth.login.rememberMe")}
                                 </label>
                             </div>
                             <div className="text-sm">
                                 <a className="font-medium text-gray-500 transition-colors hover:text-primary dark:text-gray-400 dark:hover:text-white" href="#">
-                                    Forgot password?
+                                    {t("auth.login.forgotPassword")}
                                 </a>
                             </div>
                         </div>
                         <Button className="w-full h-12" type="submit">
-                            Sign in
+                            {t("auth.login.signIn")}
                         </Button>
                     </form>
                     <div className="relative">
@@ -148,27 +152,39 @@ export default function LoginPage() {
                             <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 text-gray-500 bg-white dark:bg-background-dark dark:text-gray-400">Or continue with</span>
+                            <span className="px-2 text-gray-500 bg-white dark:bg-background-dark dark:text-gray-400">{t("auth.login.orContinueWith")}</span>
                         </div>
                     </div>
                     <Button className="w-full h-12" variant={"outline"}>
-                        <KeyRoundIcon /> Single Sign-On (SSO)
+                        <KeyRoundIcon /> {t("auth.login.sso")}
                     </Button>
 
                     <div className="pt-8 text-xs text-center text-gray-400 dark:text-gray-500">
-                        <p className="mb-2">© 2026 BOS. All rights reserved.</p>
+                        <p className="mb-2">{t("auth.login.copyright")}</p>
                         <div className="flex justify-center space-x-4">
                             <a className="transition-colors hover:text-primary" href="#">
-                                Privacy Policy
+                                {t("auth.login.privacyPolicy")}
                             </a>
                             <span>•</span>
                             <a className="transition-colors hover:text-primary" href="#">
-                                Terms of Service
+                                {t("auth.login.termsOfService")}
                             </a>
                             <span>•</span>
                             <a className="transition-colors hover:text-primary" href="#">
-                                Help Center
+                                {t("auth.login.helpCenter")}
                             </a>
+                        </div>
+                        <div className="flex justify-center mt-2">
+                            <Select defaultValue={i18n.language} onValueChange={(val) => i18n.changeLanguage(val)}>
+                                <SelectTrigger className="w-[250px] h-6 text-xs bg-transparent border-none cursor-pointer shadow-none focus:ring-0 gap-1.5 hover:text-primary transition-colors justify-center text-gray-500 dark:text-gray-400">
+                                    <GlobeIcon className="w-4.5 h-3.5" />
+                                    <SelectValue placeholder="Language" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem className="cursor-pointer" value="vi">{t("preferences.localization.language.options.vi")}</SelectItem>
+                                    <SelectItem className="cursor-pointer" value="en">{t("preferences.localization.language.options.en")}</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                 </div>

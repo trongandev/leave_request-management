@@ -1,18 +1,22 @@
+import { useTranslation } from "react-i18next";
+
 export default function AdminDashboardPage() {
+    const { t } = useTranslation();
+
     return (
         <main className="flex-1 p-8 h-full min-h-screen">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Admin Dashboard Overview</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Summary of enterprise leave management and manpower metrics.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t("admin.dashboard.title")}</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("admin.dashboard.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
                     <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
-                        Generate Report
+                        {t("admin.dashboard.generateReport")}
                     </button>
                     <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">calendar_today</span>
-                        Leave Calendar
+                        {t("admin.dashboard.leaveCalendar")}
                     </button>
                 </div>
             </div>
@@ -22,9 +26,9 @@ export default function AdminDashboardPage() {
                         <span className="material-icons text-3xl">flight_takeoff</span>
                     </div>
                     <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Currently on Leave</p>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.dashboard.currentlyOnLeave.title")}</p>
                         <h3 className="text-2xl font-bold text-slate-900 dark:text-white">12</h3>
-                        <p className="text-xs text-emerald-600 font-medium mt-1">4 Returning Tomorrow</p>
+                        <p className="text-xs text-emerald-600 font-medium mt-1">{t("admin.dashboard.currentlyOnLeave.subtitle", { count: 4 })}</p>
                     </div>
                 </div>
                 <div className="bg-white dark:bg-neutral-dark p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-5">
@@ -32,9 +36,9 @@ export default function AdminDashboardPage() {
                         <span className="material-icons text-3xl">pending_actions</span>
                     </div>
                     <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Approvals</p>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.dashboard.pendingApprovals.title")}</p>
                         <h3 className="text-2xl font-bold text-slate-900 dark:text-white">28</h3>
-                        <p className="text-xs text-slate-400 mt-1">Avg response time: 2h</p>
+                        <p className="text-xs text-slate-400 mt-1">{t("admin.dashboard.pendingApprovals.subtitle")}</p>
                     </div>
                 </div>
                 <div className="bg-white dark:bg-neutral-dark p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-5">
@@ -42,21 +46,21 @@ export default function AdminDashboardPage() {
                         <span className="material-icons text-3xl">groups</span>
                     </div>
                     <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Employees</p>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.dashboard.totalEmployees.title")}</p>
                         <h3 className="text-2xl font-bold text-slate-900 dark:text-white">452</h3>
-                        <p className="text-xs text-indigo-600 font-medium mt-1">+3 New this month</p>
+                        <p className="text-xs text-indigo-600 font-medium mt-1">{t("admin.dashboard.totalEmployees.subtitle", { count: 3 })}</p>
                     </div>
                 </div>
             </div>
             <div className="bg-white dark:bg-neutral-dark p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 mb-8">
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Manpower Trends (Last 6 Months)</h2>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t("admin.dashboard.trends.title")}</h2>
                     <div className="flex gap-2">
                         <span className="flex items-center gap-1.5 text-xs text-slate-500">
-                            <span className="w-3 h-3 rounded-full bg-primary"></span> Active Staff
+                            <span className="w-3 h-3 rounded-full bg-primary"></span> {t("admin.dashboard.trends.activeStaff")}
                         </span>
                         <span className="flex items-center gap-1.5 text-xs text-slate-500">
-                            <span className="w-3 h-3 rounded-full bg-slate-300"></span> Leave Balance
+                            <span className="w-3 h-3 rounded-full bg-slate-300"></span> {t("admin.dashboard.trends.leaveBalance")}
                         </span>
                     </div>
                 </div>
@@ -100,17 +104,17 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 bg-white dark:bg-neutral-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Recent Requests</h2>
-                        <button className="text-primary text-sm font-semibold hover:underline">View All</button>
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t("admin.dashboard.recentRequests.title")}</h2>
+                        <button className="text-primary text-sm font-semibold hover:underline">{t("admin.dashboard.recentRequests.viewAll")}</button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
                             <thead className="bg-slate-50 dark:bg-slate-800/50">
                                 <tr>
-                                    <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Employee</th>
-                                    <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
-                                    <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Dates</th>
-                                    <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                                    <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.dashboard.recentRequests.columns.employee")}</th>
+                                    <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.dashboard.recentRequests.columns.type")}</th>
+                                    <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.dashboard.recentRequests.columns.dates")}</th>
+                                    <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.dashboard.recentRequests.columns.status")}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -192,12 +196,12 @@ export default function AdminDashboardPage() {
                     </div>
                 </div>
                 <div className="bg-white dark:bg-neutral-dark p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Today's Attendance</h2>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6">{t("admin.dashboard.attendance.title")}</h2>
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Present</span>
+                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("admin.dashboard.attendance.present")}</span>
                             </div>
                             <span className="text-sm font-bold text-slate-900 dark:text-white">410 / 452</span>
                         </div>
@@ -207,7 +211,7 @@ export default function AdminDashboardPage() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
-                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">On Leave</span>
+                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("admin.dashboard.attendance.onLeave")}</span>
                             </div>
                             <span className="text-sm font-bold text-slate-900 dark:text-white">12</span>
                         </div>
@@ -217,7 +221,7 @@ export default function AdminDashboardPage() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Late In</span>
+                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("admin.dashboard.attendance.lateIn")}</span>
                             </div>
                             <span className="text-sm font-bold text-slate-900 dark:text-white">8</span>
                         </div>
@@ -227,7 +231,7 @@ export default function AdminDashboardPage() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
-                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Unaccounted</span>
+                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("admin.dashboard.attendance.unaccounted")}</span>
                             </div>
                             <span className="text-sm font-bold text-slate-900 dark:text-white">22</span>
                         </div>
@@ -237,7 +241,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
                         <button className="w-full flex items-center justify-center gap-2 py-2 text-primary font-semibold text-sm hover:bg-primary-light/50 rounded-lg transition-colors">
-                            Check Detailed Logs
+                            {t("admin.dashboard.attendance.checkLogs")}
                             <span className="material-icons text-[16px]">arrow_forward</span>
                         </button>
                     </div>
