@@ -46,6 +46,8 @@ export async function paginate<T>(
       page: Number(page),
       limit: Number(limit),
       last_page: Math.ceil(total / limit),
+      has_next: page < Math.ceil(total / limit),
+      has_prev: page > 1,
     },
   };
 }

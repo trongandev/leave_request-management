@@ -1,0 +1,60 @@
+export const notifyData = [
+    {
+        id: 1,
+        type: "SUCCESS",
+        label: "THÀNH CÔNG",
+        content: "Đơn nghỉ phép của <strong>Sasha Chen</strong> đã được duyệt",
+        time: "2 phút trước",
+        isRead: false,
+    },
+    {
+        id: 2,
+        type: "WARNING",
+        label: "CẢNH BÁO",
+        content: "Hệ thống sẽ bảo trì vào <strong>22:00 tối nay</strong>",
+        time: "45 phút trước",
+        isRead: false,
+    },
+    {
+        id: 3,
+        type: "REQUEST",
+        label: "YÊU CẦU",
+        content: "Bạn có 3 yêu cầu chờ phê duyệt mới",
+        time: "1 giờ trước",
+        isRead: false,
+    },
+    {
+        id: 4,
+        type: "INFO",
+        label: "THÔNG TIN",
+        content: "Cập nhật chính sách bảo hiểm quý 3",
+        time: "3 giờ trước",
+        isRead: true,
+    },
+    {
+        id: 5,
+        type: "MENTION",
+        label: "GẮN THẺ",
+        content: "<strong>Minh Thư</strong> đã gắn thẻ bạn trong một báo cáo",
+        time: "5 giờ trước",
+        avatar: "https://i.pravatar.cc/150?u=minhthu",
+        isRead: true,
+    },
+    {
+        id: 6,
+        type: "DOCUMENT",
+        label: "TÀI LIỆU",
+        content: "Báo cáo tài chính tháng 7 đã sẵn sàng để tải về",
+        time: "Hôm qua",
+        isRead: true,
+    },
+]
+
+export const TYPE_CONFIG = {
+    SUCCESS: { bg: "bg-green-100", text: "text-green-600", labelBg: "bg-green-50" },
+    WARNING: { bg: "bg-orange-100", text: "text-orange-600", labelBg: "bg-orange-50" },
+    REQUEST: { bg: "bg-blue-100", text: "text-blue-600", labelBg: "bg-blue-600 text-white" },
+    INFO: { bg: "bg-blue-100", text: "text-blue-500", labelBg: "bg-blue-50" },
+    MENTION: { bg: "bg-gray-100", text: "text-gray-600", labelBg: "bg-gray-50" },
+    DOCUMENT: { bg: "bg-gray-100", text: "text-gray-600", labelBg: "bg-gray-50" },
+}

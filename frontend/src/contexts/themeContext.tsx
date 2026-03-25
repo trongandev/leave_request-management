@@ -15,20 +15,27 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         const root = document.documentElement
-        if (theme === "dark") {
-            root.classList.add("dark")
-            localStorage.setItem("theme", "dark")
-        } else if (theme === "system") {
-            const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-            if (systemPrefersDark) {
+        const media = window.matchMedia("(prefers-color-scheme: dark)")
+
+        const applyTheme = () => {
+            if (theme === "dark") {
                 root.classList.add("dark")
+                localStorage.setItem("theme", "dark")
+            } else if (theme === "system") {
+                root.classList.toggle("dark", media.matches)
+                localStorage.setItem("theme", "system")
             } else {
                 root.classList.remove("dark")
+                localStorage.setItem("theme", "light")
             }
-            localStorage.setItem("theme", "system")
-        } else {
-            root.classList.remove("dark")
-            localStorage.setItem("theme", "light")
+        }
+
+        applyTheme()
+
+        if (theme === "system") {
+            const onChange = () => applyTheme()
+            media.addEventListener("change", onChange)
+            return () => media.removeEventListener("change", onChange)
         }
     }, [theme])
 

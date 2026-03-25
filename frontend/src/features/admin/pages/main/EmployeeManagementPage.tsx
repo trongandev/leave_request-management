@@ -1,8 +1,19 @@
 import CSelectOptions from "@/components/etc/CSelectOptions"
+import LoadingUI from "@/components/etc/LoadingUI"
+import PaginationUI from "@/components/etc/PaginationUI"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronsUpDown, CirclePlus, Download, Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import userService from "@/services/userService"
+import type { User, UserResponse } from "@/types/user"
+import { useQuery } from "@tanstack/react-query"
+import { CirclePlus, Download, Edit, SaveIcon, Search, X } from "lucide-react"
+import { useState } from "react"
 
 export default function EmployeeManagementPage() {
     const { t } = useTranslation();
@@ -16,9 +27,44 @@ export default function EmployeeManagementPage() {
         { value: "qa", label: t("admin.common.departments.qa") },
         { value: "sys", label: t("admin.common.departments.system") },
     ]
+
+    const annualsData = [
+        { value: "all", label: "All Annuals" },
+        { value: "sick", label: "Sick Leave" },
+        { value: "personal", label: "Personal Leave" },
+        { value: "compensatory", label: "Compensatory Leave" },
+        { value: "vacation", label: "Vacation Leave" },
+    ]
+
+    const locationData = [
+        { value: "all", label: "All Locations" },
+        { value: "new_york", label: "New York" },
+        { value: "london", label: "London" },
+        { value: "remote", label: "Remote" },
+    ]
+
+    const [page, setPage] = useState(1)
+    const { data, isLoading } = useQuery<UserResponse>({
+        queryKey: ["employees", page],
+        queryFn: () => userService.getAllUsers({ page }),
+    })
+    const [adjustEmp, setAdjustEmp] = useState<User | null>(null)
+
+    const columns = ["EMPLOYEE", "DEPARTMENT", "POSTITION", "ROLE", "STATUS", "ACTIONS"]
+
+    console.log(data)
+
+    const handleSaveChanges = () => {
+        // Implementation for saving changes
+    }
+    const handlePageChange = (page: number) => {
+        // Implementation for handling page change
+        setPage(page)
+    }
+
     return (
-        <div className="flex-1 flex overflow-hidden relative">
-            <main className="flex-1 overflow-y-auto p-6 lg:p-8 custom-scrollbar relative z-0">
+        <div className="flex-1 flex relative overflow-hidden">
+            <main className="flex-1  relative  z-0">
                 <div className="space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
@@ -43,9 +89,33 @@ export default function EmployeeManagementPage() {
                                     placeholder={t("admin.employees.filters.searchPlaceholder")}
                                     type="text"
                                 />
+                    <Card>
+                        <CardContent>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Leave Balances</h1>
+                                    <p className="text-sm text-neutral-500 mt-1">Manage and audit employee leave entitlements and usage.</p>
+                                </div>
+                                <div className="flex gap-3">
+                                    <Button className="h-10" variant={"outline"}>
+                                        <Download /> Export Report
+                                    </Button>
+                                    <Button className="h-10">
+                                        <CirclePlus /> New Adjustment
+                                    </Button>
+                                </div>
                             </div>
-                            <div className="flex flex-wrap sm:flex-nowrap gap-3">
-                                <CSelectOptions data={departmentsData} valueKey="value" displayKey="label" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent>
+                            <div className="flex flex-col lg:flex-row gap-4">
+                                <div className="flex-1 relative h-12">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 " size={20} />
+                                    <Input className="w-full h-full pl-10" placeholder="Search by name, ID or email..." type="text" />
+                                </div>
+                                <div className="flex flex-wrap sm:flex-nowrap gap-3">
+                                    <CSelectOptions data={departmentsData} valueKey="value" displayKey="label" placeholder="Department" />
 
                                 <Select>
                                     <SelectTrigger className="w-full sm:w-48">
@@ -289,31 +359,86 @@ export default function EmployeeManagementPage() {
                                 <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800">
                                     {t("admin.employees.pagination.next")}
                                 </button>
+                                    <CSelectOptions data={locationData} valueKey="value" displayKey="label" placeholder="Location" />
+                                    <CSelectOptions data={annualsData} valueKey="value" displayKey="label" placeholder="Leave Type" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    {isLoading && <LoadingUI />}
+                    {!isLoading && (
+                        <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-xs border bg-card  overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-neutral-50 dark:bg-neutral-800/50 border-b border-neutral-200 dark:border-neutral-700">
+                                            {columns.map((column) => (
+                                                <th key={column} className="py-5 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-center">
+                                                    {column}
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700 text-sm">
+                                        {data?.data.map((item, index) => (
+                                            <tr key={index} className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                                <td className="py-4 px-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <img className="h-9 w-9 rounded-full object-cover" data-alt="Close up of a man with glasses smiling" src={item.avatar} />
+                                                        <div>
+                                                            <div className="font-medium text-neutral-900 dark:text-white">{item.fullName}</div>
+                                                            <div className="text-xs text-neutral-500">ID: {item.empId}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">{item?.departmentId?.originName || "System"}</td>
+                                                <td className="py-4 px-6">
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                        {item?.positionId?.fullName || "IT"}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 text-xs">
+                                                    <Badge>{item?.roleId?.name || "User"}</Badge>
+                                                </td>
+                                                <td className="py-4 px-6 text-right">
+                                                    <Switch />
+                                                </td>
+                                                <td className="py-4 px-6 text-right">
+                                                    <Button variant={"ghost"} onClick={() => setAdjustEmp(item)}>
+                                                        <Edit />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4">
+                                <PaginationUI pagination={data?.meta} onPageChange={handlePageChange} />
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </main>
-            {/* <div className="absolute inset-y-0 right-0 w-full sm:w-96 bg-surface-light backdrop-blur-sm dark:bg-surface-dark shadow-2xl transform transition-transform border-l border-neutral-200 dark:border-neutral-700 z-10 flex flex-col">
+            {adjustEmp && <div className="absolute inset-0 bg-black/10" onClick={() => setAdjustEmp(null)}></div>}
+            <div
+                className={`absolute inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-surface-dark shadow-2xl transform transition-transform border-l border-neutral-200 dark:border-neutral-700 z-10 flex flex-col ${adjustEmp ? "translate-x-0" : "translate-x-[200%]"}`}
+            >
                 <div className="px-6 py-5 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between bg-neutral-50 dark:bg-neutral-800/50">
                     <div>
                         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Adjust Balance</h2>
                         <p className="text-xs text-neutral-500 mt-0.5">Edit leave details for selected employee.</p>
                     </div>
-                    <Button variant={"ghost"}>
+                    <Button variant={"ghost"} onClick={() => setAdjustEmp(null)}>
                         <X />
                     </Button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                     <div className="flex items-center gap-4 p-4 bg-primary-50 dark:bg-primary/10 rounded-lg border border-primary-100 dark:border-primary/20">
-                        <img
-                            className="h-12 w-12 rounded-full object-cover border-2 border-white dark:border-neutral-700"
-                            data-alt="Close up of a man with glasses smiling"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_GuoKCrhctfCBww4Te73puyMsSDXh03BQB8dLLu1JvPnDe1Wwss7GBAcXJziT97LGE7WikEFbFNJeilW8c9IdP1qN35BzxVm-Xqo67EaZtBWf1smJUwFKshf--x7pVSJrotA-yAigc-OVyellU7AheTMqxXYPRL_bUDb9k3sBkYUJYHHoFNVzACxq_jDERHCuZaM0RNAeG45s3yWNtuXORv_3g-GJQrlQTVzPKAKHia0mCdhyw4KtDBMm1W82kEHUGJnCMYs1WQ0"
-                        />
+                        <img className="h-12 w-12 rounded-full object-cover border-2 border-white dark:border-neutral-700" data-alt="Close up of a man with glasses smiling" src={adjustEmp?.avatar} />
                         <div>
-                            <div className="font-semibold text-neutral-900 dark:text-white">Alex Morgan</div>
-                            <div className="text-xs text-neutral-500">Engineering • Senior Dev</div>
+                            <div className="font-semibold text-neutral-900 dark:text-white">{adjustEmp?.fullName}</div>
+                            <div className="text-xs text-neutral-500">{adjustEmp?.positionId.fullName}</div>
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -401,13 +526,15 @@ export default function EmployeeManagementPage() {
                 </div>
                 <div className="p-6 border-t border-neutral-200 dark:border-neutral-700 bg-surface-light dark:bg-surface-dark mt-auto">
                     <div className="flex gap-3">
-                        <button className="flex-1 px-4 py-2.5 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 dark:bg-transparent dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800 transition-colors">
+                        <Button variant={"outline"} className="flex-1" onClick={() => setAdjustEmp(null)}>
                             Cancel
-                        </button>
-                        <button className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-700 shadow-sm transition-colors">Save Changes</button>
+                        </Button>
+                        <Button className="flex-1" onClick={handleSaveChanges}>
+                            <SaveIcon /> Save Changes
+                        </Button>
                     </div>
                 </div>
-            </div> */}
+            </div>
         </div>
     )
 }

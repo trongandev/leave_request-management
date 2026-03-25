@@ -20,6 +20,7 @@ export default function ProfilePage() {
                                 {user && <CAvatarProfile user={user} className="h-24 w-24 bg-white text-3xl font-semibold" />}
                                 <h1 className="text-xl mt-3 font-bold text-slate-900 dark:text-white">{user?.fullName || "Alex Johnson"}</h1>
                                 <p className="text-slate-500 text-sm font-medium">{user?.positionId.fullName || t("general.profile.roles.seniorDeveloper")}</p>
+                                <p className="text-slate-500 text-sm font-medium">{user?.positionId?.fullName || "Senior Frontend Developer"}</p>
                                 <div className="mt-6 w-full space-y-3 pt-6 border-t border-slate-100 dark:border-slate-800">
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-slate-500">{t("general.profile.info.empId")}</span>

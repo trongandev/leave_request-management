@@ -40,7 +40,7 @@ export default function LeaveBalanceEmployeePage() {
 
     const { data, isLoading } = useQuery<UserResponse>({
         queryKey: ["employees"],
-        queryFn: () => userService.getAllUsers(),
+        queryFn: () => userService.getAllUsers({}),
     })
     const [adjustEmp, setAdjustEmp] = useState<User | null>(null)
 
@@ -61,7 +61,7 @@ export default function LeaveBalanceEmployeePage() {
 
     return (
         <div className="flex-1 flex overflow-hidden relative">
-            <main className="flex-1 overflow-y-auto p-5 custom-scrollbar relative z-0">
+            <main className="flex-1 overflow-y-auto custom-scrollbar relative z-0">
                 <div className="space-y-6">
                     <Card>
                         <CardContent>

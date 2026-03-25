@@ -1308,6 +1308,17 @@ const resources = {
                     save: "Save Preferences"
                 }
             },
+            etc: {
+                pagination: {
+                    prev: "Previous",
+                    next: "Next",
+                    page: "Page",
+                    show: "Showing",
+                    to: "to",
+                    of: "of",
+                    employee: "employees",
+                },
+            },
         },
     },
     vi: {
@@ -2608,6 +2619,17 @@ const resources = {
                     workflows: { title: "Quản lý Quy trình phê duyệt", desc: "Xác định các trình tự phê duyệt nhiều cấp cho các phòng ban." }
                 }
             }
+            etc: {
+                pagination: {
+                    prev: "Quay về",
+                    next: "Tiến tới",
+                    page: "Trang",
+                    show: "Hiển thị",
+                    to: "tới",
+                    of: "trong",
+                    employee: "nhân viên",
+                },
+            },
         },
         },
     }

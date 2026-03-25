@@ -104,6 +104,13 @@ export default function GeneralSidebar() {
                     { name: t("sidebar.accessControl"), icon: BrickWallShieldIcon, href: "/admin/access-control" },
                 ],
             },
+            {
+                name: t("sidebar.setting"),
+                items: [
+                    { name: t("sidebar.profile"), icon: UserIcon, href: "/profile" },
+                    { name: t("sidebar.preference"), icon: SettingsIcon, href: "/preferences" },
+                ],
+            },
         ],
         [t],
     )

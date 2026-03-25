@@ -3,8 +3,8 @@ import { type APIResponse } from "../types/etc"
 import { type User, type UserResponse } from "../types/user"
 
 class UserService {
-    async getAllUsers() {
-        const response = await axiosInstance.get<APIResponse<UserResponse>>("/users")
+    async getAllUsers({ page = 1 }: { page?: number }) {
+        const response = await axiosInstance.get<APIResponse<UserResponse>>(`/users?page=${page}`)
         return response.data.data
     }
 
