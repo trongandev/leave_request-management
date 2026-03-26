@@ -12,3 +12,10 @@ export class AssignManagerDto {
   @IsString({ message: 'empId must be a string' })
   empId!: string;
 }
+
+export class RemoveManagerDto {
+  @ApiProperty({ example: '22890001', description: 'empId của employee' })
+  @IsNotEmpty({ message: 'empId is required' })
+  @IsString({ message: 'empId must be a string' })
+  empId!: string;
+}

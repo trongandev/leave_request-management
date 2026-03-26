@@ -16,9 +16,8 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
-import { Req } from '@nestjs/common';
 import { Permission } from '../enum/permission.enum';
-import { AssignManagerDto } from './dto/assign-manager.dto';
+import { AssignManagerDto, RemoveManagerDto } from './dto/assign-manager.dto';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @Controller('users')
@@ -52,35 +51,28 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Patch('manager')
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions(Permission.ASSIGN_MANAGER)
+  assignManager(@Body() dto: AssignManagerDto, @CurrentUser() user: any) {
+    return this.usersService.assignManagerByEmpId(dto.empId, dto.managerId, user);
+  }
+  
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
+  @Delete('manager')
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions(Permission.ASSIGN_MANAGER)
+  removeManager(@Body() dto: RemoveManagerDto, @CurrentUser() user: any) {
+    return this.usersService.removeManagerByEmpId(dto.empId, user);
+  }
   @Delete(':id')
-  remove(@CurrentUser() user, @Param('id') id: string) {
-    console.log(user);
-    return true;
-    // return this.usersService.removeManagerByEmpId(id, user);
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 
-  @Patch('manager')
-  @UseGuards(AuthGuard('jwt'))
-  @RequirePermissions(Permission.ASSIGN_MANAGER)
-  assignManager(@Body() dto: AssignManagerDto, @CurrentUser() user) {
-    console.log(user);
-    return this.usersService.assignManagerByEmpId(
-      dto.empId,
-      dto.managerId,
-      user,
-    );
-  }
 
-  // Endpoint mới để xóa manager
-  @Delete(':empId/manager')
-  @UseGuards(AuthGuard('jwt'))
-  @RequirePermissions(Permission.ASSIGN_MANAGER)
-  removeManager(@Param('empId') empId: string, @Req() req: any) {
-    return this.usersService.removeManagerByEmpId(empId, req.user);
-  }
 }
