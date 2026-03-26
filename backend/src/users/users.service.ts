@@ -152,7 +152,8 @@ export class UsersService {
       return await this.create(fakeData);
     } catch (error) {
       // Nếu trùng email ngẫu nhiên thì thử lại một lần nữa
-      console.error('Fake User Creation failed, retrying...', error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Fake User Creation failed, retrying...', message);
       return this.createFakeUser();
     }
   }
@@ -206,7 +207,23 @@ export class UsersService {
       .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
       .exec();
   }
+  remove(id: string) {
+    const self = this as any;
 
+    if (typeof self.delete === 'function') {
+      return self.delete(id);
+    }
+
+    if (typeof self.deleteById === 'function') {
+      return self.deleteById(id);
+    }
+
+    if (typeof self.removeById === 'function') {
+      return self.removeById(id);
+    }
+
+    throw new Error(`UsersService.remove is not implemented (id=${id})`);
+  }
   // Helper function để kiểm tra vòng lặp quản lý
   private async assertNoManagerCycle(userId: string, newManagerId: string) {
     let currentManagerId: string | null = newManagerId;
@@ -266,7 +283,6 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    // Sửa: Populate roleId để kiểm tra role
     const manager = await this.userModel
       .findOne({ empId: managerEmpId })
       .select('_id empId roleId')
@@ -294,10 +310,6 @@ export class UsersService {
   }
 
   async removeManagerByEmpId(userEmpId: string, actor: any) {
-    const actorRoleName = actor?.roleId?.name;
-    if (actorRoleName !== 'HR') {
-      throw new BadRequestException('Only HR can remove manager');
-    }
 
     if (!userEmpId) {
       throw new BadRequestException('userEmpId is required');
@@ -315,7 +327,8 @@ export class UsersService {
       .findByIdAndUpdate(user._id, { managerId: null }, { new: true })
       .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
       .exec();
-
     return updated;
   }
+
+
 }
