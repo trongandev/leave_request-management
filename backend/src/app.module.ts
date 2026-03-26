@@ -18,7 +18,7 @@ import { PermissionsGuard } from './auth/guards/permissions.guard';
 import { CountersModule } from './counters/counters.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { PositionsModule } from './positions/positions.module';
-import { LogsModule } from './logs/logs.module';
+// import { LogsModule } from './logs/logs.module';
 import { ErrorLog, ErrorLogSchema } from './logs/error-log.schema';
 
 @Module({
@@ -40,7 +40,7 @@ import { ErrorLog, ErrorLogSchema } from './logs/error-log.schema';
 
     UsersModule,
 
-    LogsModule,
+    // LogsModule,
 
     AuthModule,
 
