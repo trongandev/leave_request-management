@@ -1,4 +1,9 @@
-import { BadRequestException, Get, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Get,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -14,7 +19,6 @@ import { Department } from 'src/departments/departments.schema';
 import { Position } from 'src/positions/positions.schema';
 import * as bcrypt from 'bcrypt';
 import { removeVietnameseTones } from 'src/common/utils/utils';
-
 
 @Injectable()
 export class UsersService {
@@ -64,10 +68,10 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const newUser = new this.userModel({
-    ...createUserDto,
-    password: hashedPassword,
-    empId: finalEmployeeId,
-    roleId: roleId,
+      ...createUserDto,
+      password: hashedPassword,
+      empId: finalEmployeeId,
+      roleId: roleId,
     });
 
     const saveUser = newUser.save();
@@ -190,7 +194,7 @@ export class UsersService {
       .exec();
   }
   */
- 
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     if (updateUserDto.managerId) {
       throw new BadRequestException(
@@ -232,7 +236,9 @@ export class UsersService {
 
       if (visited.has(currentManagerId)) {
         // Dữ liệu cũ trong DB đã bị vòng lặp từ trước
-        throw new BadRequestException('Detected existing cycle in manager chain');
+        throw new BadRequestException(
+          'Detected existing cycle in manager chain',
+        );
       }
 
       visited.add(currentManagerId);
@@ -247,11 +253,19 @@ export class UsersService {
         break;
       }
 
-      currentManagerId = String(current.managerId);
+      currentManagerId = String(current.managerId as any);
     }
   }
 
-  async assignManagerByEmpId(userEmpId: string, managerEmpId: string, actor: any) {
+  async assignManagerByEmpId(
+    userEmpId: string,
+    managerEmpId: string,
+    actor: any,
+  ) {
+    const actorRoleName = actor?.roleId?.name;
+    if (actorRoleName !== 'HR') {
+      throw new BadRequestException('Only HR can assign manager');
+    }
 
     if (!userEmpId || !managerEmpId) {
       throw new BadRequestException('userEmpId and managerId are required');
@@ -272,16 +286,17 @@ export class UsersService {
     const manager = await this.userModel
       .findOne({ empId: managerEmpId })
       .select('_id empId roleId')
-      .populate('roleId', 'name')
+      .populate<{ roleId: Pick<Role, 'name'> }>('roleId', 'name') // Lấy role name
       .exec();
     if (!manager) {
       throw new NotFoundException('Manager not found');
     }
 
-    const managerRoleName = (manager.roleId as { name?: string } | null)?.name;
+    // Kiểm tra manager phải có role là MANAGER
+    const managerRoleName = manager.roleId.name;
     if (managerRoleName !== 'MANAGER') {
       throw new BadRequestException(
-        `User ${managerEmpId} is not a manager. Only users with MANAGER role can be assigned as manager.`
+        `User "${managerEmpId}" is not a manager. Only users with MANAGER role can be assigned as manager.`,
       );
     }
 
@@ -317,4 +332,3 @@ export class UsersService {
 
 
 }
-

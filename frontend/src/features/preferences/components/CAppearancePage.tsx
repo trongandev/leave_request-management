@@ -21,12 +21,38 @@ export default function CAppearancePage() {
     ]
     const accentColors = [
         { value: "blue", label: t("preferences.appearance.interface.theme.colors.blue"), bgDot: "bg-primary", borderColor: "border-primary", className: "text-primary! bg-primary/5" },
-        { value: "green", label: t("preferences.appearance.interface.theme.colors.green"), bgDot: "bg-green-500", borderColor: "border-emerald-500", className: "text-green-700! hover:border-emerald-500" },
-        { value: "purple", label: t("preferences.appearance.interface.theme.colors.purple"), bgDot: "bg-purple-500", borderColor: "border-purple-500", className: "text-purple-700! hover:border-purple-500  " },
+        {
+            value: "green",
+            label: t("preferences.appearance.interface.theme.colors.green"),
+            bgDot: "bg-green-500",
+            borderColor: "border-emerald-500",
+            className: "text-green-700! hover:border-emerald-500",
+        },
+        {
+            value: "purple",
+            label: t("preferences.appearance.interface.theme.colors.purple"),
+            bgDot: "bg-purple-500",
+            borderColor: "border-purple-500",
+            className: "text-purple-700! hover:border-purple-500  ",
+        },
     ]
     const themeData = [
-        { value: "light", label: t("preferences.appearance.interface.theme.label.light"), bgColor: "bg-slate-50", bgColor2: "bg-white", borderColor: "border-slate-200", borderColor2: "border-slate-200" },
-        { value: "dark", label: t("preferences.appearance.interface.theme.label.dark"), bgColor: "bg-slate-900", bgColor2: "bg-slate-800", borderColor: "border-slate-800", borderColor2: "border-slate-700" },
+        {
+            value: "light",
+            label: t("preferences.appearance.interface.theme.label.light"),
+            bgColor: "bg-slate-50",
+            bgColor2: "bg-white",
+            borderColor: "border-slate-200",
+            borderColor2: "border-slate-200",
+        },
+        {
+            value: "dark",
+            label: t("preferences.appearance.interface.theme.label.dark"),
+            bgColor: "bg-slate-900",
+            bgColor2: "bg-slate-800",
+            borderColor: "border-slate-800",
+            borderColor2: "border-slate-700",
+        },
         {
             value: "system",
             label: t("preferences.appearance.interface.theme.label.system"),
@@ -156,6 +182,7 @@ export default function CAppearancePage() {
                                 </Button>
                                 <Button variant={i18n.language === "vi" ? "default" : "secondary"} className="" onClick={() => handleChangeLng("vi")}>
                                     {t("preferences.localization.language.options.vi")}
+                                </Button>
                                 <Button variant={i18n.language === "en" ? "default" : "outline"} className="" onClick={() => handleChangeLng("en")}>
                                     {t("preferences.localization.en")}
                                 </Button>
@@ -207,8 +234,12 @@ export default function CAppearancePage() {
                 </CardContent>
             </Card>
             <div className="flex items-center justify-end gap-3 pb-20">
-                <button className="px-6 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">{t("preferences.changes.discard")}</button>
-                <button className="px-8 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-lg shadow-primary/20 transition-all">{t("preferences.changes.save")}</button>
+                <button className="px-6 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                    {t("preferences.changes.discard")}
+                </button>
+                <button className="px-8 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-lg shadow-primary/20 transition-all">
+                    {t("preferences.changes.save")}
+                </button>
             </div>
         </div>
     )

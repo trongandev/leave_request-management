@@ -4,7 +4,7 @@ import PaginationUI from "@/components/etc/PaginationUI"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronsUpDown, CirclePlus, Download, Search } from "lucide-react"
+import { ChevronsUpDown, CirclePlus, Download, Search, X, Edit, SaveIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,11 +12,10 @@ import { Switch } from "@/components/ui/switch"
 import userService from "@/services/userService"
 import type { User, UserResponse } from "@/types/user"
 import { useQuery } from "@tanstack/react-query"
-import { CirclePlus, Download, Edit, SaveIcon, Search, X } from "lucide-react"
 import { useState } from "react"
 
 export default function EmployeeManagementPage() {
-    const { t } = useTranslation();
+    const { t } = useTranslation()
     const departmentsData = [
         { value: "all", label: t("admin.attendance.filters.allDepts", "All Departments") },
         { value: "tech", label: t("admin.common.departments.engineering") },
@@ -89,6 +88,9 @@ export default function EmployeeManagementPage() {
                                     placeholder={t("admin.employees.filters.searchPlaceholder")}
                                     type="text"
                                 />
+                            </div>
+                        </div>
+                    </div>
                     <Card>
                         <CardContent>
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -116,6 +118,7 @@ export default function EmployeeManagementPage() {
                                 </div>
                                 <div className="flex flex-wrap sm:flex-nowrap gap-3">
                                     <CSelectOptions data={departmentsData} valueKey="value" displayKey="label" placeholder="Department" />
+                                </div>
 
                                 <Select>
                                     <SelectTrigger className="w-full sm:w-48">
@@ -144,8 +147,8 @@ export default function EmployeeManagementPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
                     <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border bg-white border-neutral-200 dark:border-neutral-700 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
@@ -349,7 +352,8 @@ export default function EmployeeManagementPage() {
                         </div>
                         <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between">
                             <div className="text-sm text-neutral-500">
-                                {t("admin.employees.pagination.showing")} <span className="font-medium text-neutral-900 dark:text-white">1</span> {t("admin.employees.pagination.to")} <span className="font-medium text-neutral-900 dark:text-white">5</span> {t("admin.employees.pagination.of")}{" "}
+                                {t("admin.employees.pagination.showing")} <span className="font-medium text-neutral-900 dark:text-white">1</span> {t("admin.employees.pagination.to")}{" "}
+                                <span className="font-medium text-neutral-900 dark:text-white">5</span> {t("admin.employees.pagination.of")}{" "}
                                 <span className="font-medium text-neutral-900 dark:text-white">128</span> {t("admin.employees.pagination.employees")}
                             </div>
                             <div className="flex gap-2">
@@ -359,12 +363,12 @@ export default function EmployeeManagementPage() {
                                 <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800">
                                     {t("admin.employees.pagination.next")}
                                 </button>
-                                    <CSelectOptions data={locationData} valueKey="value" displayKey="label" placeholder="Location" />
-                                    <CSelectOptions data={annualsData} valueKey="value" displayKey="label" placeholder="Leave Type" />
-                                </div>
+                                <CSelectOptions data={locationData} valueKey="value" displayKey="label" placeholder="Location" />
+                                <CSelectOptions data={annualsData} valueKey="value" displayKey="label" placeholder="Leave Type" />
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
+
                     {isLoading && <LoadingUI />}
                     {!isLoading && (
                         <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-xs border bg-card  overflow-hidden">

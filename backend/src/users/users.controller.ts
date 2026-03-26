@@ -19,6 +19,7 @@ import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { Req } from '@nestjs/common';
 import { Permission } from '../enum/permission.enum';
 import { AssignManagerDto } from './dto/assign-manager.dto';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @Controller('users')
 @ApiBearerAuth()
@@ -57,19 +58,22 @@ export class UsersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(@CurrentUser() user, @Param('id') id: string) {
+    console.log(user);
+    return true;
+    // return this.usersService.removeManagerByEmpId(id, user);
   }
 
-  @Patch(':empId/manager')
+  @Patch('manager')
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions(Permission.ASSIGN_MANAGER)
-  assignManager(
-  @Param('empId') empId: string,
-  @Body() dto: AssignManagerDto,
-  @Req() req: any,
-  ) {
-  return this.usersService.assignManagerByEmpId(empId, dto.managerId, req.user);
+  assignManager(@Body() dto: AssignManagerDto, @CurrentUser() user) {
+    console.log(user);
+    return this.usersService.assignManagerByEmpId(
+      dto.empId,
+      dto.managerId,
+      user,
+    );
   }
 
   // Endpoint mới để xóa manager
