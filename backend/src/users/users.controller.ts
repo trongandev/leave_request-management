@@ -16,6 +16,9 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
+import { Req } from '@nestjs/common';
+import { Permission } from '../enum/permission.enum';
+import { AssignManagerDto } from './dto/assign-manager.dto';
 
 @Controller('users')
 @ApiBearerAuth()
@@ -56,5 +59,24 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
+  }
+
+  @Patch(':empId/manager')
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions(Permission.ASSIGN_MANAGER)
+  assignManager(
+  @Param('empId') empId: string,
+  @Body() dto: AssignManagerDto,
+  @Req() req: any,
+  ) {
+  return this.usersService.assignManagerByEmpId(empId, dto.managerId, req.user);
+  }
+
+  // Endpoint mới để xóa manager
+  @Delete(':empId/manager')
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions(Permission.ASSIGN_MANAGER)
+  removeManager(@Param('empId') empId: string, @Req() req: any) {
+    return this.usersService.removeManagerByEmpId(empId, req.user);
   }
 }
