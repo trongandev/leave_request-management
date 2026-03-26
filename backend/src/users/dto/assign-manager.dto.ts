@@ -6,4 +6,9 @@ export class AssignManagerDto {
   @IsNotEmpty({ message: 'managerId is required' })
   @IsString({ message: 'managerId must be a string' })
   managerId!: string;
+
+  @ApiProperty({ example: '22890001', description: 'empId của employee' })
+  @IsNotEmpty({ message: 'empId is required' })
+  @IsString({ message: 'empId must be a string' })
+  empId!: string;
 }
