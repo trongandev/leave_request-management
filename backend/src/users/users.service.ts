@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './users.schema';
-import { isValidObjectId, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { ApiOperation } from '@nestjs/swagger';
 import { paginate } from '../common/utils/pagination.util';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -14,10 +14,7 @@ import { Department } from 'src/departments/departments.schema';
 import { Position } from 'src/positions/positions.schema';
 import * as bcrypt from 'bcrypt';
 import { removeVietnameseTones } from 'src/common/utils/utils';
-import { AuthGuard, UseGuards, UsePipes } from '@nestjs/common';
-import { ZodValidationPipe } from 'nestjs-zod';
-import { AssignManagerDto } from './dto/assign-manager.dto';
-import { Permission } from 'src/permissions/permissions.schema';
+
 
 @Injectable()
 export class UsersService {
@@ -151,7 +148,8 @@ export class UsersService {
       return await this.create(fakeData);
     } catch (error) {
       // Nếu trùng email ngẫu nhiên thì thử lại một lần nữa
-      console.error('Fake User Creation failed, retrying...', error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Fake User Creation failed, retrying...', message);
       return this.createFakeUser();
     }
   }
@@ -205,7 +203,23 @@ export class UsersService {
       .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
       .exec();
   }
+  remove(id: string) {
+    const self = this as any;
 
+    if (typeof self.delete === 'function') {
+      return self.delete(id);
+    }
+
+    if (typeof self.deleteById === 'function') {
+      return self.deleteById(id);
+    }
+
+    if (typeof self.removeById === 'function') {
+      return self.removeById(id);
+    }
+
+    throw new Error(`UsersService.remove is not implemented (id=${id})`);
+  }
   // Helper function để kiểm tra vòng lặp quản lý
   private async assertNoManagerCycle(userId: string, newManagerId: string) {
     let currentManagerId: string | null = newManagerId;
@@ -238,10 +252,6 @@ export class UsersService {
   }
 
   async assignManagerByEmpId(userEmpId: string, managerEmpId: string, actor: any) {
-    const actorRoleName = actor?.roleId?.name;
-    if (actorRoleName !== 'HR') {
-      throw new BadRequestException('Only HR can assign manager');
-    }
 
     if (!userEmpId || !managerEmpId) {
       throw new BadRequestException('userEmpId and managerId are required');
@@ -251,47 +261,40 @@ export class UsersService {
       throw new BadRequestException('Cannot self-assign manager');
     }
 
-    const user = await this.userModel.findOne({ empId: userEmpId }).select('_id empId').exec();
+    const user = await this.userModel
+      .findOne({ empId: userEmpId })
+      .select('_id empId')
+      .exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // Sửa: Populate roleId để kiểm tra role
     const manager = await this.userModel
       .findOne({ empId: managerEmpId })
       .select('_id empId roleId')
-      .populate('roleId', 'name') // Lấy role name
+      .populate('roleId', 'name')
       .exec();
     if (!manager) {
       throw new NotFoundException('Manager not found');
     }
 
-    // Kiểm tra manager phải có role là MANAGER
-    const managerRoleName = manager.roleId?.name;
+    const managerRoleName = (manager.roleId as { name?: string } | null)?.name;
     if (managerRoleName !== 'MANAGER') {
       throw new BadRequestException(
-        `User "${managerEmpId}" is not a manager. Only users with MANAGER role can be assigned as manager.`
+        `User ${managerEmpId} is not a manager. Only users with MANAGER role can be assigned as manager.`
       );
     }
 
     await this.assertNoManagerCycle(String(user._id), String(manager._id));
 
     const updated = await this.userModel
-      .findByIdAndUpdate(
-        user._id,
-        { managerId: manager._id },
-        { new: true },
-      )
+      .findByIdAndUpdate(user._id, { managerId: manager._id }, { new: true })
       .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
       .exec();
     return updated;
   }
 
   async removeManagerByEmpId(userEmpId: string, actor: any) {
-    const actorRoleName = actor?.roleId?.name;
-    if (actorRoleName !== 'HR') {
-      throw new BadRequestException('Only HR can remove manager');
-    }
 
     if (!userEmpId) {
       throw new BadRequestException('userEmpId is required');
@@ -306,15 +309,12 @@ export class UsersService {
     }
 
     const updated = await this.userModel
-      .findByIdAndUpdate(
-        user._id,
-        { managerId: null },
-        { new: true },
-      )
+      .findByIdAndUpdate(user._id, { managerId: null }, { new: true })
       .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
       .exec();
-
     return updated;
   }
+
+
 }
 
