@@ -80,7 +80,7 @@ export const PERMISSIONS_METADATA = [
   // THÊM MỚI: CẤP QUYỀN GÁN MANAGER CHO HR
   {
     code: 'ASSIGN_MANAGER',
-    description: 'Gán manager cho user (HR only)',
+    description: 'Gán hoặc gỡ manager cho user',
     module: 'ADMIN',
   },
 ];

@@ -198,7 +198,7 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     if (updateUserDto.managerId) {
       throw new BadRequestException(
-        'Use PATCH /users/:empId/manager to assign manager',
+        'Use PATCH /users/manager to assign manager',
       );
     }
 
@@ -262,9 +262,8 @@ export class UsersService {
     managerEmpId: string,
     actor: any,
   ) {
-    const actorRoleName = actor?.roleId?.name;
-    if (actorRoleName !== 'HR') {
-      throw new BadRequestException('Only HR can assign manager');
+    if (!actor?._id) {
+      throw new BadRequestException('Invalid requester context');
     }
 
     if (!userEmpId || !managerEmpId) {
@@ -310,6 +309,9 @@ export class UsersService {
   }
 
   async removeManagerByEmpId(userEmpId: string, actor: any) {
+    if (!actor?._id) {
+      throw new BadRequestException('Invalid requester context');
+    }
 
     if (!userEmpId) {
       throw new BadRequestException('userEmpId is required');
