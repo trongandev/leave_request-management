@@ -5,8 +5,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './common/dto/interceptors/transform.interceptor';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import { AllExceptionsFilter } from './common/dto/filters/http-exception.filter';
+import { LogsService } from './logs/logs.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const loggingService = app.get(LogsService);
+
   app.enableCors();
   app.use(morgan('dev'));
   app.use(cookieParser());
@@ -18,7 +22,7 @@ async function bootstrap() {
       transform: true, // Tự động convert kiểu dữ liệu (ví dụ string sang number)
     }),
   );
-
+  app.useGlobalFilters(new AllExceptionsFilter(loggingService));
   // useGlobalInterceptors: sử dụng TransformInterceptor để tự động format dữ liệu đầu ra
   app.useGlobalInterceptors(new TransformInterceptor());
 
