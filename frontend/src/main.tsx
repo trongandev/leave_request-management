@@ -10,6 +10,7 @@ import { QueryClient, QueryCache, MutationCache, QueryClientProvider } from "@ta
 import { toast } from "sonner" // Hoặc thư viện toast bạn thích
 import { Toaster } from "./components/ui/sonner.tsx"
 import { ThemeProvider } from "./contexts/themeContext.tsx"
+import { FontProvider } from "./contexts/fontContext.tsx"
 
 export const queryClient = new QueryClient({
     // Cấu hình bắt lỗi cho Query (Lấy dữ liệu)
@@ -51,8 +52,10 @@ createRoot(document.getElementById("root")!).render(
             <QueryClientProvider client={queryClient}>
                 <TooltipProvider>
                     <ThemeProvider>
-                        <App />
-                        <Toaster position="top-center" richColors />
+                        <FontProvider>
+                            <App />
+                            <Toaster position="top-center" richColors />
+                        </FontProvider>
                     </ThemeProvider>
                 </TooltipProvider>
             </QueryClientProvider>

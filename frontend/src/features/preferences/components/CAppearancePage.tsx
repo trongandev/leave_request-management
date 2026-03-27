@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { useTheme } from "@/contexts/themeContext"
+import { useFont } from "@/contexts/fontContext"
 import { CheckCircle2Icon } from "lucide-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 export default function CAppearancePage() {
     const { t } = useTranslation()
     const { theme, setTheme } = useTheme()
+    const { font, setFont } = useFont()
 
     const systemFonts = [
         { value: "Inter", label: t("preferences.appearance.interface.fontOptions.inter") },
@@ -64,7 +66,7 @@ export default function CAppearancePage() {
     ]
 
 
-    const [selectedSystemFont, setSelectedSystemFont] = useState(systemFonts[0].value)
+
     const [selectedAccentColor, setSelectedAccentColor] = useState(accentColors[0].value)
     const [selectedSidebar, setSelectedSidebar] = useState(sidebarData[0].value)
 
@@ -150,7 +152,7 @@ export default function CAppearancePage() {
                         <div className="grid grid-cols-2 gap-6 pt-4 border-t ">
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("preferences.appearance.interface.font")}</Label>
-                                <CSelectOptions data={systemFonts} valueKey="value" displayKey="label" value={selectedSystemFont} onChangeValue={setSelectedSystemFont} />
+                                <CSelectOptions data={systemFonts} valueKey="value" displayKey="label" value={font} onChangeValue={setFont} />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("preferences.appearance.interface.sidebar")}</Label>
