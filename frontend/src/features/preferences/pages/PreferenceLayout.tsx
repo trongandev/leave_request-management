@@ -7,11 +7,11 @@ export default function PreferenceLayout() {
     const { pathname } = useLocation()
     const { t } = useTranslation()
     const nav = [
-        { name: "My Account", icon: UserIcon, href: "/preferences/my-account" },
-        { name: "Appearance", icon: PaletteIcon, href: "/preferences/appearance" },
-        { name: "Security", icon: LockKeyholeIcon, href: "/preferences/security" },
-        { name: "Notifications", icon: BellRingIcon, href: "/preferences/notifications" },
-        { name: "Localization", icon: GlobeIcon, href: "/preferences/localization" },
+        { name: t("preferences.navbar.myAccount"), icon: UserIcon, href: "/preferences/my-account" },
+        { name: t("preferences.navbar.appearence"), icon: PaletteIcon, href: "/preferences/appearance" },
+        { name: t("preferences.navbar.security"), icon: LockKeyholeIcon, href: "/preferences/security" },
+        { name: t("preferences.navbar.notifications"), icon: BellRingIcon, href: "/preferences/notifications" },
+        { name: t("preferences.navbar.localization"), icon: GlobeIcon, href: "/preferences/localization" },
     ]
 
     return (

@@ -1061,6 +1061,11 @@ const resources = {
                 navbar: {
                     title: "Preferences",
                     desc: "Personalize your experience",
+                    myAccount: "My Account",
+                    appearence: "Appearence",
+                    notifications: "Notifications",
+                    security: "Security",
+                    localization: "Localization",
                 },
                 appearance: {
                     title: "Theme Engine",
@@ -1694,6 +1699,11 @@ const resources = {
                 navbar: {
                     title: "Tùy chọn",
                     desc: "Tùy chỉnh trải nghiệm của bạn",
+                    myAccount: "Tài khoản",
+                    appearence: "Giao diện",
+                    notifications: "Thông báo",
+                    security: "Bảo mật",
+                    localization: "Ngôn ngữ",
                 },
                 appearance: {
                     title: "Theme Engine",
@@ -2632,6 +2642,15 @@ const resources = {
                         },
                     },
                 },
+                preferences: {
+                    sidebar: {
+                        myAccount: "My Account",
+                        appearence: "Appearence",
+                        notifications: "Notifications",
+                        security: "Security",
+                        localization: "Localization",
+                    }
+                }
             },
         },
     },
