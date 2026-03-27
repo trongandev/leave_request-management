@@ -1413,7 +1413,7 @@ const resources = {
                     portals: {
                         employee: "Cổng Nhân viên",
                         approval: "Cổng Phê duyệt",
-                        admin: "Cổng Quản trị",
+                        admin: "Admin Portal",
                     },
                 },
                 notFound: {
