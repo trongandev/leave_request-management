@@ -1703,7 +1703,7 @@ const resources = {
                     appearence: "Giao diện",
                     notifications: "Thông báo",
                     security: "Bảo mật",
-                    localization: "Ngôn ngữ",
+                    localization: "Định dạng",
                 },
                 appearance: {
                     title: "Theme Engine",
