@@ -18,7 +18,7 @@ import { PermissionsGuard } from './auth/guards/permissions.guard';
 import { CountersModule } from './counters/counters.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { PositionsModule } from './positions/positions.module';
-import { LogsModule } from './logs/logs.module';
+import { ErrorLogModule } from './error-log/error-log.module';
 
 @Module({
   imports: [
@@ -35,7 +35,7 @@ import { LogsModule } from './logs/logs.module';
     }),
     UsersModule,
 
-    LogsModule,
+    ErrorLogModule,
 
     AuthModule,
 
@@ -52,6 +52,8 @@ import { LogsModule } from './logs/logs.module';
     DepartmentsModule,
 
     PositionsModule,
+
+    ErrorLogModule,
   ],
   controllers: [AppController],
   providers: [

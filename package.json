@@ -1,4 +1,7 @@
 {
+  "dependencies": {
+    "@nestjs/mapped-types": "*"
+  },
     "name": "lrm-bos-app",
     "version": "1.0.0",
     "scripts": {

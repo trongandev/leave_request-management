@@ -6,10 +6,10 @@ import { TransformInterceptor } from './common/dto/interceptors/transform.interc
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { AllExceptionsFilter } from './common/dto/filters/http-exception.filter';
-import { LogsService } from './logs/logs.service';
+import { ErrorLogService } from './error-log/error-log.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const loggingService = app.get(LogsService);
+  const loggingService = app.get(ErrorLogService);
 
   app.enableCors();
   app.use(morgan('dev'));

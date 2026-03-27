@@ -6,11 +6,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { LogsService } from 'src/logs/logs.service';
+import { ErrorLogService } from 'src/error-log/error-log.service';
 
 @Catch() // Để trống để bắt TẤT CẢ các loại lỗi
 export class AllExceptionsFilter implements ExceptionFilter {
-  constructor(private readonly logsService: LogsService) {}
+  constructor(private readonly errorLogService: ErrorLogService) {}
 
   async catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -41,7 +41,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       stack: isProduction ? undefined : err.stack,
     };
 
-    await this.logsService.createErrorLog({
+    await this.errorLogService.createErrorLog({
       path: request.url,
       method: request.method,
       statusCode: status,
