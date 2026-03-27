@@ -4,6 +4,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ErrorLog } from './error-log.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { paginate } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class ErrorLogService {
@@ -11,22 +12,7 @@ export class ErrorLogService {
     @InjectModel(ErrorLog.name) private errorLogModel: Model<ErrorLog>,
   ) {}
   async findAll(paginationDto: PaginationDto) {
-    const { page, limit } = paginationDto;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      this.errorLogModel.find().skip(skip).limit(limit).exec(),
-      this.errorLogModel.countDocuments(),
-    ]);
-
-    return {
-      data,
-      meta: {
-        total,
-        page,
-        last_page: Math.ceil(total / limit),
-      },
-    };
+    return paginate(this.errorLogModel, paginationDto);
   }
 
   async createErrorLog(payload: {
