@@ -185,7 +185,13 @@ export class UsersService {
   }
 
   findOne(id: string) {
-    return this.userModel.findById(id).exec();
+    return this.userModel
+      .findById(id)
+      .populate('roleId')
+      .populate('positionId')
+      .populate('departmentId')
+      .populate('managerId')
+      .exec();
   }
   /*
   update(id: string, updateUserDto: UpdateUserDto) {
@@ -331,6 +337,4 @@ export class UsersService {
       .exec();
     return updated;
   }
-
-
 }

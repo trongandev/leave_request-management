@@ -55,9 +55,13 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions(Permission.ASSIGN_MANAGER)
   assignManager(@Body() dto: AssignManagerDto, @CurrentUser() user: any) {
-    return this.usersService.assignManagerByEmpId(dto.empId, dto.managerId, user);
+    return this.usersService.assignManagerByEmpId(
+      dto.empId,
+      dto.managerId,
+      user,
+    );
   }
-  
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
@@ -73,6 +77,4 @@ export class UsersController {
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
-
-
 }
