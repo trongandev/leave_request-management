@@ -60,7 +60,7 @@ export default function DashboardHomePage() {
         } else {
             setNamePointDay(t("general.dashboard.greeting.evening"))
         }
-    }, [user])
+    }, [user, t])
 
     return (
         <main className="space-y-10">

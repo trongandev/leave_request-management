@@ -3,17 +3,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { useTheme } from "@/contexts/themeContext"
+import { useFont } from "@/contexts/fontContext"
 import { CheckCircle2Icon } from "lucide-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 export default function CAppearancePage() {
-    const { t, i18n } = useTranslation()
+    const { t } = useTranslation()
     const { theme, setTheme } = useTheme()
-    const dateFormats = [
-        { value: "DD/MM/YYYY", label: t("preferences.localization.format.dateOptions.dayMonthYear") },
-        { value: "MM/DD/YYYY", label: t("preferences.localization.format.dateOptions.monthDayYear") },
-        { value: "YYYY-MM-DD", label: t("preferences.localization.format.dateOptions.yearMonthDay") },
-    ]
+    const { font, setFont } = useFont()
+
     const systemFonts = [
         { value: "Inter", label: t("preferences.appearance.interface.fontOptions.inter") },
         { value: "Roboto", label: t("preferences.appearance.interface.fontOptions.roboto") },
@@ -67,14 +65,8 @@ export default function CAppearancePage() {
         { value: "right", label: t("preferences.appearance.interface.sidebarData.right") },
     ]
 
-    const [selectedDateFormat, setSelectedDateFormat] = useState(dateFormats[0].value)
-    const [selectedSystemFont, setSelectedSystemFont] = useState(systemFonts[0].value)
     const [selectedAccentColor, setSelectedAccentColor] = useState(accentColors[0].value)
     const [selectedSidebar, setSelectedSidebar] = useState(sidebarData[0].value)
-
-    const handleChangeLng = (lng: string) => {
-        i18n.changeLanguage(lng)
-    }
 
     const handleChangeAccentColor = (color: string) => {
         setSelectedAccentColor(color)
@@ -156,38 +148,12 @@ export default function CAppearancePage() {
                         <div className="grid grid-cols-2 gap-6 pt-4 border-t ">
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("preferences.appearance.interface.font")}</Label>
-                                <CSelectOptions data={systemFonts} valueKey="value" displayKey="label" value={selectedSystemFont} onChangeValue={setSelectedSystemFont} />
+                                <CSelectOptions data={systemFonts} valueKey="value" displayKey="label" value={font} onChangeValue={setFont} />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("preferences.appearance.interface.sidebar")}</Label>
                                 <CSelectOptions data={sidebarData} valueKey="value" displayKey="label" value={selectedSidebar} onChangeValue={setSelectedSidebar} />
                             </div>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardContent>
-                    <div className="mb-6">
-                        <h3 className="text-slate-900 dark:text-white text-lg font-bold">{t("preferences.localization.title")}</h3>
-                        <p className="text-slate-500 text-sm">{t("preferences.localization.desc")}</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <Label className="mb-2">{t("preferences.localization.language.title")}</Label>
-                            <div className="flex gap-2">
-                                <Button variant={i18n.language === "en" ? "default" : "secondary"} className="" onClick={() => handleChangeLng("en")}>
-                                    {t("preferences.localization.language.options.en")}
-                                </Button>
-                                <Button variant={i18n.language === "vi" ? "default" : "secondary"} className="" onClick={() => handleChangeLng("vi")}>
-                                    {t("preferences.localization.language.options.vi")}
-                                </Button>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="">{t("preferences.localization.format.date")}</Label>
-                            <CSelectOptions data={dateFormats} valueKey="value" displayKey="label" value={selectedDateFormat} onChangeValue={setSelectedDateFormat} />
                         </div>
                     </div>
                 </CardContent>

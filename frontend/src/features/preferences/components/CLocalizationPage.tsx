@@ -1,7 +1,38 @@
+import CSelectOptions from "@/components/etc/CSelectOptions"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 export default function CLocalizationPage() {
     const { t } = useTranslation()
+
+    const languages = [
+        { value: "en", label: t("preferences.localization.language.options.en") },
+        { value: "vi", label: t("preferences.localization.language.options.vi") },
+    ]
+
+    const timezones = [
+        { value: "sea", label: t("preferences.localization.timezone.options.sea") },
+        { value: "utc", label: t("preferences.localization.timezone.options.utc") },
+        { value: "eastern", label: t("preferences.localization.timezone.options.eastern") },
+        { value: "singapore", label: t("preferences.localization.timezone.options.singapore") },
+    ]
+
+    const dateFormats = [
+        { value: "DD/MM/YYYY", label: t("preferences.localization.format.dateOptions.dayMonthYear") },
+        { value: "MM/DD/YYYY", label: t("preferences.localization.format.dateOptions.monthDayYear") },
+        { value: "YYYY-MM-DD", label: t("preferences.localization.format.dateOptions.yearMonthDay") },
+    ]
+
+    const timeFormats = [
+        { value: "12h", label: t("preferences.localization.format.timeOptions.twelveHour") },
+        { value: "24h", label: t("preferences.localization.format.timeOptions.twentyFourHour") },
+    ]
+
+    const [selectedLanguage, setSelectedLanguage] = useState(languages[1].value)
+    const [selectedTimezone, setSelectedTimezone] = useState(timezones[0].value)
+    const [selectedDateFormat, setSelectedDateFormat] = useState(dateFormats[0].value)
+    const [selectedTimeFormat, setSelectedTimeFormat] = useState(timeFormats[1].value)
+
     return (
         <div className="flex-1 flex flex-col gap-8">
             <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
@@ -13,24 +44,16 @@ export default function CLocalizationPage() {
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.localization.language.title")}</label>
                         <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-lg">translate</span>
-                            <select className="w-full pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary py-2.5">
-                                <option value="en">{t("preferences.localization.language.options.en")}</option>
-                                <option value="vi">{t("preferences.localization.language.options.vi")}</option>
-                            </select>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 material-symbols-outlined text-lg">translate</span>
+                            <CSelectOptions className="pl-10" data={languages} valueKey="value" displayKey="label" value={selectedLanguage} onChangeValue={setSelectedLanguage} />
                         </div>
                         <p className="text-xs text-slate-500">{t("preferences.localization.language.desc")}</p>
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.localization.timezone.title")}</label>
                         <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-lg">schedule</span>
-                            <select className="w-full pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary py-2.5">
-                                <option>{t("preferences.localization.timezone.options.sea")}</option>
-                                <option>{t("preferences.localization.timezone.options.utc")}</option>
-                                <option>{t("preferences.localization.timezone.options.eastern")}</option>
-                                <option>{t("preferences.localization.timezone.options.singapore")}</option>
-                            </select>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 material-symbols-outlined text-lg">schedule</span>
+                            <CSelectOptions className="pl-10" data={timezones} valueKey="value" displayKey="label" value={selectedTimezone} onChangeValue={setSelectedTimezone} />
                         </div>
                         <p className="text-xs text-slate-500">{t("preferences.localization.timezone.defaultText")}</p>
                     </div>
@@ -47,22 +70,15 @@ export default function CLocalizationPage() {
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.localization.format.date")}</label>
                         <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-lg">calendar_month</span>
-                            <select className="w-full pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary py-2.5">
-                                <option>{t("preferences.localization.format.dateOptions.dayMonthYear")}</option>
-                                <option>{t("preferences.localization.format.dateOptions.monthDayYear")}</option>
-                                <option>{t("preferences.localization.format.dateOptions.yearMonthDay")}</option>
-                            </select>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 material-symbols-outlined text-lg">calendar_month</span>
+                            <CSelectOptions className="pl-10" data={dateFormats} valueKey="value" displayKey="label" value={selectedDateFormat} onChangeValue={setSelectedDateFormat} />
                         </div>
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.localization.format.time")}</label>
                         <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-lg">access_time</span>
-                            <select className="w-full pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary py-2.5">
-                                <option>{t("preferences.localization.format.timeOptions.twelveHour")}</option>
-                                <option>{t("preferences.localization.format.timeOptions.twentyFourHour")}</option>
-                            </select>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 material-symbols-outlined text-lg">access_time</span>
+                            <CSelectOptions className="pl-10" data={timeFormats} valueKey="value" displayKey="label" value={selectedTimeFormat} onChangeValue={setSelectedTimeFormat} />
                         </div>
                     </div>
                 </div>
