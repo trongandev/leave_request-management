@@ -17,6 +17,7 @@
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-card: var(--card);
+    --color-header: var(--header);
     --color-card-foreground: var(--card-foreground);
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
@@ -58,6 +59,9 @@
     /* Thẻ nội dung (Card) */
     --card: #ffffff;
     --card-foreground: #262626;
+
+    /* Header */
+    --header: oklch(99% 0 0);
 
     /* Popover/Dropdown/Tooltip */
     --popover: #ffffff;
@@ -115,9 +119,9 @@
     --background: #1f1f1f;
     --foreground: #e2e8f0;
 
-    --card: #1f1f1f;
+    --card: oklch(26.9% 0 0);
     --card-foreground: #e2e8f0;
-
+    --header: oklch(31% 0 0);
     --popover: #0b1220;
     --popover-foreground: #e2e8f0;
 

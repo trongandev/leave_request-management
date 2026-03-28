@@ -1346,7 +1346,7 @@ const resources = {
                         },
                         updateProfile: {
                             title: "Cập nhật hồ sơ",
-                            desc: "Chỉnh sửa thông tin cá nhân và tài khoản ngân hàng",
+                            desc: "Chỉnh sửa thông tin cá nhân",
                         },
                     },
                     teamManagement: {

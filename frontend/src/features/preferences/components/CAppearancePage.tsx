@@ -183,12 +183,6 @@ export default function CAppearancePage() {
                                 <Button variant={i18n.language === "vi" ? "default" : "secondary"} className="" onClick={() => handleChangeLng("vi")}>
                                     {t("preferences.localization.language.options.vi")}
                                 </Button>
-                                <Button variant={i18n.language === "en" ? "default" : "outline"} className="" onClick={() => handleChangeLng("en")}>
-                                    {t("preferences.localization.en")}
-                                </Button>
-                                <Button variant={i18n.language === "vi" ? "default" : "outline"} className="" onClick={() => handleChangeLng("vi")}>
-                                    {t("preferences.localization.vi")}
-                                </Button>
                             </div>
                         </div>
                         <div className="space-y-2">
