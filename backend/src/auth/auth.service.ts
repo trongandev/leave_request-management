@@ -42,6 +42,22 @@ export class AuthService {
         },
       })
       .populate('departmentId')
+      .populate({
+        path: 'managerId',
+        select: 'empId fullName avatar',
+        populate: [
+          {
+            path: 'roleId',
+            model: 'Role',
+            select: 'name',
+          },
+          {
+            path: 'positionId',
+            model: 'Position',
+            select: 'fullName',
+          },
+        ],
+      })
       .exec();
 
     if (!user) {

@@ -9,6 +9,7 @@ import { CalendarDaysIcon, Edit2, MailIcon, MapPinIcon, PhoneIcon } from "lucide
 export default function ProfilePage() {
     const { t } = useTranslation()
     const user = useAuthStore((state) => state.user)
+    console.log(user)
     return (
         <main className="max-w-7xl mx-auto w-full px-8 py-8">
             <div className="flex gap-8 items-start">
@@ -84,7 +85,7 @@ export default function ProfilePage() {
                             <Card>
                                 <CardContent>
                                     <h4 className="font-bold text-slate-900 dark:text-white mb-3">{t("general.profile.details.lineManager")}</h4>
-                                    <CAvatarName user={user} />
+                                    <CAvatarName user={user?.managerId} />
                                 </CardContent>
                             </Card>
                             <Card>

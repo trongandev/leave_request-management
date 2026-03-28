@@ -21,6 +21,7 @@ export interface User {
     roleId: RoleId
     departmentId: DepartmentId
     positionId: PositionId
+    managerId: User
     gender: string
     birthDate: string
     status: boolean
