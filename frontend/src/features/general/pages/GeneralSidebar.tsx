@@ -131,7 +131,7 @@ export default function GeneralSidebar() {
                 setPortalName(t("general.sidebar.portals.employee"))
                 break
         }
-    }, [user, roleName, defaultNav, approvalsNav, adminNav])
+    }, [user, roleName, defaultNav, approvalsNav, adminNav, t])
 
     return (
         <>

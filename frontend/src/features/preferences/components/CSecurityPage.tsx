@@ -14,7 +14,7 @@ export default function CSecurityPage() {
                     <div className="space-y-1.5">
                         <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("preferences.security.password.current")}</label>
                         <input
-                            className="w-full bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary shadow-sm"
+                            className="w-full bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-md px-4 py-2 text-sm focus:ring-primary focus:border-primary shadow-sm"
                             placeholder={t("preferences.security.password.placeholder")}
                             type="password"
                         />
@@ -23,7 +23,7 @@ export default function CSecurityPage() {
                         <div className="space-y-1.5">
                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("preferences.security.password.new")}</label>
                             <input
-                                className="w-full bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary shadow-sm"
+                                className="w-full bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-md px-4 py-2 text-sm focus:ring-primary focus:border-primary shadow-sm"
                                 placeholder={t("preferences.security.password.placeholder")}
                                 type="password"
                             />
@@ -31,7 +31,7 @@ export default function CSecurityPage() {
                         <div className="space-y-1.5">
                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("preferences.security.password.confirm")}</label>
                             <input
-                                className="w-full bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary shadow-sm"
+                                className="w-full bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded-md px-4 py-2 text-sm focus:ring-primary focus:border-primary shadow-sm"
                                 placeholder={t("preferences.security.password.placeholder")}
                                 type="password"
                             />
@@ -62,14 +62,14 @@ export default function CSecurityPage() {
                 </div>
                 <div className="mt-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                            <div className="size-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-600">
-                                <span className="material-symbols-outlined">smartphone</span>
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.security.twoFactor.authenticator.title")}</p>
-                                <p className="text-xs text-slate-500">{t("preferences.security.twoFactor.authenticator.desc")}</p>
-                            </div>
+                        <div className="size-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-600">
+                            <span className="material-symbols-outlined">smartphone</span>
                         </div>
+                        <div>
+                            <p className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.security.twoFactor.authenticator.title")}</p>
+                            <p className="text-xs text-slate-500">{t("preferences.security.twoFactor.authenticator.desc")}</p>
+                        </div>
+                    </div>
                     <button className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">{t("preferences.security.twoFactor.configure")}</button>
                 </div>
             </section>
