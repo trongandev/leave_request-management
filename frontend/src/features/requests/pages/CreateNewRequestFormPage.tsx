@@ -23,7 +23,7 @@ export default function CreateNewRequestFormPage() {
                 <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{t("requests.create.title")}</h1>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t("requests.create.subtitle")}</p>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-subtle border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-card rounded-xl shadow-subtle border overflow-hidden">
                 <form action="#" className="divide-y divide-slate-100 dark:divide-slate-700" method="POST">
                     <div className="p-6 sm:p-8 space-y-6">
                         <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -97,7 +97,11 @@ export default function CreateNewRequestFormPage() {
                         <div className="bg-primary-light border border-primary/20 rounded-md p-3 flex items-start">
                             <span className="material-icons text-primary text-sm mt-0.5 mr-2">info</span>
                             <p className="text-sm text-slate-700 dark:text-slate-200">
-                                <Trans i18nKey="requests.create.form.durationInfo" values={{days: "3 Days", remaining: "12 days"}} components={{1: <span className="font-semibold text-primary" />, 3: <span className="font-semibold" />}} />
+                                <Trans
+                                    i18nKey="requests.create.form.durationInfo"
+                                    values={{ days: "3 Days", remaining: "12 days" }}
+                                    components={{ 1: <span className="font-semibold text-primary" />, 3: <span className="font-semibold" /> }}
+                                />
                             </p>
                         </div>
                     </div>

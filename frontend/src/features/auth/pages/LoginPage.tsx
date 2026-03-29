@@ -106,9 +106,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative z-10 max-w-md">
                     <h2 className="mb-4 text-3xl font-bold leading-snug">{t("auth.login.slogan")}</h2>
-                    <p className="text-lg font-light leading-relaxed text-blue-100">
-                        {t("auth.login.description")}
-                    </p>
+                    <p className="text-lg font-light leading-relaxed text-blue-100">{t("auth.login.description")}</p>
                     <div className="flex gap-2 mt-8">
                         <div className="w-8 h-1 bg-white rounded-full"></div>
                         <div className="w-2 h-1 rounded-full bg-white/30"></div>
@@ -181,8 +179,12 @@ export default function LoginPage() {
                                     <SelectValue placeholder="Language" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem className="cursor-pointer" value="vi">{t("preferences.localization.language.options.vi")}</SelectItem>
-                                    <SelectItem className="cursor-pointer" value="en">{t("preferences.localization.language.options.en")}</SelectItem>
+                                    <SelectItem className="cursor-pointer" value="vi">
+                                        {t("preferences.localization.language.options.vi")}
+                                    </SelectItem>
+                                    <SelectItem className="cursor-pointer" value="en">
+                                        {t("preferences.localization.language.options.en")}
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

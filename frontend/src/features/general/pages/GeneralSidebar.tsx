@@ -10,6 +10,7 @@ import {
     GlobeIcon,
     HistoryIcon,
     HomeIcon,
+    LassoSelectIcon,
     LayoutDashboardIcon,
     LogOutIcon,
     NetworkIcon,
@@ -62,6 +63,7 @@ export default function GeneralSidebar() {
                     { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/approvals" },
                     { name: t("sidebar.teamCalendar"), icon: CalendarDaysIcon, href: "/approvals/team-calendar" },
                     { name: t("sidebar.leaveBalances"), icon: Users, href: "/approvals/leave-balances" },
+                    { name: t("sidebar.assignManager"), icon: LassoSelectIcon, href: "/approvals/assign-manager" },
                 ],
             },
             {
@@ -131,7 +133,7 @@ export default function GeneralSidebar() {
                 setPortalName(t("general.sidebar.portals.employee"))
                 break
         }
-    }, [user, roleName, defaultNav, approvalsNav, adminNav])
+    }, [user, roleName, defaultNav, approvalsNav, adminNav, t])
 
     return (
         <>

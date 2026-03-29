@@ -33,6 +33,7 @@ import AccessControlPage from "./features/admin/pages/system/AccessControlPage"
 import DashboardHomePage from "./features/general/pages/DashboardHomePage"
 import LeaveBalanceEmployeePage from "./features/admin/pages/main/LeaveBalanceEmployeePage"
 import EmployeeManagementPage from "./features/admin/pages/main/EmployeeManagementPage"
+import AssignManager from "./features/approvals/pages/AssignManager"
 
 function App() {
     return (
@@ -52,6 +53,7 @@ function App() {
                     <Route path="/approvals/request-detail-and-approval" element={<RequestDetailAndApprovalPage />} />
                     <Route path="/approvals/team-calendar" element={<TeamLeaveCalendarViewPage />} />
                     <Route path="/approvals/leave-balances" element={<LeaveBalanceEmployeePage />} />
+                    <Route path="/approvals/assign-manager" element={<AssignManager />} />
                 </Route>
                 <Route path="/admin" element={<AdminLayout />}>
                     {/* START MAIN GROUP*/}
