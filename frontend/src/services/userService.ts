@@ -12,6 +12,16 @@ class UserService {
         const response = await axiosInstance.get<APIResponse<User>>(`/users/${userId}`)
         return response.data.data
     }
+
+    async assignManager(empId: string, managerId: string) {
+        const response = await axiosInstance.patch<APIResponse<User>>(`/users/manager`, { empId, managerId })
+        return response.data
+    }
+
+    async removeManager(empId: string) {
+        const response = await axiosInstance.delete<APIResponse<User>>(`/users/manager`, { data: { empId } })
+        return response.data
+    }
 }
 
 export default new UserService()
