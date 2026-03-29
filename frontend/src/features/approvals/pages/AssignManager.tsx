@@ -39,9 +39,8 @@ function UserCombobox({
     const { t } = useTranslation()
     useEffect(() => {
         if (open) {
-            setTimeout(() => inputRef.current?.focus(), 100)
-        } else {
-            setSearch("")
+            const timer = setTimeout(() => inputRef.current?.focus(), 100)
+            return () => clearTimeout(timer)
         }
     }, [open])
 
@@ -65,7 +64,10 @@ function UserCombobox({
                 </div>
                 {label}
             </label>
-            <Popover open={open} onOpenChange={setOpen}>
+            <Popover open={open} onOpenChange={(val) => {
+                setOpen(val)
+                if (!val) setSearch("")
+            }}>
                 <PopoverTrigger asChild>
                     <button
                         id={id}
