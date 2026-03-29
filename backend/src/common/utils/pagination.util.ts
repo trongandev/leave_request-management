@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { Model } from 'mongoose';
 import { PaginationDto } from '../dto/pagination.dto';
 

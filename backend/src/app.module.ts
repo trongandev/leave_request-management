@@ -19,6 +19,9 @@ import { CountersModule } from './counters/counters.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { PositionsModule } from './positions/positions.module';
 import { ErrorLogModule } from './error-log/error-log.module';
+import { LeaveBalancesModule } from './leave-balances/leave-balances.module';
+import { SystemSettingModule } from './system-setting/system-setting.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -26,6 +29,7 @@ import { ErrorLogModule } from './error-log/error-log.module';
       validationSchema: envValidationSchema,
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -54,6 +58,10 @@ import { ErrorLogModule } from './error-log/error-log.module';
     PositionsModule,
 
     ErrorLogModule,
+
+    LeaveBalancesModule,
+
+    SystemSettingModule,
   ],
   controllers: [AppController],
   providers: [

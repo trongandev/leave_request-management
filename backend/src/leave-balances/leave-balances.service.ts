@@ -1,0 +1,209 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateLeaveBalanceDto } from './dto/create-leave-balance.dto';
+import { UpdateLeaveBalanceDto } from './dto/update-leave-balance.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { LeaveBalance } from './leave-balances.schema';
+import { User } from '../users/users.schema';
+import { SystemSettingService } from '../system-setting/system-setting.service';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { paginate } from '../common/utils/pagination.util';
+
+@Injectable()
+export class LeaveBalancesService {
+  constructor(
+    @InjectModel(LeaveBalance.name)
+    private readonly leaveBalanceModel: Model<LeaveBalance>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<User>,
+    private readonly systemSettingService: SystemSettingService,
+  ) {}
+
+  private getProratedBaseDays(
+    basePerYear: number,
+    joinedAt: Date,
+    targetYear: number,
+  ) {
+    // Core rule: prorate base leave for first working year by join month.
+    const joinMonth = joinedAt.getMonth() + 1;
+    const joinYear = joinedAt.getFullYear();
+
+    // Nếu là năm vào làm thì áp dụng công thức prorate theo tháng.
+    if (targetYear === joinYear) {
+      const prorated = (basePerYear / 12) * (12 - joinMonth + 1);
+      return Number(prorated.toFixed(2));
+    }
+
+    return Number(basePerYear.toFixed(2));
+  }
+
+  private getSeniorityDays(joinedAt: Date, targetYear: number) {
+    // Core rule: seniority bonus is 1 day per 5 completed years.
+    const yearsOfService = Math.max(0, targetYear - joinedAt.getFullYear());
+    return Math.floor(yearsOfService / 5);
+  }
+
+  private toNonNegative(value: number) {
+    return Math.max(0, Number(value.toFixed(2)));
+  }
+
+  private async buildBalancePayload(
+    userId: string,
+    year: number,
+    adjustedDaysInput = 0,
+    usedDaysInput = 0,
+  ) {
+    // Centralized calculator to keep create/update/recalculate formulas consistent.
+    const user = await this.userModel
+      .findById(userId)
+      .select('createdAt')
+      .lean<{ createdAt?: Date }>()
+      .exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const leaveBasePerYear =
+      await this.systemSettingService.getLeaveBasePerYear();
+    const joinedAt = user.createdAt ?? new Date();
+
+    const baseDays = this.getProratedBaseDays(leaveBasePerYear, joinedAt, year);
+    const seniorityDays = this.getSeniorityDays(joinedAt, year);
+    const adjustedDays = Number(adjustedDaysInput);
+    const usedDays = this.toNonNegative(Number(usedDaysInput));
+
+    const totalDays = this.toNonNegative(
+      baseDays + seniorityDays + adjustedDays,
+    );
+    const remainingDays = this.toNonNegative(totalDays - usedDays);
+
+    return {
+      userId,
+      year,
+      baseDays,
+      seniorityDays,
+      adjustedDays,
+      totalDays,
+      usedDays,
+      remainingDays,
+    };
+  }
+
+  async create(createLeaveBalanceDto: CreateLeaveBalanceDto) {
+    // Upsert 1 record per user-year to enforce leave balance uniqueness.
+    const payload = await this.buildBalancePayload(
+      createLeaveBalanceDto.userId,
+      createLeaveBalanceDto.year,
+      Number(createLeaveBalanceDto.adjustedDays ?? 0),
+      Number(createLeaveBalanceDto.usedDays ?? 0),
+    );
+
+    return this.leaveBalanceModel
+      .findOneAndUpdate(
+        {
+          userId: createLeaveBalanceDto.userId,
+          year: createLeaveBalanceDto.year,
+        },
+        payload,
+        { upsert: true, new: true },
+      )
+      .populate('userId', 'empId fullName email')
+      .exec();
+  }
+
+  findAll(paginationDto: PaginationDto) {
+    // Reuse global pagination helper for scalable list queries.
+    return paginate(
+      this.leaveBalanceModel,
+      paginationDto,
+      {},
+      {
+        populate: {
+          path: 'userId',
+          select: 'empId fullName email departmentId positionId',
+        },
+        sort: { createdAt: -1 },
+      },
+    );
+  }
+
+  findOne(id: string) {
+    return this.leaveBalanceModel
+      .findById(id)
+      .populate('userId', 'empId fullName email')
+      .exec();
+  }
+
+  async update(id: string, updateLeaveBalanceDto: UpdateLeaveBalanceDto) {
+    // Recompute derived fields after manual adjustment or used-day changes.
+    const current = await this.leaveBalanceModel.findById(id).exec();
+    if (!current) {
+      throw new NotFoundException('Leave balance not found');
+    }
+
+    const adjustedDays = Number(
+      updateLeaveBalanceDto.adjustedDays ?? current.adjustedDays,
+    );
+    const usedDays = this.toNonNegative(
+      Number(updateLeaveBalanceDto.usedDays ?? current.usedDays),
+    );
+    const totalDays = this.toNonNegative(
+      Number(current.baseDays) + Number(current.seniorityDays) + adjustedDays,
+    );
+    const remainingDays = this.toNonNegative(totalDays - usedDays);
+
+    return this.leaveBalanceModel
+      .findByIdAndUpdate(
+        id,
+        {
+          adjustedDays,
+          usedDays,
+          totalDays,
+          remainingDays,
+        },
+        { new: true },
+      )
+      .populate('userId', 'empId fullName email')
+      .exec();
+  }
+
+  async recalculateForYear(year: number) {
+    // Yearly batch recalculation keeps all users aligned with latest policy settings.
+    const users = await this.userModel.find().select('_id').lean().exec();
+
+    await Promise.all(
+      users.map(async (user) => {
+        const userId = String((user as { _id: unknown })._id);
+        const existing = await this.leaveBalanceModel
+          .findOne({ userId, year })
+          .select('adjustedDays usedDays')
+          .lean<{ adjustedDays?: number; usedDays?: number }>()
+          .exec();
+
+        const payload = await this.buildBalancePayload(
+          userId,
+          year,
+          Number(existing?.adjustedDays ?? 0),
+          Number(existing?.usedDays ?? 0),
+        );
+
+        await this.leaveBalanceModel.findOneAndUpdate(
+          { userId, year },
+          payload,
+          { upsert: true, new: true },
+        );
+      }),
+    );
+
+    return {
+      message: 'Recalculate leave balances completed',
+      year,
+      totalUsers: users.length,
+    };
+  }
+
+  remove(id: string) {
+    return this.leaveBalanceModel.findByIdAndDelete(id).exec();
+  }
+}
