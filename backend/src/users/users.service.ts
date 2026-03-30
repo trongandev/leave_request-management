@@ -19,6 +19,7 @@ import { Department } from 'src/departments/departments.schema';
 import { Position } from 'src/positions/positions.schema';
 import * as bcrypt from 'bcrypt';
 import { removeVietnameseTones } from 'src/common/utils/utils';
+import { LeaveBalancesService } from '../leave-balances/leave-balances.service';
 
 @Injectable()
 export class UsersService {
@@ -28,6 +29,7 @@ export class UsersService {
     @InjectModel(Role.name) private roleModel: Model<Role>,
     @InjectModel(Department.name) private departmentModel: Model<Department>,
     @InjectModel(Position.name) private positionModel: Model<Position>,
+    private leaveBalancesService: LeaveBalancesService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -75,10 +77,27 @@ export class UsersService {
     });
 
     const saveUser = newUser.save();
+    const createdUserId = (await saveUser)._id;
     const populatedUser = await this.userModel
-      .findById((await saveUser)._id)
+      .findById(createdUserId)
       .populate('roleId')
       .exec();
+
+    // Auto-assign annual leave balance for current year on user creation.
+    // If creation fails, log but don't fail the entire user creation transaction.
+    try {
+      const currentYear = new Date().getFullYear();
+      await this.leaveBalancesService.create({
+        userId: String(createdUserId),
+        year: currentYear,
+        adjustedDays: 0,
+        usedDays: 0,
+      });
+    } catch (error) {
+      // Log error but don't fail user creation if leave balance creation fails
+      console.error('Failed to create leave balance for new user:', error);
+    }
+
     return populatedUser;
   }
 

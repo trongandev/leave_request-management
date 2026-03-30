@@ -11,6 +11,7 @@ import {
   DepartmentSchema,
 } from 'src/departments/departments.schema';
 import { Position, PositionSchema } from 'src/positions/positions.schema';
+import { LeaveBalancesModule } from '../leave-balances/leave-balances.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { Position, PositionSchema } from 'src/positions/positions.schema';
     MongooseModule.forFeature([
       { name: Position.name, schema: PositionSchema },
     ]),
+    LeaveBalancesModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],
