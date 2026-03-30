@@ -63,7 +63,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         p.code === 'CREATE_LEAVE' ||
         p.code === 'APPROVE_LEAVE' ||
         p.code === 'REJECT_LEAVE' ||
-        p.code === 'READ_ALL_LEAVE'||
+        p.code === 'READ_ALL_LEAVE' ||
         p.code === 'ASSIGN_MANAGER',
     );
     await this.roleModel.updateOne(
@@ -78,7 +78,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         p.code.includes('OWN') ||
         p.code === 'VIEW_REPORT' ||
         p.code === 'READ_ALL_LEAVE' ||
-        p.code === 'MANAGE_LEAVE_TYPES'||
+        p.code === 'MANAGE_LEAVE_TYPES' ||
         p.code === 'ASSIGN_MANAGER', // Quyền mới cho HR
     );
     await this.roleModel.updateOne(

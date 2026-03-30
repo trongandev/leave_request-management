@@ -123,7 +123,6 @@ export class AuthService {
     const roleName = (populated?.roleId as unknown as Role)?.name;
 
     return {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       id: (populated as any)?._id,
       fullName: populated?.fullName,
       email: populated?.email,
