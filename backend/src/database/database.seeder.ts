@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { Department } from 'src/departments/departments.schema';
 import { orgStructure } from 'src/config/orgStructure.config';
 import { Position } from 'src/positions/positions.schema';
+import { RequestType } from '../request-type/request-type.schema';
 
 @Injectable()
 export class DatabaseSeeder implements OnApplicationBootstrap {
@@ -22,6 +23,8 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     @InjectModel(Position.name) private readonly positionModel: Model<Position>,
     @InjectModel(Department.name)
     private readonly departmentModel: Model<Department>,
+    @InjectModel(RequestType.name)
+    private readonly requestTypeModel: Model<RequestType>,
   ) {}
 
   // Hàm này tự động chạy khi ứng dụng khởi chạy xong
@@ -31,7 +34,83 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.createDefaultDepartmentsAndPositions();
     await this.seedRoles();
     await this.seedAdminUser();
+    await this.seedLeaveType();
     console.log('--- Seeding hoàn tất ---');
+  }
+
+  private async seedLeaveType() {
+    const requestTypes: Array<{
+      req_typeId: number;
+      name: string;
+      code: string;
+      desc: string;
+      isDeductible: boolean;
+      requireAttachment: boolean;
+      maxDays: number;
+      autoApproval: boolean;
+    }> = [
+      {
+        req_typeId: 1,
+        name: 'Nghi phep nam',
+        code: 'ANNUAL_LEAVE',
+        desc: 'Tru vao so du 12 ngay phep nam',
+        isDeductible: true,
+        requireAttachment: false,
+        maxDays: 12,
+        autoApproval: false,
+      },
+      {
+        req_typeId: 2,
+        name: 'Nghi benh',
+        code: 'SICK_LEAVE',
+        desc: 'Khong tru phep nam, can giay xac nhan benh vien (BHXH chi tra)',
+        isDeductible: false,
+        requireAttachment: true,
+        maxDays: 30,
+        autoApproval: false,
+      },
+      {
+        req_typeId: 3,
+        name: 'Nghi viec rieng co luong',
+        code: 'PAID_SPECIAL_LEAVE',
+        desc: 'Nghi ket hon, tang che... khong tru vao 12 ngay phep nam',
+        isDeductible: false,
+        requireAttachment: false,
+        maxDays: 3,
+        autoApproval: false,
+      },
+      {
+        req_typeId: 4,
+        name: 'Nghi khong luong',
+        code: 'UNPAID_LEAVE',
+        desc: 'Khong gioi han nhung can phe duyet gat gao',
+        isDeductible: false,
+        requireAttachment: false,
+        maxDays: 365,
+        autoApproval: false,
+      },
+    ];
+
+    for (const item of requestTypes) {
+      await this.requestTypeModel.updateOne(
+        { code: item.code },
+        {
+          $set: {
+            req_typeId: item.req_typeId,
+            name: item.name,
+            code: item.code,
+            desc: item.desc,
+            isDeductible: item.isDeductible,
+            requireAttachment: item.requireAttachment,
+            maxDays: item.maxDays,
+            autoApproval: item.autoApproval,
+          },
+        },
+        { upsert: true },
+      );
+    }
+
+    this.logger.log('Da seed request types mac dinh');
   }
 
   private async seedPermissions() {

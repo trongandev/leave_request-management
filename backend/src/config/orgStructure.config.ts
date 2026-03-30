@@ -1,3 +1,5 @@
+/*
+ * OLD orgStructure backup (kept for quick revert)
 export const orgStructure = [
   {
     originName: 'Production',
@@ -80,8 +82,6 @@ export const orgStructure = [
       },
     ],
   },
-
-  // Thêm bộ phận R&D
   {
     originName: 'Research & Development',
     name: 'R&D',
@@ -113,8 +113,6 @@ export const orgStructure = [
       },
     ],
   },
-
-  // Thêm bộ phận Kho & Vận chuyển
   {
     originName: 'Logistics',
     name: 'Kho & Vận chuyển',
@@ -146,8 +144,6 @@ export const orgStructure = [
       },
     ],
   },
-
-  // Thêm bộ phận Quản lý chất lượng
   {
     originName: 'Quality Assurance',
     name: 'Quản lý chất lượng',
@@ -173,8 +169,6 @@ export const orgStructure = [
       },
     ],
   },
-
-  // Thêm bộ phận Kỹ thuật hệ thống
   {
     originName: 'Systems',
     name: 'Kỹ thuật hệ thống',
@@ -201,8 +195,168 @@ export const orgStructure = [
     ],
   },
 ];
+*/
 
-//Level,Vai trò Hệ thống (Role),Chức năng UI (HUB Portal),Ghi chú
-// 1 - 2,EMPLOYEE,Thấy thẻ: Công việc của tôi,Nhóm thực thi.
-// 3 - 4,MANAGER,"Thấy thẻ: Công việc của tôi, Quản lý đội ngũ",Nhóm quản lý trực tiếp (Line Manager).
-// 5 - 8,MANAGER / HR,"Thấy thẻ: Công việc của tôi, Quản lý đội ngũ, Quản trị nhân sự",Nhóm quản lý cấp cao hoặc bộ phận chuyên trách.
+export const orgStructure = [
+  {
+    originName: 'Executive Office',
+    name: 'Ban điều hành',
+    code: 'EXEC',
+    positions: [
+      {
+        name: 'CEO',
+        fullName: 'Chief Executive Officer',
+        description: 'Tổng giám đốc',
+        level: 0,
+      },
+    ],
+  },
+  {
+    originName: 'Human Resources',
+    name: 'Nhân sự',
+    code: 'HR',
+    positions: [
+      {
+        name: 'HRM',
+        fullName: 'HR Manager',
+        description: 'Trưởng phòng nhân sự',
+        level: 1,
+      },
+      {
+        name: 'REC',
+        fullName: 'Recruiter',
+        description: 'Chuyên viên tuyển dụng',
+        level: 2,
+      },
+      {
+        name: 'TRS',
+        fullName: 'Training Specialist',
+        description: 'Chuyên viên đào tạo',
+        level: 2,
+      },
+      {
+        name: 'HRA',
+        fullName: 'HR Admin',
+        description: 'Nhân viên hành chính nhân sự',
+        level: 2,
+      },
+    ],
+  },
+  {
+    originName: 'Research & Development',
+    name: 'R&D',
+    code: 'RND',
+    positions: [
+      {
+        name: 'RDM',
+        fullName: 'R&D Manager',
+        description: 'Trưởng phòng nghiên cứu và phát triển',
+        level: 1,
+      },
+      {
+        name: 'RSE',
+        fullName: 'Research Engineer',
+        description: 'Kỹ sư nghiên cứu',
+        level: 2,
+      },
+      {
+        name: 'PDV',
+        fullName: 'Product Developer',
+        description: 'Chuyên viên phát triển sản phẩm',
+        level: 2,
+      },
+    ],
+  },
+  {
+    originName: 'Logistics',
+    name: 'Kho và vận chuyển',
+    code: 'LOG',
+    positions: [
+      {
+        name: 'LGM',
+        fullName: 'Logistics Manager',
+        description: 'Trưởng phòng logistics',
+        level: 1,
+      },
+      {
+        name: 'WHM',
+        fullName: 'Warehouse Manager',
+        description: 'Quản lý kho',
+        level: 2,
+      },
+      {
+        name: 'DLV',
+        fullName: 'Delivery Staff',
+        description: 'Nhân viên giao nhận',
+        level: 2,
+      },
+      {
+        name: 'WHS',
+        fullName: 'Warehouse Staff',
+        description: 'Nhân viên kho trực thuộc Warehouse Manager',
+        level: 3,
+      },
+    ],
+  },
+  {
+    originName: 'Quality Assurance',
+    name: 'Quản lý chất lượng',
+    code: 'QA',
+    positions: [
+      {
+        name: 'QAM',
+        fullName: 'QA Manager',
+        description: 'Trưởng phòng QA',
+        level: 1,
+      },
+      {
+        name: 'QAE',
+        fullName: 'QA Engineer',
+        description: 'Kỹ sư QA',
+        level: 2,
+      },
+      {
+        name: 'QAS',
+        fullName: 'QA Staff',
+        description: 'Nhân viên QA',
+        level: 2,
+      },
+    ],
+  },
+  {
+    originName: 'IT & System',
+    name: 'CNTT và hệ thống',
+    code: 'SYS',
+    positions: [
+      {
+        name: 'ITM',
+        fullName: 'IT/System Manager',
+        description: 'Trưởng phòng IT và hệ thống',
+        level: 1,
+      },
+      {
+        name: 'SAD',
+        fullName: 'System Admin',
+        description: 'Quản trị hệ thống',
+        level: 2,
+      },
+      {
+        name: 'NWE',
+        fullName: 'Network Engineer',
+        description: 'Kỹ sư mạng',
+        level: 2,
+      },
+      {
+        name: 'ITS',
+        fullName: 'IT Support',
+        description: 'Nhân viên hỗ trợ IT',
+        level: 2,
+      },
+    ],
+  },
+];
+
+// Level 0: CEO
+// Level 1: Department Managers
+// Level 2: Specialist and Staff positions
+// Level 3: Warehouse Staff under Warehouse Manager

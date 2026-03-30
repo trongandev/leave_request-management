@@ -22,6 +22,7 @@ import { ErrorLogModule } from './error-log/error-log.module';
 import { LeaveBalancesModule } from './leave-balances/leave-balances.module';
 import { SystemSettingModule } from './system-setting/system-setting.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { RequestTypeModule } from './request-type/request-type.module';
 
 @Module({
   imports: [
@@ -62,6 +63,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     LeaveBalancesModule,
 
     SystemSettingModule,
+
+    RequestTypeModule,
   ],
   controllers: [AppController],
   providers: [

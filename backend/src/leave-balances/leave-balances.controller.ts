@@ -12,6 +12,7 @@ import {
 import { LeaveBalancesService } from './leave-balances.service';
 import { CreateLeaveBalanceDto } from './dto/create-leave-balance.dto';
 import { UpdateLeaveBalanceDto } from './dto/update-leave-balance.dto';
+import { AdjustLeaveBalanceDto } from './dto/adjust-leave-balance.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
@@ -39,6 +40,16 @@ export class LeaveBalancesController {
     return this.leaveBalancesService.findAll(paginationDto);
   }
 
+  @Get(':id/logs')
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions(Permission.READ_ALL_LEAVE)
+  findLogs(@Param('id') id: string, @Query() paginationDto: PaginationDto) {
+    return this.leaveBalancesService.findLogsByLeaveBalanceId(
+      id,
+      paginationDto,
+    );
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions(Permission.READ_ALL_LEAVE)
@@ -55,6 +66,14 @@ export class LeaveBalancesController {
     @Body() updateLeaveBalanceDto: UpdateLeaveBalanceDto,
   ) {
     return this.leaveBalancesService.update(id, updateLeaveBalanceDto);
+  }
+
+  // Dedicated add/deduct endpoint with audit log for compliance tracing.
+  @Patch(':id/adjust')
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions(Permission.MANAGE_USERS)
+  adjust(@Param('id') id: string, @Body() dto: AdjustLeaveBalanceDto) {
+    return this.leaveBalancesService.adjustWithLog(id, dto);
   }
 
   @Delete(':id')
