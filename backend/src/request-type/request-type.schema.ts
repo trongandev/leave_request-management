@@ -5,8 +5,8 @@ export type RequestTypeDocument = HydratedDocument<RequestType>;
 
 @Schema({ collection: 'request_type', timestamps: true })
 export class RequestType {
-  @Prop({ type: Number, required: true, unique: true })
-  _id!: number;
+  @Prop({ type: Number, required: true, unique: true, index: true })
+  req_typeId!: number;
 
   @Prop({ required: true, trim: true })
   name!: string;

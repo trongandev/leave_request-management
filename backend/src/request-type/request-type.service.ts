@@ -24,17 +24,17 @@ export class RequestTypeService {
   private async getNextRequestTypeId() {
     const maxDoc = await this.requestTypeModel
       .findOne()
-      .sort({ _id: -1 })
-      .select('_id')
-      .lean<{ _id?: number }>()
+      .sort({ req_typeId: -1 })
+      .select('req_typeId')
+      .lean<{ req_typeId?: number }>()
       .exec();
 
-    const maxExistingId = Number(maxDoc?._id ?? 0);
+    const maxExistingId = Number(maxDoc?.req_typeId ?? 0);
 
-    // Đảm bảo counter luôn >= max _id hiện có (đặc biệt sau seed).
+    // Keep display id counter aligned with seeded/default data.
     const syncedCounter = await this.counterModel
       .findOneAndUpdate(
-        { _id: 'request_type' },
+        { _id: 'request_type_display_id' },
         { $max: { seq: maxExistingId } },
         { upsert: true, new: true },
       )
@@ -45,7 +45,7 @@ export class RequestTypeService {
     const nextId = Number(syncedCounter?.seq ?? maxExistingId) + 1;
 
     await this.counterModel.updateOne(
-      { _id: 'request_type' },
+      { _id: 'request_type_display_id' },
       { $set: { seq: nextId } },
       { upsert: true },
     );
@@ -69,7 +69,7 @@ export class RequestTypeService {
     const nextId = await this.getNextRequestTypeId();
 
     return this.requestTypeModel.create({
-      _id: nextId,
+      req_typeId: nextId,
       ...createRequestTypeDto,
       code: normalizedCode,
       desc: createRequestTypeDto.desc?.trim() ?? '',
@@ -81,11 +81,11 @@ export class RequestTypeService {
       this.requestTypeModel,
       paginationDto,
       {},
-      { sort: { _id: 1 } },
+      { sort: { req_typeId: 1 } },
     );
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const item = await this.requestTypeModel.findById(id).lean().exec();
     if (!item) {
       throw new NotFoundException('Request type not found');
@@ -93,7 +93,20 @@ export class RequestTypeService {
     return item;
   }
 
-  async update(id: number, updateRequestTypeDto: UpdateRequestTypeDto) {
+  async findOneByDisplayId(reqTypeId: number) {
+    const item = await this.requestTypeModel
+      .findOne({ req_typeId: reqTypeId })
+      .lean()
+      .exec();
+
+    if (!item) {
+      throw new NotFoundException('Request type not found');
+    }
+
+    return item;
+  }
+
+  async update(id: string, updateRequestTypeDto: UpdateRequestTypeDto) {
     const payload: Partial<UpdateRequestTypeDto> = {
       ...updateRequestTypeDto,
     };
@@ -127,7 +140,7 @@ export class RequestTypeService {
     return updated;
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const deleted = await this.requestTypeModel.findByIdAndDelete(id).exec();
     if (!deleted) {
       throw new NotFoundException('Request type not found');

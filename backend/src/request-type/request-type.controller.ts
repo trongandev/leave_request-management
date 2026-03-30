@@ -37,9 +37,15 @@ export class RequestTypeController {
     return this.requestTypeService.findAll(paginationDto);
   }
 
+  @Get('by-display-id/:req_typeId')
+  @UseGuards(AuthGuard('jwt'))
+  findOneByDisplayId(@Param('req_typeId', ParseIntPipe) req_typeId: number) {
+    return this.requestTypeService.findOneByDisplayId(req_typeId);
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.requestTypeService.findOne(id);
   }
 
@@ -47,7 +53,7 @@ export class RequestTypeController {
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions(Permission.MANAGE_LEAVE_TYPES)
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateRequestTypeDto: UpdateRequestTypeDto,
   ) {
     return this.requestTypeService.update(id, updateRequestTypeDto);
@@ -56,7 +62,7 @@ export class RequestTypeController {
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions(Permission.MANAGE_LEAVE_TYPES)
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     return this.requestTypeService.remove(id);
   }
 }

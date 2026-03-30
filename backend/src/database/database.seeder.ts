@@ -40,7 +40,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
 
   private async seedLeaveType() {
     const requestTypes: Array<{
-      _id: number;
+      req_typeId: number;
       name: string;
       code: string;
       desc: string;
@@ -50,7 +50,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       autoApproval: boolean;
     }> = [
       {
-        _id: 1,
+        req_typeId: 1,
         name: 'Nghi phep nam',
         code: 'ANNUAL_LEAVE',
         desc: 'Tru vao so du 12 ngay phep nam',
@@ -60,7 +60,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         autoApproval: false,
       },
       {
-        _id: 2,
+        req_typeId: 2,
         name: 'Nghi benh',
         code: 'SICK_LEAVE',
         desc: 'Khong tru phep nam, can giay xac nhan benh vien (BHXH chi tra)',
@@ -70,7 +70,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         autoApproval: false,
       },
       {
-        _id: 3,
+        req_typeId: 3,
         name: 'Nghi viec rieng co luong',
         code: 'PAID_SPECIAL_LEAVE',
         desc: 'Nghi ket hon, tang che... khong tru vao 12 ngay phep nam',
@@ -80,7 +80,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         autoApproval: false,
       },
       {
-        _id: 4,
+        req_typeId: 4,
         name: 'Nghi khong luong',
         code: 'UNPAID_LEAVE',
         desc: 'Khong gioi han nhung can phe duyet gat gao',
@@ -96,6 +96,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         { code: item.code },
         {
           $set: {
+            req_typeId: item.req_typeId,
             name: item.name,
             code: item.code,
             desc: item.desc,
@@ -104,7 +105,6 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
             maxDays: item.maxDays,
             autoApproval: item.autoApproval,
           },
-          $setOnInsert: { _id: item._id },
         },
         { upsert: true },
       );
