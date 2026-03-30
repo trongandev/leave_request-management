@@ -371,6 +371,7 @@ const resources = {
                 reportsAndAnalytics: "Reports & Analytics",
                 systemAuditLogs: "System Audit Logs",
                 accessControl: "Access Control",
+                assignManager: "Assign Manager",
             },
             approvals: {
                 dashboard: {
@@ -482,6 +483,80 @@ const resources = {
                     publicHolidayLabel: "Public Holiday",
                     companyDay: "Company Day",
                     more: "+{{count}} more",
+                },
+                assignManager: {
+                    title: "Assign Manager",
+                    subtitle: "Select employee and specify direct manager",
+                    form: {
+                        title: "Assignment Form",
+                        desc: "Fill in the details below to assign a new manager to the employee",
+                        employeeLabel: "Employee",
+                        employeePlaceholder: "Select employee to assign manager...",
+                        managerLabel: "New Manager",
+                        managerPlaceholder: "Select specified manager...",
+                        searchPlaceholder: "Search by name, ID, position...",
+                        currentManagerAlert: "Currently has manager",
+                        overrideConfirm: "Confirm to replace current manager",
+                        cancel: "Cancel",
+                        unassign: "Unassign Manager",
+                        submit: "Confirm Assignment",
+                        loading: "Processing...",
+                        sameUserError: "Employee and Manager must be different people",
+                        alreadyAssignedError: "This manager is already assigned to this employee",
+                        noManagerFound: "Not assigned",
+                        noResults: "No results found",
+                        noData: "No data available",
+                        placeholder: "Select both employee and manager to see confirmation"
+                    },
+                    table: {
+                        title: "Employee List",
+                        subtitle: "Overview of manager assignments in the system",
+                        searchPlaceholder: "Search employee...",
+                        all: "All",
+                        hasManager: "With Manager",
+                        noManager: "No Manager",
+                        colEmployee: "Employee",
+                        colPosition: "Department · Position",
+                        colManager: "Manager",
+                        colStatus: "Status",
+                        colAction: "Action",
+                        select: "Select",
+                        selected: "Selected",
+                        stats: {
+                            total: "Total",
+                            withManager: "With Manager",
+                            noManager: "No Manager"
+                        },
+                        pagination: {
+                            showing: "Showing <1>{{count}}</1> / {{total}} employees",
+                            clearFilter: "Clear filters",
+                            prev: "Prev",
+                            next: "Next"
+                        }
+                    },
+                    dialogs: {
+                        override: {
+                            title: "Replace Current Manager?",
+                            desc: "Employee <1>{{name}}</1> already has a manager. Confirming will replace the old manager with the new one.",
+                            current: "Current",
+                            new: "New",
+                            replaceBy: "Replace by",
+                            confirm: "Confirm Replace"
+                        },
+                        unassign: {
+                            title: "Confirm Unassign?",
+                            desc: "Are you sure you want to remove the direct manager from employee <1>{{name}}</1>?",
+                            managerToBeRemoved: "Manager to be removed",
+                            confirm: "Agree to Unassign"
+                        }
+                    },
+                    messages: {
+                        assignSuccess: "Assigned {{manager}} as manager of {{employee}}",
+                        assignError: "Assignment failed, please try again",
+                        unassignSuccess: "Removed manager from {{employee}}",
+                        unassignError: "Failed to remove manager, please try again",
+                        empIdNotFound: "Employee ID not found"
+                    }
                 },
             },
             admin: {
@@ -1411,8 +1486,8 @@ const resources = {
                 },
                 sidebar: {
                     portals: {
-                        employee: "Cổng Nhân viên",
-                        approval: "Cổng Phê duyệt",
+                        employee: "Employee Portal",
+                        approval: "Approval Portal",
                         admin: "Admin Portal",
                     },
                 },
@@ -1435,15 +1510,15 @@ const resources = {
                     privacyPolicy: "Chính sách bảo mật",
                     portals: {
                         employee: {
-                            name: "Cổng Nhân viên",
+                            name: "Employee Portal",
                             desc: "Xem phiếu lương, yêu cầu nghỉ phép, quản lý hồ sơ cá nhân và xem thông tin phúc lợi.",
                         },
                         manager: {
-                            name: "Bảng Quản lý",
+                            name: "Manager Portal",
                             desc: "Phê duyệt yêu cầu nghỉ phép, đánh giá hiệu suất, quản lý lịch trình và mục tiêu phòng ban.",
                         },
                         admin: {
-                            name: "Cài đặt Hệ thống",
+                            name: "Admin Portal",
                             desc: "Cấu hình hệ thống, quản lý vai trò, cập nhật chính sách và xem nhật ký kiểm tra.",
                         },
                         login: {
@@ -1694,6 +1769,7 @@ const resources = {
                 reportsAndAnalytics: "Báo cáo và phân tích",
                 systemAuditLogs: "Nhật ký kiểm toán hệ thống",
                 accessControl: "Kiểm soát truy cập",
+                assignManager: "Phân công quản lý",
             },
             preferences: {
                 navbar: {
@@ -2061,6 +2137,80 @@ const resources = {
                     publicHolidayLabel: "Ngày lễ",
                     companyDay: "Ngày công ty",
                     more: "+{{count}} nữa",
+                },
+                assignManager: {
+                    title: "Phân công Quản lý",
+                    subtitle: "Chọn nhân viên và chỉ định quản lý trực tiếp",
+                    form: {
+                        title: "Biểu mẫu phân công",
+                        desc: "Điền đầy đủ thông tin bên dưới để gán quản lý mới cho nhân viên",
+                        employeeLabel: "Nhân viên",
+                        employeePlaceholder: "Chọn nhân viên cần gán quản lý...",
+                        managerLabel: "Quản lý mới",
+                        managerPlaceholder: "Chọn quản lý được chỉ định...",
+                        searchPlaceholder: "Tìm theo tên, mã NV, chức vụ...",
+                        currentManagerAlert: "Đang có quản lý hiện tại",
+                        overrideConfirm: "Xác nhận sẽ thay thế quản lý hiện tại",
+                        cancel: "Hủy",
+                        unassign: "Gỡ quản lý",
+                        submit: "Xác nhận phân công",
+                        loading: "Đang xử lý...",
+                        sameUserError: "Nhân viên và Quản lý không được là cùng một người",
+                        alreadyAssignedError: "Quản lý này đã được gán cho nhân viên này rồi",
+                        noManagerFound: "Chưa phân công",
+                        noResults: "Không tìm thấy kết quả",
+                        noData: "Không có dữ liệu",
+                        placeholder: "Chọn đủ nhân viên và quản lý để xem xác nhận"
+                    },
+                    table: {
+                        title: "Danh sách nhân viên",
+                        subtitle: "Tổng quan phân công quản lý trong hệ thống",
+                        searchPlaceholder: "Tìm kiếm nhân viên...",
+                        all: "Tất cả",
+                        hasManager: "Có QL",
+                        noManager: "Chưa có",
+                        colEmployee: "Nhân viên",
+                        colPosition: "Phòng ban · Chức vụ",
+                        colManager: "Quản lý",
+                        colStatus: "Trạng thái",
+                        colAction: "Thao tác",
+                        select: "Chọn",
+                        selected: "Đang chọn",
+                        stats: {
+                            total: "Nhân viên",
+                            withManager: "Có QL",
+                            noManager: "Chưa có"
+                        },
+                        pagination: {
+                            showing: "Hiển thị <1>{{count}}</1> / {{total}} nhân viên",
+                            clearFilter: "Xóa lọc",
+                            prev: "Trước",
+                            next: "Sau"
+                        }
+                    },
+                    dialogs: {
+                        override: {
+                            title: "Thay thế quản lý hiện tại?",
+                            desc: "Nhân viên <1>{{name}}</1> đang có quản lý. Xác nhận sẽ thay thế quản lý cũ bằng quản lý mới.",
+                            current: "Hiện tại",
+                            new: "Mới",
+                            replaceBy: "Thay bởi",
+                            confirm: "Xác nhận thay thế"
+                        },
+                        unassign: {
+                            title: "Xác nhận gỡ quản lý?",
+                            desc: "Bạn có chắc chắn muốn gỡ quản lý trực tiếp khỏi nhân viên <1>{{name}}</1>?",
+                            managerToBeRemoved: "Quản lý sẽ bị gỡ",
+                            confirm: "Đồng ý gỡ"
+                        }
+                    },
+                    messages: {
+                        assignSuccess: "Đã gán {{manager}} làm quản lý của {{employee}}",
+                        assignError: "Phân công thất bại, vui lòng thử lại",
+                        unassignSuccess: "Đã gỡ quản lý khỏi {{employee}}",
+                        unassignError: "Gỡ quản lý thất bại, vui lòng thử lại",
+                        empIdNotFound: "Không tìm thấy mã nhân viên"
+                    }
                 },
             },
             admin: {
