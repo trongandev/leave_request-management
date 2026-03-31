@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateLeaveBalanceDto } from './dto/create-leave-balance.dto';
 import { UpdateLeaveBalanceDto } from './dto/update-leave-balance.dto';
 import { AdjustLeaveBalanceDto } from './dto/adjust-leave-balance.dto';
@@ -166,6 +170,21 @@ export class LeaveBalancesService {
     );
   }
 
+  findByUserId(userId: string, paginationDto: PaginationDto) {
+    return paginate(
+      this.leaveBalanceModel,
+      paginationDto,
+      { userId },
+      {
+        populate: {
+          path: 'userId',
+          select: 'empId fullName email departmentId positionId',
+        },
+        sort: { year: -1, createdAt: -1 },
+      },
+    );
+  }
+
   findOne(id: string) {
     return this.leaveBalanceModel
       .findById(id)
@@ -177,7 +196,7 @@ export class LeaveBalancesService {
     const leaveBalance = await this.leaveBalanceModel
       .findById(id)
       .select('userId')
-      .lean<{ userId?: unknown }>()
+      .lean<{ userId?: { toString: () => string } }>()
       .exec();
 
     if (!leaveBalance?.userId) {
@@ -187,7 +206,7 @@ export class LeaveBalancesService {
     return paginate(
       this.leaveBalanceLogModel,
       paginationDto,
-      { userId: String(leaveBalance.userId) },
+      { userId: leaveBalance.userId.toString() },
       { sort: { createdAt: -1 } },
     );
   }
@@ -239,7 +258,9 @@ export class LeaveBalancesService {
     const adjustedDays = Number(leaveBalance.adjustedDays) + changeAmount;
     const usedDays = this.toNonNegative(Number(leaveBalance.usedDays));
     const totalDays = this.toNonNegative(
-      Number(leaveBalance.baseDays) + Number(leaveBalance.seniorityDays) + adjustedDays,
+      Number(leaveBalance.baseDays) +
+        Number(leaveBalance.seniorityDays) +
+        adjustedDays,
     );
     const remainingDays = this.toNonNegative(totalDays - usedDays);
 
