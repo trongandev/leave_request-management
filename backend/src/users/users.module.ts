@@ -16,13 +16,11 @@ import { LeaveBalancesModule } from '../leave-balances/leave-balances.module';
 @Module({
   imports: [
     ConfigModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Counter.name, schema: CounterSchema }]),
-    MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
     MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Counter.name, schema: CounterSchema },
+      { name: Role.name, schema: RoleSchema },
       { name: Department.name, schema: DepartmentSchema },
-    ]),
-    MongooseModule.forFeature([
       { name: Position.name, schema: PositionSchema },
     ]),
     LeaveBalancesModule,

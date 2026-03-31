@@ -13,6 +13,11 @@ class UserService {
         return response.data.data
     }
 
+    async getTeamMembers() {
+        const response = await axiosInstance.get<APIResponse<User[]>>(`/users/teams`)
+        return response.data.data
+    }
+
     async assignManager(empId: string, managerId: string) {
         const response = await axiosInstance.patch<APIResponse<User>>(`/users/manager`, { empId, managerId })
         return response.data

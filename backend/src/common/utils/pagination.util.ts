@@ -26,6 +26,9 @@ export async function paginate<T>(
       query = query.populate(options.populate);
     }
   }
+  if (options.select) {
+    query = query.select(options.select);
+  }
 
   // Áp dụng sort nếu có
   if (options.sort) {

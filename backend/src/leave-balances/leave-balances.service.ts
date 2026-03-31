@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateLeaveBalanceDto } from './dto/create-leave-balance.dto';
 import { UpdateLeaveBalanceDto } from './dto/update-leave-balance.dto';
 import { AdjustLeaveBalanceDto } from './dto/adjust-leave-balance.dto';
@@ -11,6 +15,7 @@ import { SystemSettingService } from '../system-setting/system-setting.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { paginate } from '../common/utils/pagination.util';
 import { Counter } from '../counters/counters.schema';
+import path from 'path';
 
 @Injectable()
 export class LeaveBalancesService {
@@ -157,9 +162,14 @@ export class LeaveBalancesService {
       paginationDto,
       {},
       {
+        select: '_id userId usedDays totalDays remainingDays',
         populate: {
           path: 'userId',
-          select: 'empId fullName email departmentId positionId',
+          select: 'empId fullName email departmentId',
+          populate: {
+            path: 'departmentId',
+            select: 'name originName',
+          },
         },
         sort: { createdAt: -1 },
       },
@@ -239,7 +249,9 @@ export class LeaveBalancesService {
     const adjustedDays = Number(leaveBalance.adjustedDays) + changeAmount;
     const usedDays = this.toNonNegative(Number(leaveBalance.usedDays));
     const totalDays = this.toNonNegative(
-      Number(leaveBalance.baseDays) + Number(leaveBalance.seniorityDays) + adjustedDays,
+      Number(leaveBalance.baseDays) +
+        Number(leaveBalance.seniorityDays) +
+        adjustedDays,
     );
     const remainingDays = this.toNonNegative(totalDays - usedDays);
 
