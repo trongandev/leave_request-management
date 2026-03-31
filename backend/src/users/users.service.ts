@@ -282,6 +282,34 @@ export class UsersService {
     }
   }
 
+  async getTeamMembers(user: any) {
+    let managerId: any;
+
+    if (!user.managerId._id && user.roleId?.name === 'MANAGER') {
+      managerId = user._id;
+    } else {
+      const findManagerId = await this.userModel
+        .findById(user._id)
+        .select('managerId')
+        .lean()
+        .exec();
+      managerId = findManagerId?.managerId || null;
+    }
+
+    if (!managerId) {
+      throw new BadRequestException('User does not have a managerId');
+    }
+    const teamMembers = await this.userModel
+      .find({ managerId: managerId })
+      .populate({
+        path: 'positionId',
+        select: 'fullName',
+      })
+      .select('empId fullName email avatar phone positionId')
+      .exec();
+    return teamMembers;
+  }
+
   async assignManagerByEmpId(
     userEmpId: string,
     managerEmpId: string,

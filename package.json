@@ -2,6 +2,7 @@
     "name": "lrm-bos-app",
     "version": "1.0.0",
     "scripts": {
+        "install": "cd backend && npm install && cd ../frontend && npm install",
         "start:backend": "cd backend && npm run start",
         "start:frontend": "cd frontend && npm run dev",
         "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\""

@@ -47,7 +47,6 @@ export default function PaginationUI({ pagination, onPageChange }: PaginationUIP
                             <PaginationItem>
                                 <Button variant={"outline"} disabled={!has_prev} onClick={() => onPageChange(page - 1)}>
                                     <ChevronLeftIcon />
-                                    <span className="hidden sm:block">{t("etc.pagination.prev")}</span>
                                 </Button>
                             </PaginationItem>
                             {pages.map((pg, idx) =>
@@ -71,7 +70,6 @@ export default function PaginationUI({ pagination, onPageChange }: PaginationUIP
                             )}
                             <PaginationItem>
                                 <Button variant={"outline"} disabled={!has_next} onClick={() => onPageChange(page + 1)}>
-                                    <span className="hidden sm:block">{t("etc.pagination.next")}</span>
                                     <ChevronRightIcon className="" />
                                 </Button>
                             </PaginationItem>

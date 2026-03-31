@@ -7,6 +7,7 @@ import {
     BarChartIcon,
     BrickWallShieldIcon,
     CalendarDaysIcon,
+    FormIcon,
     GlobeIcon,
     HistoryIcon,
     HomeIcon,
@@ -32,15 +33,17 @@ export default function GeneralSidebar() {
     const roleName = user?.roleId.name
     const [newNav, setNewNav] = useState<typeof defaultNav>([])
 
+    // sidebar cho employee
     const defaultNav = useMemo(
         () => [
             {
                 name: "main menu",
                 items: [
                     { name: t("sidebar.home"), icon: HomeIcon, href: "/" },
-                    { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/employee" },
+                    // { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/employee" },
                     { name: t("sidebar.createNewRequest"), icon: BarChartIcon, href: "/employee/create-new-request-form" },
                     { name: t("sidebar.myRequestHistory"), icon: HistoryIcon, href: "/employee/my-request-history-list" },
+                    { name: t("sidebar.teamCalendar"), icon: CalendarDaysIcon, href: "/approvals/team-calendar" },
                 ],
             },
             {
@@ -54,16 +57,25 @@ export default function GeneralSidebar() {
         [t],
     )
 
+    // sidebar cho HR - Manager
     const approvalsNav = useMemo(
         () => [
             {
                 name: t("sidebar.mainMenu"),
                 items: [
                     { name: t("sidebar.home"), icon: HomeIcon, href: "/" },
-                    { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/approvals" },
+                    // { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/approvals" },
+                    { name: t("sidebar.createNewRequest"), icon: BarChartIcon, href: "/employee/create-new-request-form" },
+                    { name: t("sidebar.myRequestHistory"), icon: HistoryIcon, href: "/employee/my-request-history-list" },
                     { name: t("sidebar.teamCalendar"), icon: CalendarDaysIcon, href: "/approvals/team-calendar" },
+                ],
+            },
+            {
+                name: "Manager",
+                items: [
                     { name: t("sidebar.leaveBalances"), icon: Users, href: "/approvals/leave-balances" },
                     { name: t("sidebar.assignManager"), icon: LassoSelectIcon, href: "/approvals/assign-manager" },
+                    { name: "Form Manager", icon: FormIcon, href: "/approvals/form-manager" },
                 ],
             },
             {
@@ -77,6 +89,7 @@ export default function GeneralSidebar() {
         [t],
     )
 
+    // sidebar cho Admin
     const adminNav = useMemo(
         () => [
             {
@@ -87,6 +100,15 @@ export default function GeneralSidebar() {
                     { name: t("sidebar.employee"), icon: Users, href: "/admin/employee-management" },
                     { name: t("sidebar.attendanceTracking"), icon: AlarmClockIcon, href: "/admin/attendance-tracking" },
                     { name: t("sidebar.globalRequests"), icon: GlobeIcon, href: "/admin/global-request" },
+                ],
+            },
+            {
+                name: "Manager",
+                items: [
+                    { name: t("sidebar.teamCalendar"), icon: CalendarDaysIcon, href: "/approvals/team-calendar" },
+                    { name: t("sidebar.leaveBalances"), icon: Users, href: "/approvals/leave-balances" },
+                    { name: t("sidebar.assignManager"), icon: LassoSelectIcon, href: "/approvals/assign-manager" },
+                    { name: "Form Manager", icon: FormIcon, href: "/approvals/form-manager" },
                 ],
             },
             {
@@ -169,6 +191,7 @@ export default function GeneralSidebar() {
                     </div>
                 ))}
             </nav>
+
             <div className="p-4 border-t border-slate-200 dark:border-white/20">
                 <div className="flex items-center gap-3">
                     <CAvatarName user={user} />

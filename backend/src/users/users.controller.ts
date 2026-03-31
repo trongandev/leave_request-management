@@ -32,6 +32,12 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Get('teams')
+  @UseGuards(AuthGuard('jwt'))
+  getTeamMembers(@CurrentUser() user: any) {
+    return this.usersService.getTeamMembers(user);
+  }
+
   @Post('fake')
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions('MANAGE_USERS')
@@ -41,7 +47,7 @@ export class UsersController {
 
   @Get()
   @UseGuards(AuthGuard('jwt'))
-  @RequirePermissions('READ_ALL_LEAVE')
+  @RequirePermissions('ASSIGN_MANAGER')
   findAll(@Query() paginationDto: PaginationDto) {
     return this.usersService.findAll(paginationDto);
   }
@@ -53,7 +59,7 @@ export class UsersController {
 
   @Patch('manager')
   @UseGuards(AuthGuard('jwt'))
-  @RequirePermissions(Permission.ASSIGN_MANAGER)
+  @RequirePermissions('ASSIGN_MANAGER')
   assignManager(@Body() dto: AssignManagerDto, @CurrentUser() user: any) {
     return this.usersService.assignManagerByEmpId(
       dto.empId,

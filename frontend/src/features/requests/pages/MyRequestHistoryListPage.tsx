@@ -3,6 +3,7 @@ import { useTranslation, Trans } from "react-i18next"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar, CircleCheck, ClipboardClock, ContactRound, Download, Edit, Eye, Search, Thermometer, Umbrella, Venus } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function MyRequestHistoryListPage() {
     const { t } = useTranslation()
@@ -19,7 +20,7 @@ export default function MyRequestHistoryListPage() {
         t("requests.history.columns.dates"),
         t("requests.history.columns.duration"),
         t("requests.history.columns.status"),
-        t("requests.history.columns.action")
+        t("requests.history.columns.action"),
     ]
     const data = [
         {
@@ -194,16 +195,18 @@ export default function MyRequestHistoryListPage() {
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 {dataDashboard.map((item) => (
-                    <div key={item.label} className={`bg-white p-4 rounded-xl shadow-sm border  flex items-center gap-4`}>
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${item.bgColor}`}>{item.icon}</div>
-                        <div>
-                            <p className="text-xs font-medium text-neutral-500 uppercase">{item.label}</p>
-                            <p className="text-2xl font-bold text-neutral-900 dark:text-white">{item.value}</p>
-                        </div>
-                    </div>
+                    <Card key={item.label}>
+                        <CardContent className=" flex items-center gap-4">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${item.bgColor}`}>{item.icon}</div>
+                            <div>
+                                <p className="text-xs font-medium text-neutral-500 uppercase">{item.label}</p>
+                                <p className="text-2xl font-bold text-neutral-900 dark:text-white">{item.value}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
                 ))}
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-border-light dark:border-border-dark flex flex-col">
+            <div className="bg-card rounded-xl shadow-sm border border-border-light dark:border-border-dark flex flex-col">
                 <div className="p-5 border-b border-border-light dark:border-border-dark flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="relative w-full md:w-72 h-10">
                         <Search className="absolute inset-y-0 h-10 text-gray-600 left-0 pl-2 flex items-center pointer-events-none" />
@@ -252,7 +255,7 @@ export default function MyRequestHistoryListPage() {
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="bg-surface-light dark:bg-surface-dark divide-y divide-neutral-200 dark:divide-neutral-700">
+                        <tbody className="bg-surface-light dark:bg-surface-dark divide-y ">
                             {data.map((request, index) => (
                                 <tr
                                     key={request.id}
@@ -293,7 +296,11 @@ export default function MyRequestHistoryListPage() {
                     <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p className="text-sm text-neutral-700 dark:text-neutral-300">
-                                <Trans i18nKey="requests.history.pagination.showing" values={{from: 1, to: 6, total: 42}} components={{1: <span className="font-medium" />, 3: <span className="font-medium" />, 5: <span className="font-medium" />}} />
+                                <Trans
+                                    i18nKey="requests.history.pagination.showing"
+                                    values={{ from: 1, to: 6, total: 42 }}
+                                    components={{ 1: <span className="font-medium" />, 3: <span className="font-medium" />, 5: <span className="font-medium" /> }}
+                                />
                             </p>
                         </div>
                         <div>
@@ -354,9 +361,6 @@ export default function MyRequestHistoryListPage() {
                         </a>
                     </div>
                 </div>
-            </div>
-            <div className="mt-8 mb-4 text-center">
-                <p className="text-xs text-neutral-400">{t("requests.history.footerText")}</p>
             </div>
         </div>
     )

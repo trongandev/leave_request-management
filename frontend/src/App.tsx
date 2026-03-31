@@ -34,6 +34,10 @@ import DashboardHomePage from "./features/general/pages/DashboardHomePage"
 import LeaveBalanceEmployeePage from "./features/admin/pages/main/LeaveBalanceEmployeePage"
 import EmployeeManagementPage from "./features/admin/pages/main/EmployeeManagementPage"
 import AssignManager from "./features/approvals/pages/AssignManager"
+import CreateFormBuilderPage from "./features/approvals/pages/CreateFormBuilderPage"
+import FormTemplateDetailPage from "./features/approvals/pages/FormTemplateDetailPage"
+import FormManagerPage from "./features/approvals/pages/FormManagerPage"
+import EditFormBuilderPage from "./features/approvals/pages/EditFormBuilderPage"
 
 function App() {
     return (
@@ -54,6 +58,10 @@ function App() {
                     <Route path="/approvals/team-calendar" element={<TeamLeaveCalendarViewPage />} />
                     <Route path="/approvals/leave-balances" element={<LeaveBalanceEmployeePage />} />
                     <Route path="/approvals/assign-manager" element={<AssignManager />} />
+                    <Route path="/approvals/form-manager" element={<FormManagerPage />} />
+                    <Route path="/approvals/create-form-builder" element={<CreateFormBuilderPage />} />
+                    <Route path="/approvals/form-manager/:id" element={<FormTemplateDetailPage />} />
+                    <Route path="/approvals/form-manager/:id/edit" element={<EditFormBuilderPage />} />
                 </Route>
                 <Route path="/admin" element={<AdminLayout />}>
                     {/* START MAIN GROUP*/}

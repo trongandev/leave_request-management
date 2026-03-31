@@ -15,6 +15,7 @@ import { SystemSettingService } from '../system-setting/system-setting.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { paginate } from '../common/utils/pagination.util';
 import { Counter } from '../counters/counters.schema';
+import path from 'path';
 
 @Injectable()
 export class LeaveBalancesService {
@@ -161,9 +162,14 @@ export class LeaveBalancesService {
       paginationDto,
       {},
       {
+        select: '_id userId usedDays totalDays remainingDays',
         populate: {
           path: 'userId',
-          select: 'empId fullName email departmentId positionId',
+          select: 'empId fullName email departmentId',
+          populate: {
+            path: 'departmentId',
+            select: 'name originName',
+          },
         },
         sort: { createdAt: -1 },
       },
