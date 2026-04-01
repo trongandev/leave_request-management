@@ -558,6 +558,23 @@ const resources = {
                         empIdNotFound: "Employee ID not found"
                     }
                 },
+                adjustLeaveBalance: {
+                    title: "Assign Leave Balance",
+                    subtitle: "Initialize or adjust leave balance for users",
+                    success: "Assigned leave balance successfully",
+                    error: "Failed to assign leave balance",
+                    selectUser: "Select Employee",
+                    searchUser: "Search by name or Employee ID",
+                    selectUserError: "Please select a user",
+                    formTitle: "Balance Information",
+                    formDesc: "Set the leave balance for the selected user",
+                    adjustedDays: "Adjusted Days",
+                    adjustedHint: "Positive for adding, negative for deducting",
+                    usedDays: "Used Days",
+                    submit: "Assign Balance",
+                    placeholder: "Please select an employee from the left panel to continue"
+                },
+
             },
             admin: {
                 dashboard: {
@@ -714,6 +731,21 @@ const resources = {
                         recentChanges: "Recent Changes",
                         cancel: "Cancel",
                         save: "Save Changes",
+                    },
+                    exportModal: {
+                        title: "Export Report Preview",
+                        format: "Export Format",
+                        fileName: "File Name",
+                        preview: "UI Preview",
+                        records: "records",
+                        generatingPdf: "Generating PDF View...",
+                        pdfTitle: "Leave Balance Report",
+                        exportDate: "Export Date:",
+                        totalRecords: "Total Records:",
+                        noData: "No data",
+                        pdfWait: "Please wait for the PDF Preview to finish loading",
+                        download: "Download",
+                        missingLib: "Please install: npm install xlsx"
                     },
                 },
                 globalRequests: {
@@ -2212,6 +2244,23 @@ const resources = {
                         empIdNotFound: "Không tìm thấy mã nhân viên"
                     }
                 },
+                assignLeaveBalance: {
+                    title: "Điều chỉnh số ngày nghỉ",
+                    subtitle: "Điều chỉnh số ngày nghỉ cho nhân viên",
+                    success: "Điều chỉnh số ngày nghỉ thành công",
+                    error: "Điều chỉnh số ngày nghỉ thất bại",
+                    selectUser: "Chọn nhân viên",
+                    searchUser: "Tìm kiếm theo tên hoặc mã nhân viên",
+                    selectUserError: "Vui lòng chọn nhân viên",
+                    formTitle: "Thông tin số ngày nghỉ",
+                    formDesc: "Đặt số ngày nghỉ cho nhân viên",
+                    adjustedDays: "Số ngày đã điều chỉnh",
+                    adjustedHint: "Số dương để thêm, số âm để trừ",
+                    usedDays: "Số ngày đã sử dụng",
+                    submit: "Điều chỉnh số ngày nghỉ",
+                    placeholder: "Vui lòng chọn nhân viên từ bảng bên trái để tiếp tục"
+                },
+
             },
             admin: {
                 dashboard: {
@@ -2368,6 +2417,21 @@ const resources = {
                         recentChanges: "Thay đổi gần đây",
                         cancel: "Hủy",
                         save: "Lưu thay đổi",
+                    },
+                    exportModal: {
+                        title: "Bản xem trước báo cáo xuất",
+                        format: "Định dạng xuất",
+                        fileName: "Tên File",
+                        preview: "Xem Trước Dữ Liệu",
+                        records: "bản ghi",
+                        generatingPdf: "Đang tạo bản xem PDF...",
+                        pdfTitle: "Báo Cáo Quỹ Phép",
+                        exportDate: "Ngày xuất:",
+                        totalRecords: "Tổng số bản ghi:",
+                        noData: "Không có dữ liệu",
+                        pdfWait: "Vui lòng đợi PDF Preview tải xong",
+                        download: "Tải xuống",
+                        missingLib: "Vui lòng cài đặt: npm install xlsx"
                     },
                 },
                 globalRequests: {
