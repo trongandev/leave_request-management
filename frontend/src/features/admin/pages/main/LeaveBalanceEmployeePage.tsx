@@ -20,15 +20,21 @@ import userService from "@/services/userService"
 
 export default function LeaveBalanceEmployeePage() {
     const { t } = useTranslation();
+    const [page, setPage] = useState(1)
+    const [search, setSearch] = useState("")
+    const [departmentCode, setDepartmentCode] = useState("all")
+    const [leaveType, setLeaveType] = useState("all")
+    const [location, setLocation] = useState("all")
+
     const departmentsData = [
         { value: "all", label: t("admin.employees.filters.allDepartments", "All Departments") },
-        { value: "tech", label: t("admin.common.departments.engineering") },
-        { value: "production", label: t("admin.common.departments.production") },
-        { value: "r&d", label: t("admin.common.departments.rnd") },
-        { value: "hr", label: t("admin.common.departments.hr") },
-        { value: "log", label: t("admin.common.departments.logistics") },
-        { value: "qa", label: t("admin.common.departments.qa") },
-        { value: "sys", label: t("admin.common.departments.system") },
+        { value: "TECH", label: t("admin.common.departments.engineering") },
+        { value: "PROD", label: t("admin.common.departments.production") },
+        { value: "RND", label: t("admin.common.departments.rnd") },
+        { value: "HR", label: t("admin.common.departments.hr") },
+        { value: "LOG", label: t("admin.common.departments.logistics") },
+        { value: "QA", label: t("admin.common.departments.qa") },
+        { value: "SYS", label: t("admin.common.departments.system") },
     ]
 
     // const annualsData = [

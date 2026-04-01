@@ -39,6 +39,10 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
   }
 
   private async seedLeaveType() {
+    await this.requestTypeModel.deleteMany({
+      code: { $in: ['PAID_SPECIAL_LEAVE'] },
+    });
+
     const requestTypes: Array<{
       req_typeId: number;
       name: string;
@@ -51,9 +55,9 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     }> = [
       {
         req_typeId: 1,
-        name: 'Nghi phep nam',
+        name: 'Nghỉ phép năm',
         code: 'ANNUAL_LEAVE',
-        desc: 'Tru vao so du 12 ngay phep nam',
+        desc: 'Trừ vào số dư 12 ngày phép năm.',
         isDeductible: true,
         requireAttachment: false,
         maxDays: 12,
@@ -61,9 +65,9 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       },
       {
         req_typeId: 2,
-        name: 'Nghi benh',
+        name: 'Nghỉ bệnh',
         code: 'SICK_LEAVE',
-        desc: 'Khong tru phep nam, can giay xac nhan benh vien (BHXH chi tra)',
+        desc: 'Không trừ phép năm, cần giấy xác nhận bệnh viện (BHXH chi trả).',
         isDeductible: false,
         requireAttachment: true,
         maxDays: 30,
@@ -71,9 +75,9 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       },
       {
         req_typeId: 3,
-        name: 'Nghi viec rieng co luong',
-        code: 'PAID_SPECIAL_LEAVE',
-        desc: 'Nghi ket hon, tang che... khong tru vao 12 ngay phep nam',
+        name: 'Nghỉ kết hôn',
+        code: 'MARRIAGE_LEAVE',
+        desc: 'Nghỉ kết hôn, được nghỉ tối đa 3 ngày và không trừ phép năm.',
         isDeductible: false,
         requireAttachment: false,
         maxDays: 3,
@@ -81,15 +85,54 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       },
       {
         req_typeId: 4,
-        name: 'Nghi khong luong',
+        name: 'Nghỉ tang chế (bố mẹ, vợ/chồng, con cái)',
+        code: 'BEREAVEMENT_CLOSE_FAMILY_LEAVE',
+        desc: 'Nghỉ tang chế khi bố mẹ, vợ/chồng hoặc con cái mất, tối đa 3 ngày và không trừ phép năm.',
+        isDeductible: false,
+        requireAttachment: false,
+        maxDays: 3,
+        autoApproval: false,
+      },
+      {
+        req_typeId: 5,
+        name: 'Nghỉ tang chế (ông bà, anh chị em ruột)',
+        code: 'BEREAVEMENT_EXTENDED_FAMILY_LEAVE',
+        desc: 'Nghỉ tang chế khi ông bà hoặc anh chị em ruột mất, tối đa 1 ngày và không trừ phép năm.',
+        isDeductible: false,
+        requireAttachment: false,
+        maxDays: 1,
+        autoApproval: false,
+      },
+      {
+        req_typeId: 6,
+        name: 'Nghỉ không lương',
         code: 'UNPAID_LEAVE',
-        desc: 'Khong gioi han nhung can phe duyet gat gao',
+        desc: 'Không giới hạn nhưng cần phê duyệt gắt gao.',
         isDeductible: false,
         requireAttachment: false,
         maxDays: 365,
         autoApproval: false,
       },
     ];
+
+    const managedCodes = requestTypes.map((item) => item.code);
+
+    // Move existing managed records to a temporary id range first.
+    // This prevents unique index collisions when remapping req_typeId values.
+    const existingManaged = await this.requestTypeModel
+      .find({ code: { $in: managedCodes } })
+      .select('_id req_typeId')
+      .lean<Array<{ _id: unknown; req_typeId?: number }>>()
+      .exec();
+
+    for (const doc of existingManaged) {
+      if (typeof doc.req_typeId === 'number') {
+        await this.requestTypeModel.updateOne(
+          { _id: doc._id },
+          { $set: { req_typeId: doc.req_typeId + 1000 } },
+        );
+      }
+    }
 
     for (const item of requestTypes) {
       await this.requestTypeModel.updateOne(

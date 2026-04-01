@@ -176,6 +176,21 @@ export class LeaveBalancesService {
     );
   }
 
+  findByUserId(userId: string, paginationDto: PaginationDto) {
+    return paginate(
+      this.leaveBalanceModel,
+      paginationDto,
+      { userId },
+      {
+        populate: {
+          path: 'userId',
+          select: 'empId fullName email departmentId positionId',
+        },
+        sort: { year: -1, createdAt: -1 },
+      },
+    );
+  }
+
   findOne(id: string) {
     return this.leaveBalanceModel
       .findById(id)
@@ -187,7 +202,7 @@ export class LeaveBalancesService {
     const leaveBalance = await this.leaveBalanceModel
       .findById(id)
       .select('userId')
-      .lean<{ userId?: unknown }>()
+      .lean<{ userId?: { toString: () => string } }>()
       .exec();
 
     if (!leaveBalance?.userId) {
@@ -197,7 +212,7 @@ export class LeaveBalancesService {
     return paginate(
       this.leaveBalanceLogModel,
       paginationDto,
-      { userId: String(leaveBalance.userId) },
+      { userId: leaveBalance.userId.toString() },
       { sort: { createdAt: -1 } },
     );
   }
