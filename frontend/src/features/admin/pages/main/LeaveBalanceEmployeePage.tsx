@@ -20,11 +20,11 @@ import userService from "@/services/userService"
 
 export default function LeaveBalanceEmployeePage() {
     const { t } = useTranslation()
-    const [page, setPage] = useState(1)
-    const [search, setSearch] = useState("")
-    const [departmentCode, setDepartmentCode] = useState("all")
-    const [leaveType, setLeaveType] = useState("all")
-    const [location, setLocation] = useState("all")
+    // const [page, setPage] = useState(1)
+    // const [search, setSearch] = useState("")
+    // const [departmentCode, setDepartmentCode] = useState("all")
+    // const [leaveType, setLeaveType] = useState("all")
+    // const [location, setLocation] = useState("all")
 
     const departmentsData = [
         { value: "all", label: t("admin.employees.filters.allDepartments", "All Departments") },
@@ -333,7 +333,7 @@ export default function LeaveBalanceEmployeePage() {
                                         valueKey="value"
                                         displayKey="label"
                                         placeholder={t("admin.employees.filters.leaveType", "Leave Type")}
-                                        onChangeValue={(val) => setSelectedLeaveType(val)}
+                                        onChange={(val) => setSelectedLeaveType(val)}
                                         value={selectedLeaveType}
                                     />
                                 </div>

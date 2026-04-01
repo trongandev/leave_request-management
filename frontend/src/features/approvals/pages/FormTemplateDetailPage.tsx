@@ -44,7 +44,13 @@ export default function FormTemplateDetailPage() {
                 [key]: value,
             }
         }, {})
-        console.log(submitData)
+        const newFormData = {
+            title: data?.vieName || "Untitled Form",
+            formTemplateId: data?._id || "",
+            values: submitData,
+            code: data?.code || "",
+        }
+        console.log(newFormData)
     }
     if (isLoading) {
         return <LoadingUI />
