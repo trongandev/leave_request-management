@@ -327,7 +327,7 @@ export default function LeaveBalanceEmployeePage() {
                                         valueKey="value"
                                         displayKey="label"
                                         placeholder={t("admin.employees.filters.department", "Department")}
-                                        onChangeValue={(val) => setSelectedDept(val)}
+                                        onChange={(val) => setSelectedDept(val)}
                                     />
 
                                     {/* <CSelectOptions data={locationData} valueKey="value" displayKey="label" placeholder={t("admin.employees.filters.location", "Location")} /> */}
