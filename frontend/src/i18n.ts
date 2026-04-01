@@ -558,7 +558,7 @@ const resources = {
                         empIdNotFound: "Employee ID not found"
                     }
                 },
-                adjustLeaveBalance: {
+                assignLeaveBalance: {
                     title: "Assign Leave Balance",
                     subtitle: "Initialize or adjust leave balance for users",
                     success: "Assigned leave balance successfully",
@@ -674,6 +674,8 @@ const resources = {
                     title: "Leave Balances",
                     subtitle: "Manage and audit employee leave entitlements and usage.",
                     exportReport: "Export Report",
+                    exportEmpty: "No data to export",
+                    exportSuccess: "Report exported successfully",
                     newAdjustment: "New Adjustment",
                     searchPlaceholder: "Search by name, ID or email...",
                     filters: {
@@ -745,6 +747,7 @@ const resources = {
                         noData: "No data",
                         pdfWait: "Please wait for the PDF Preview to finish loading",
                         download: "Download",
+                        error: "Error during export",
                         missingLib: "Please install: npm install xlsx"
                     },
                 },
@@ -2360,6 +2363,8 @@ const resources = {
                     title: "Số dư nghỉ phép",
                     subtitle: "Quản lý và kiểm tra quyền hạn và việc sử dụng nghỉ phép của nhân viên.",
                     exportReport: "Xuất báo cáo",
+                    exportEmpty: "Không có dữ liệu để xuất",
+                    exportSuccess: "Báo cáo đã được xuất thành công",
                     newAdjustment: "Điều chỉnh mới",
                     searchPlaceholder: "Tìm theo tên, ID hoặc email...",
                     filters: {
@@ -2431,6 +2436,7 @@ const resources = {
                         noData: "Không có dữ liệu",
                         pdfWait: "Vui lòng đợi PDF Preview tải xong",
                         download: "Tải xuống",
+                        error: "Có lỗi xảy ra khi xuất báo cáo",
                         missingLib: "Vui lòng cài đặt: npm install xlsx"
                     },
                 },

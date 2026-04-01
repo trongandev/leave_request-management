@@ -260,7 +260,7 @@ export default function LeaveBalanceEmployeePage() {
                     link.download = `${fileName}.pdf`;
                     link.click();
                 } else {
-                    toast.error(t("admin.employees.exportModal.pdfWait", "Vui lòng đợi PDF Preview tải xong"));
+                    toast.error(t("admin.employees.exportModal.pdfWait", "Please wait for the PDF Preview to finish loading"));
                     return;
                 }
             }
@@ -269,7 +269,7 @@ export default function LeaveBalanceEmployeePage() {
             toast.success(t("admin.employees.exportSuccess", "Report exported successfully"));
         } catch (error) {
             console.error(error);
-            toast.error(t("admin.employees.exportModal.error", "Has error during export"));
+            toast.error(t("admin.employees.exportModal.error", "Error during export"));
         }
     };
 
