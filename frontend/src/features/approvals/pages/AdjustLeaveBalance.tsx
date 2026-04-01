@@ -190,7 +190,7 @@ export default function AdjustLeaveBalance() {
                         {selectedUser ? (
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 <div className="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm mb-4">
-                                    <img className="size-12 rounded-full object-cover border-2 border-white dark:border-neutral-700" src={selectedUser.avatar} />
+                                    <CAvatarProfile user={{ ...(selectedUser as any), avatar: userMap[selectedUser?._id]?.avatar || selectedUser?.avatar }} className="w-9 h-9" />
                                     <div>
                                         <p className="font-bold text-lg">{selectedUser.fullName}</p>
                                         <p className="text-sm text-muted-foreground">{(selectedUser.positionId as any)?.fullName || (selectedUser.positionId as any)?.name}</p>
@@ -247,7 +247,7 @@ export default function AdjustLeaveBalance() {
                                 </Button>
                             </form>
                         ) : (
-                             <div className="h-[300px] flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-neutral-200 dark:border-neutral-700 rounded-xl bg-neutral-50/50 dark:bg-neutral-800/10">
+                            <div className="h-[300px] flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-neutral-200 dark:border-neutral-700 rounded-xl bg-neutral-50/50 dark:bg-neutral-800/10">
                                 <div className="size-16 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
                                     <UserPlus className="text-neutral-400 dark:text-neutral-500" size={32} />
                                 </div>
