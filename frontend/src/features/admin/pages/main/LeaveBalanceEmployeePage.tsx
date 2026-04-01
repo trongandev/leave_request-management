@@ -37,23 +37,18 @@ export default function LeaveBalanceEmployeePage() {
         { value: "SYS", label: t("admin.common.departments.system") },
     ]
 
-    // const annualsData = [
-    //     { value: "all", label: t("admin.employees.filters.allAnnuals", "All Annuals") },
-    //     { value: "sick", label: t("admin.employees.filters.sickLeave", "Sick Leave") },
-    //     { value: "personal", label: t("admin.employees.filters.personalLeave", "Personal Leave") },
-    //     { value: "compensatory", label: t("admin.employees.filters.compensatoryLeave", "Compensatory Leave") },
-    //     { value: "vacation", label: t("admin.employees.filters.vacationLeave", "Vacation Leave") },
-    // ]
+    const leaveTypesData = [
+        { value: "all", label: t("admin.employees.filters.allAnnuals", "All Leave Types") },
+        { value: "annual", label: t("admin.employees.filters.annual", "Annual Leave") },
+        { value: "sick", label: t("admin.employees.filters.sickLeave", "Sick Leave") },
+        { value: "personal", label: t("admin.employees.filters.personalLeave", "Personal Leave") },
+        { value: "compensatory", label: t("admin.employees.filters.compensatoryLeave", "Compensatory Leave") },
+        { value: "vacation", label: t("admin.employees.filters.vacationLeave", "Vacation Leave") },
+    ]
 
-    // const locationData = [
-    //     { value: "all", label: t("admin.employees.filters.allLocations", "All Locations") },
-    //     { value: "new_york", label: t("admin.employees.filters.newYork", "New York") },
-    //     { value: "london", label: t("admin.employees.filters.london", "London") },
-    //     { value: "remote", label: t("admin.employees.filters.remote", "Remote") },
-    // ]
-
-    const [searchTerm, setSearchTerm] = useState("")
+    const [selectedLeaveType, setSelectedLeaveType] = useState("all")
     const [selectedDept, setSelectedDept] = useState("all")
+    const [searchTerm, setSearchTerm] = useState("")
 
     const { data, isLoading } = useQuery<ResponsePagination<LeaveBalance[]>>({
         queryKey: ["leave-balances", 1, 1000],
@@ -78,19 +73,23 @@ export default function LeaveBalanceEmployeePage() {
         if (!data?.data) return []
         return data.data.filter((item) => {
             const user = item.userId as any
+            const itemAny = item as any
             const fullName = user?.fullName?.toLowerCase() || ""
             const empId = user?.empId?.toLowerCase() || ""
             const email = user?.email?.toLowerCase() || ""
             const deptCode = user?.departmentId?.code?.toLowerCase() || ""
             const deptName = user?.departmentId?.originName?.toLowerCase() || ""
+            const itemType = (itemAny?.type || "annual").toLowerCase()
+
             const term = searchTerm.toLowerCase()
 
             const matchesSearch = !searchTerm || fullName.includes(term) || empId.includes(term) || email.includes(term)
-            const matchesDept = selectedDept === "all" || deptCode === selectedDept || deptName.includes(selectedDept)
+            const matchesDept = selectedDept === "all" || deptCode === selectedDept.toLowerCase() || deptName.includes(selectedDept.toLowerCase())
+            const matchesLeaveType = selectedLeaveType === "all" || itemType === selectedLeaveType.toLowerCase()
 
-            return matchesSearch && matchesDept
+            return matchesSearch && matchesDept && matchesLeaveType
         })
-    }, [data?.data, searchTerm, selectedDept])
+    }, [data?.data, searchTerm, selectedDept, selectedLeaveType])
 
     const navigate = useNavigate()
     const queryClient = useQueryClient()
@@ -329,9 +328,14 @@ export default function LeaveBalanceEmployeePage() {
                                         placeholder={t("admin.employees.filters.department", "Department")}
                                         onChange={(val) => setSelectedDept(val)}
                                     />
-
-                                    {/* <CSelectOptions data={locationData} valueKey="value" displayKey="label" placeholder={t("admin.employees.filters.location", "Location")} /> */}
-                                    {/* <CSelectOptions data={annualsData} valueKey="value" displayKey="label" placeholder={t("admin.employees.filters.leaveType", "Leave Type")} /> */}
+                                    <CSelectOptions
+                                        data={leaveTypesData}
+                                        valueKey="value"
+                                        displayKey="label"
+                                        placeholder={t("admin.employees.filters.leaveType", "Leave Type")}
+                                        onChangeValue={(val) => setSelectedLeaveType(val)}
+                                        value={selectedLeaveType}
+                                    />
                                 </div>
                             </div>
                         </CardContent>
