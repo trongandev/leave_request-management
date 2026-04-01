@@ -11,7 +11,6 @@ import PendingApprovalsListPage from "./features/approvals/pages/PendingApproval
 import RequestDetailAndApprovalPage from "./features/approvals/pages/RequestDetailAndApprovalPage"
 import TeamLeaveCalendarViewPage from "./features/approvals/pages/TeamLeaveCalendarViewPage"
 import AdminLayout from "./features/admin/pages/AdminLayout"
-import RequestTypeConfigPage from "./features/admin/pages/configuration/RequestTypeConfigPage"
 import GeneralLayout from "./features/general/pages/GeneralLayout"
 import ProfilePage from "./features/general/pages/ProfilePage"
 import PreferenceLayout from "./features/preferences/pages/PreferenceLayout"
@@ -73,7 +72,6 @@ function App() {
                     {/* END MAIN GROUP */}
 
                     {/* START CONFIGURATION GROUP */}
-                    <Route path="/admin/request-types" element={<RequestTypeConfigPage />} />
                     <Route path="/admin/global-request" element={<GlobalRequestPage />} />
                     <Route path="/admin/shift-patterns" element={<ShiftPatternsPage />} />
                     <Route path="/admin/payroll-and-holiday" element={<PayrollAndHolidayPage />} />

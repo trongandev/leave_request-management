@@ -115,7 +115,6 @@ export default function GeneralSidebar() {
             {
                 name: t("sidebar.configuration"),
                 items: [
-                    { name: t("sidebar.requestTypes"), icon: UserIcon, href: "/admin/request-types" },
                     { name: t("sidebar.shiftPatterns"), icon: AlarmClockIcon, href: "/admin/shift-patterns" },
                     { name: t("sidebar.payrollAndHoliday"), icon: WalletCardsIcon, href: "/admin/payroll-and-holiday" },
                     { name: t("sidebar.approvalWorkflow"), icon: NetworkIcon, href: "/admin/approval-workflow" },

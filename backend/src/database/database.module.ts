@@ -13,9 +13,9 @@ import {
 } from 'src/departments/departments.schema';
 import { Position, PositionSchema } from 'src/positions/positions.schema';
 import {
-  RequestType,
-  RequestTypeSchema,
-} from '../request-type/request-type.schema';
+  FormTemplate,
+  FormTemplateSchema,
+} from '../form-template/form-template.schema';
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import {
       { name: PermissionDoc.name, schema: PermissionSchema },
     ]),
     MongooseModule.forFeature([
-      { name: RequestType.name, schema: RequestTypeSchema },
+      { name: FormTemplate.name, schema: FormTemplateSchema },
     ]),
   ],
   providers: [DatabaseSeeder],

@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { Department } from 'src/departments/departments.schema';
 import { orgStructure } from 'src/config/orgStructure.config';
 import { Position } from 'src/positions/positions.schema';
-import { RequestType } from '../request-type/request-type.schema';
+import { FormTemplate } from '../form-template/form-template.schema';
 
 @Injectable()
 export class DatabaseSeeder implements OnApplicationBootstrap {
@@ -23,8 +23,8 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     @InjectModel(Position.name) private readonly positionModel: Model<Position>,
     @InjectModel(Department.name)
     private readonly departmentModel: Model<Department>,
-    @InjectModel(RequestType.name)
-    private readonly requestTypeModel: Model<RequestType>,
+    @InjectModel(FormTemplate.name)
+    private readonly formTemplateModel: Model<FormTemplate>,
   ) {}
 
   // Hàm này tự động chạy khi ứng dụng khởi chạy xong
@@ -34,136 +34,345 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.createDefaultDepartmentsAndPositions();
     await this.seedRoles();
     await this.seedAdminUser();
-    await this.seedLeaveType();
+    await this.seedFormTemplates();
     console.log('--- Seeding hoàn tất ---');
   }
 
-  private async seedLeaveType() {
-    await this.requestTypeModel.deleteMany({
-      code: { $in: ['PAID_SPECIAL_LEAVE'] },
-    });
+  private async seedFormTemplates() {
+    const admin = await this.userModel
+      .findOne({ email: 'admin@lrm.com' })
+      .exec();
 
-    const requestTypes: Array<{
-      req_typeId: number;
-      name: string;
-      code: string;
-      desc: string;
-      isDeductible: boolean;
-      requireAttachment: boolean;
-      maxDays: number;
-      autoApproval: boolean;
-    }> = [
+    if (!admin) {
+      this.logger.warn('Khong tim thay admin user, bo qua seed form template');
+      return;
+    }
+
+    const allFields = [
       {
-        req_typeId: 1,
-        name: 'Nghỉ phép năm',
+        id: 'text_mdg3fnsg',
+        type: 'text',
+        label: 'Lý do nghỉ',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 0,
+        parentId: null,
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'number_nt54khps',
+        type: 'number',
+        label: 'New number',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 1,
+        parentId: null,
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'checkbox_5yw0fp73',
+        type: 'checkbox',
+        label: 'New checkbox',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        options: [
+          {
+            label: 'Option 1',
+            value: 'opt_1775017323620',
+          },
+          {
+            label: 'Option 2',
+            value: 'opt_1775017323781',
+          },
+          {
+            label: 'Option 3',
+            value: 'opt_1775017323934',
+          },
+        ],
+        order: 2,
+        parentId: null,
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'radio_luqeb6f6',
+        type: 'radio',
+        label: 'New radio',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        options: [
+          {
+            label: 'Option 1',
+            value: 'opt_1',
+          },
+          {
+            label: 'Option 2',
+            value: 'opt_1775017325356',
+          },
+          {
+            label: 'Option 3',
+            value: 'opt_1775017325509',
+          },
+          {
+            label: 'Option 4',
+            value: 'opt_1775017325656',
+          },
+        ],
+        order: 3,
+        parentId: null,
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'select_zuliexbo',
+        type: 'select',
+        label: 'New select',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        options: [
+          {
+            label: 'Option 1',
+            value: 'opt_1',
+          },
+          {
+            label: 'Option 2',
+            value: 'opt_1775017327429',
+          },
+          {
+            label: 'Option 3',
+            value: 'opt_1775017327589',
+          },
+        ],
+        order: 4,
+        parentId: null,
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'container_khc8blpv',
+        type: 'container',
+        label: '',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 1,
+        parentId: null,
+        layout: {
+          direction: 'row',
+        },
+      },
+      {
+        id: 'file_jqqb7pjw',
+        type: 'file',
+        label: 'Đính kèm tệp',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 2,
+        parentId: null,
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'date_xdvtg807',
+        type: 'date',
+        label: 'Từ ngày:',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 3,
+        parentId: 'container_khc8blpv',
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'date_fbws9zgs',
+        type: 'date',
+        label: 'Đến ngày:',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 4,
+        parentId: 'container_khc8blpv',
+        layout: {
+          direction: 'col',
+        },
+      },
+    ];
+    const minimumFieldTemplate = [
+      {
+        id: 'text_mdg3fnsg',
+        type: 'text',
+        label: 'Lý do nghỉ',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 0,
+        parentId: null,
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'container_khc8blpv',
+        type: 'container',
+        label: '',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 1,
+        parentId: null,
+        layout: {
+          direction: 'row',
+        },
+      },
+      {
+        id: 'file_jqqb7pjw',
+        type: 'file',
+        label: 'Đính kèm tệp',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 2,
+        parentId: null,
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'date_xdvtg807',
+        type: 'date',
+        label: 'Từ ngày:',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 3,
+        parentId: 'container_khc8blpv',
+        layout: {
+          direction: 'col',
+        },
+      },
+      {
+        id: 'date_fbws9zgs',
+        type: 'date',
+        label: 'Đến ngày:',
+        placeholder: '',
+        required: false,
+        readOnly: false,
+        order: 4,
+        parentId: 'container_khc8blpv',
+        layout: {
+          direction: 'col',
+        },
+      },
+    ];
+    const formTemplates = [
+      {
         code: 'ANNUAL_LEAVE',
-        desc: 'Trừ vào số dư 12 ngày phép năm.',
-        isDeductible: true,
-        requireAttachment: false,
+        vieName: 'Đơn Xin Nghỉ Phép Năm',
+        engName: 'Annual Leave Application Form',
+        fields: minimumFieldTemplate,
+        version: 1,
+        isActive: true,
+        submitButtonText: 'Gửi yêu cầu',
+        autoApprove: false,
         maxDays: 12,
-        autoApproval: false,
+        requireAttachment: false,
+        isReductible: true,
       },
       {
-        req_typeId: 2,
-        name: 'Nghỉ bệnh',
         code: 'SICK_LEAVE',
-        desc: 'Không trừ phép năm, cần giấy xác nhận bệnh viện (BHXH chi trả).',
-        isDeductible: false,
-        requireAttachment: true,
+        vieName: 'Đơn Xin Nghỉ Bệnh',
+        engName: 'Sick Leave Application Form',
+        fields: minimumFieldTemplate,
+        version: 1,
+        isActive: true,
+        submitButtonText: 'Gửi yêu cầu',
+        autoApprove: false,
         maxDays: 30,
-        autoApproval: false,
+        requireAttachment: true,
+        isReductible: false,
       },
       {
-        req_typeId: 3,
-        name: 'Nghỉ kết hôn',
         code: 'MARRIAGE_LEAVE',
-        desc: 'Nghỉ kết hôn, được nghỉ tối đa 3 ngày và không trừ phép năm.',
-        isDeductible: false,
-        requireAttachment: false,
+        vieName: 'Đơn Xin Nghỉ Kết Hôn',
+        engName: 'Marriage Leave Application Form',
+        fields: minimumFieldTemplate,
+        version: 1,
+        isActive: true,
+        submitButtonText: 'Gửi yêu cầu',
+        autoApprove: false,
         maxDays: 3,
-        autoApproval: false,
+        requireAttachment: false,
+        isReductible: false,
       },
       {
-        req_typeId: 4,
-        name: 'Nghỉ tang chế (bố mẹ, vợ/chồng, con cái)',
         code: 'BEREAVEMENT_CLOSE_FAMILY_LEAVE',
-        desc: 'Nghỉ tang chế khi bố mẹ, vợ/chồng hoặc con cái mất, tối đa 3 ngày và không trừ phép năm.',
-        isDeductible: false,
-        requireAttachment: false,
+        vieName: 'Đơn Xin Nghỉ Tang Chế (Gia Đình Gần)',
+        engName: 'Close Family Bereavement Leave Form',
+        fields: minimumFieldTemplate,
+        version: 1,
+        isActive: true,
+        submitButtonText: 'Gửi yêu cầu',
+        autoApprove: false,
         maxDays: 3,
-        autoApproval: false,
+        requireAttachment: false,
+        isReductible: false,
       },
       {
-        req_typeId: 5,
-        name: 'Nghỉ tang chế (ông bà, anh chị em ruột)',
         code: 'BEREAVEMENT_EXTENDED_FAMILY_LEAVE',
-        desc: 'Nghỉ tang chế khi ông bà hoặc anh chị em ruột mất, tối đa 1 ngày và không trừ phép năm.',
-        isDeductible: false,
-        requireAttachment: false,
+        vieName: 'Đơn Xin Nghỉ Tang Chế (Gia Đình Gần)',
+        engName: 'Extended Family Bereavement Leave Form',
+        fields: minimumFieldTemplate,
+        version: 1,
+        isActive: true,
+        submitButtonText: 'Gửi yêu cầu',
+        autoApprove: false,
         maxDays: 1,
-        autoApproval: false,
+        requireAttachment: false,
+        isReductible: false,
       },
       {
-        req_typeId: 6,
-        name: 'Nghỉ không lương',
-        code: 'UNPAID_LEAVE',
-        desc: 'Không giới hạn nhưng cần phê duyệt gắt gao.',
-        isDeductible: false,
+        code: 'TEMPLATE_FORM',
+        vieName: 'Đơn Xin Nghỉ',
+        engName: 'Leave Form',
+        fields: allFields,
+        version: 1,
+        isActive: true,
+        submitButtonText: 'Gửi yêu cầu',
+        autoApprove: false,
+        maxDays: 1,
         requireAttachment: false,
-        maxDays: 365,
-        autoApproval: false,
-      },
-      {
-        req_typeId: 7,
-        name: 'Đơn khác',
-        code: 'OTHER_LEAVE',
-        desc: 'Không giới hạn nhưng cần phê duyệt gắt gao.',
-        isDeductible: false,
-        requireAttachment: false,
-        maxDays: 365,
-        autoApproval: false,
+        isReductible: false,
       },
     ];
 
-    const managedCodes = requestTypes.map((item) => item.code);
-
-    // Move existing managed records to a temporary id range first.
-    // This prevents unique index collisions when remapping req_typeId values.
-    const existingManaged = await this.requestTypeModel
-      .find({ code: { $in: managedCodes } })
-      .select('_id req_typeId')
-      .lean<Array<{ _id: unknown; req_typeId?: number }>>()
-      .exec();
-
-    for (const doc of existingManaged) {
-      if (typeof doc.req_typeId === 'number') {
-        await this.requestTypeModel.updateOne(
-          { _id: doc._id },
-          { $set: { req_typeId: doc.req_typeId + 1000 } },
-        );
-      }
-    }
-
-    for (const item of requestTypes) {
-      await this.requestTypeModel.updateOne(
-        { code: item.code },
+    for (const template of formTemplates) {
+      await this.formTemplateModel.updateOne(
+        { code: template.code },
         {
           $set: {
-            req_typeId: item.req_typeId,
-            name: item.name,
-            code: item.code,
-            desc: item.desc,
-            isDeductible: item.isDeductible,
-            requireAttachment: item.requireAttachment,
-            maxDays: item.maxDays,
-            autoApproval: item.autoApproval,
+            ...template,
+            userId: admin._id.toString(),
           },
         },
         { upsert: true },
       );
     }
-
-    this.logger.log('Da seed request types mac dinh');
   }
 
   private async seedPermissions() {
