@@ -54,6 +54,7 @@ createRoot(document.getElementById("root")!).render(
                     <ThemeProvider>
                         <FontProvider>
                             <App />
+
                             <Toaster position="top-center" richColors />
                         </FontProvider>
                     </ThemeProvider>

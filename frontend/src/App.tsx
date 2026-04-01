@@ -5,7 +5,7 @@ import MyRequestHistoryListPage from "./features/requests/pages/MyRequestHistory
 import EmployeeDashboardOverviewPage from "./features/requests/pages/EmployeeDashboardOverviewPage"
 import RequestLayout from "./features/requests/pages/RequestLayout"
 import AuthLayout from "./features/auth/pages/AuthLayout"
-import LoginPage from "./features/auth/pages/LoginPage"
+import LoginPage from "./features/approvals/pages/LoginPage"
 import NotFoundPage from "./features/general/pages/NotFoundPage"
 import ApprovalLayout from "./features/approvals/pages/ApprovalLayout"
 import PendingApprovalsListPage from "./features/approvals/pages/PendingApprovalsListPage"

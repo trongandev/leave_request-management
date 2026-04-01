@@ -7,6 +7,7 @@ import { useSortable } from "@dnd-kit/sortable"
 import { Copy, FileUpIcon, Trash2 } from "lucide-react"
 import { CSS } from "@dnd-kit/utilities"
 import type { Field } from "@/types/form-template"
+import { Textarea } from "@/components/ui/textarea"
 
 export function SortableField({ field, isActive, onClick, onRemove, onCopy }: { field: Field; isActive: boolean; onClick: () => void; onRemove: () => void; onCopy?: () => void }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -69,10 +70,10 @@ export function SortableField({ field, isActive, onClick, onRemove, onCopy }: { 
                 {field.type === "text" && <Input placeholder={field.placeholder || "Text input"} readOnly className="h-12 w-full" />}
                 {field.type === "number" && <Input type="number" placeholder={field.placeholder || "Number input"} readOnly className="h-12 w-full" />}
                 {field.type === "date" && <DatePicker className="" />}
-                {field.type === "textarea" && <Input placeholder={field.placeholder || "Text area"} readOnly className="h-20 w-full" />}
+                {field.type === "textarea" && <Textarea placeholder={field.placeholder || "Text area"} readOnly className="h-24 w-full" />}
                 {field.type === "select" && <CSelectOptions data={field.options || []} placeholder={field.placeholder || "Select option"} valueKey="value" />}
                 {field.type === "radio" && <div className="text-sm text-neutral-500">Radio group ({field.options?.length || 0} options)</div>}
-                {field.type === "checkbox" && <div className="text-sm text-neutral-500">Checkbox group</div>}
+                {field.type === "checkbox" && <div className="text-sm text-neutral-500">Checkbox group ({field.options?.length || 0} options)</div>}
                 {field.type === "file" && (
                     <div className="border-2 border-dashed hover:text-primary text-gray-400 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 cursor-pointer h-24 text-center text-sm rounded-md bg-card flex items-center justify-center gap-2">
                         <FileUpIcon />

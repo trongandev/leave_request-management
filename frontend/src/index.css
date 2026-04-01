@@ -211,6 +211,17 @@
     .dark ::-webkit-scrollbar-thumb:hover {
         background-color: #64748b; /* slate-500 */
     }
+
+    .folder-tab {
+        clip-path: polygon(0% 100%, 85% 0%, 85% 0%, 90% 100%);
+    }
+    .shelf-gradient {
+        background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.02) 80%, rgba(0, 0, 0, 0.05) 100%);
+    }
+    .wireframe-pattern {
+        background-image: radial-gradient(circle, #c3c6d6 1px, transparent 1px);
+        background-size: 12px 12px;
+    }
 }
 
 /* --background: 

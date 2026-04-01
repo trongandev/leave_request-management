@@ -68,15 +68,15 @@ export default function EmployeeManagementPage() {
                         <CardContent>
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div>
-                                    <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">{t("admin.employees.title")}</h1>
-                                    <p className="text-sm text-neutral-500 mt-1">{t("admin.employees.subtitle")}</p>
+                                    <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Employee Management</h1>
+                                    <p className="text-sm text-neutral-500 mt-1">Manage your team members and their information</p>
                                 </div>
                                 <div className="flex gap-3">
                                     <Button className="h-10" variant={"outline"}>
                                         <Download /> {t("admin.employees.exportReport")}
                                     </Button>
                                     <Button className="h-10">
-                                        <CirclePlus /> {t("admin.employees.newAdjustment")}
+                                        <CirclePlus /> Create new User
                                     </Button>
                                 </div>
                             </div>
