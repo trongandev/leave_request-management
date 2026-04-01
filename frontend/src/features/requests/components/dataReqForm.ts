@@ -1,0 +1,30 @@
+export const requestForm = [
+    { id: 1, name: "Annual Leave Request Form", code: "ANNUAL_LEAVE", viName: "Nghỉ phép năm", description: "Use this form to request annual leave for vacations or personal time off." },
+    { id: 2, name: "Sick Leave Request Form", code: "SICK_LEAVE", viName: "Nghỉ phép bệnh", description: "Use this form to request sick leave when you are ill or need medical attention." },
+    { id: 3, name: "Unpaid Leave Request Form", code: "UNPAID_LEAVE", viName: "Nghỉ không lương", description: "Use this form to request unpaid leave for extended time off without pay." },
+    { id: 4, name: "Work From Home Request Form", code: "WFH_REQUEST", viName: "Làm việc tại nhà", description: "Use this form to request permission to work from home for a specified period." },
+    {
+        id: 5,
+        name: "Maternity/Paternity Leave Request Form",
+        code: "MAT_PAT_LEAVE",
+        viName: "Nghỉ phép sinh con",
+        description: "Use this form to request maternity or paternity leave for childbirth or adoption.",
+    },
+    {
+        id: 6,
+        name: "Bereavement Leave Request Form",
+        code: "BEREAVEMENT_LEAVE",
+        viName: "Nghỉ phép mất người thân",
+        description: "Use this form to request bereavement leave in the event of a death in the family.",
+    },
+    { id: 7, name: "Jury Duty Leave Request Form", code: "JURY_DUTY_LEAVE", viName: "Nghỉ phép phục vụ tòa án", description: "Use this form to request leave for jury duty service." },
+    { id: 8, name: "Personal Leave Request Form", code: "PERSONAL_LEAVE", viName: "Nghỉ phép cá nhân", description: "Use this form to request personal leave for non-medical reasons." },
+    { id: 9, name: "Military Leave Request Form", code: "MILITARY_LEAVE", viName: "Nghỉ phép quân sự", description: "Use this form to request military leave for active duty or training." },
+    {
+        id: 10,
+        name: "Sabbatical Leave Request Form",
+        code: "SABBATICAL_LEAVE",
+        viName: "Nghỉ phép nghiên cứu",
+        description: "Use this form to request sabbatical leave for extended time off for personal or professional development.",
+    },
+]

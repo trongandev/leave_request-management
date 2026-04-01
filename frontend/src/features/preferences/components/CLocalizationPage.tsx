@@ -45,7 +45,7 @@ export default function CLocalizationPage() {
                         <label className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.localization.language.title")}</label>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 material-symbols-outlined text-lg">translate</span>
-                            <CSelectOptions className="pl-10" data={languages} valueKey="value" displayKey="label" value={selectedLanguage} onChangeValue={setSelectedLanguage} />
+                            <CSelectOptions className="pl-10" data={languages} valueKey="value" displayKey="label" value={selectedLanguage} onChange={setSelectedLanguage} />
                         </div>
                         <p className="text-xs text-slate-500">{t("preferences.localization.language.desc")}</p>
                     </div>
@@ -53,7 +53,7 @@ export default function CLocalizationPage() {
                         <label className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.localization.timezone.title")}</label>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 material-symbols-outlined text-lg">schedule</span>
-                            <CSelectOptions className="pl-10" data={timezones} valueKey="value" displayKey="label" value={selectedTimezone} onChangeValue={setSelectedTimezone} />
+                            <CSelectOptions className="pl-10" data={timezones} valueKey="value" displayKey="label" value={selectedTimezone} onChange={setSelectedTimezone} />
                         </div>
                         <p className="text-xs text-slate-500">{t("preferences.localization.timezone.defaultText")}</p>
                     </div>
@@ -71,14 +71,14 @@ export default function CLocalizationPage() {
                         <label className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.localization.format.date")}</label>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 material-symbols-outlined text-lg">calendar_month</span>
-                            <CSelectOptions className="pl-10" data={dateFormats} valueKey="value" displayKey="label" value={selectedDateFormat} onChangeValue={setSelectedDateFormat} />
+                            <CSelectOptions className="pl-10" data={dateFormats} valueKey="value" displayKey="label" value={selectedDateFormat} onChange={setSelectedDateFormat} />
                         </div>
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-900 dark:text-white">{t("preferences.localization.format.time")}</label>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-slate-400 material-symbols-outlined text-lg">access_time</span>
-                            <CSelectOptions className="pl-10" data={timeFormats} valueKey="value" displayKey="label" value={selectedTimeFormat} onChangeValue={setSelectedTimeFormat} />
+                            <CSelectOptions className="pl-10" data={timeFormats} valueKey="value" displayKey="label" value={selectedTimeFormat} onChange={setSelectedTimeFormat} />
                         </div>
                     </div>
                 </div>
@@ -119,7 +119,9 @@ export default function CLocalizationPage() {
             <section className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm mb-10">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-wider">{t("preferences.localization.format.preview.title")}</h3>
-                    <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold rounded">{t("preferences.localization.format.preview.active")}</span>
+                    <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold rounded">
+                        {t("preferences.localization.format.preview.active")}
+                    </span>
                 </div>
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
@@ -141,8 +143,12 @@ export default function CLocalizationPage() {
                 </div>
             </section>
             <div className="flex items-center justify-end gap-3 pb-20">
-                <button className="px-6 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">{t("preferences.changes.discard")}</button>
-                <button className="px-8 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-lg shadow-primary/20 transition-all">{t("preferences.changes.save")}</button>
+                <button className="px-6 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                    {t("preferences.changes.discard")}
+                </button>
+                <button className="px-8 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-lg shadow-primary/20 transition-all">
+                    {t("preferences.changes.save")}
+                </button>
             </div>
         </div>
     )

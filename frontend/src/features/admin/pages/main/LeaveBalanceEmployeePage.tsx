@@ -11,7 +11,7 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 export default function LeaveBalanceEmployeePage() {
-    const { t } = useTranslation();
+    const { t } = useTranslation()
     const [page, setPage] = useState(1)
     const [search, setSearch] = useState("")
     const [departmentCode, setDepartmentCode] = useState("all")
@@ -46,14 +46,15 @@ export default function LeaveBalanceEmployeePage() {
 
     const { data, isLoading } = useQuery<UserResponse>({
         queryKey: ["employees", page, search, departmentCode, leaveType, location],
-        queryFn: () => userService.getAllUsers({
-            page,
-            limit: 10,
-            search,
-            departmentCode,
-            leaveType,
-            location,
-        }),
+        queryFn: () =>
+            userService.getAllUsers({
+                page,
+                limit: 10,
+                search,
+                departmentCode,
+                leaveType,
+                location,
+            }),
     })
     const [adjustEmp, setAdjustEmp] = useState<User | null>(null)
 
@@ -63,7 +64,7 @@ export default function LeaveBalanceEmployeePage() {
         t("admin.employees.table.leaveType", "LEAVE TYPE"),
         t("admin.employees.table.usedTotal", "USED / TOTAL"),
         t("admin.employees.table.balance", "BALANCE"),
-        t("admin.employees.table.actions", "ACTIONS")
+        t("admin.employees.table.actions", "ACTIONS"),
     ]
 
     console.log(data)
@@ -117,7 +118,7 @@ export default function LeaveBalanceEmployeePage() {
                                         displayKey="label"
                                         placeholder={t("admin.employees.filters.department", "Department")}
                                         value={departmentCode}
-                                        onChangeValue={(value) => {
+                                        onChange={(value) => {
                                             setPage(1)
                                             setDepartmentCode(value)
                                         }}
@@ -129,7 +130,7 @@ export default function LeaveBalanceEmployeePage() {
                                         displayKey="label"
                                         placeholder={t("admin.employees.filters.location", "Location")}
                                         value={location}
-                                        onChangeValue={(value) => {
+                                        onChange={(value) => {
                                             setPage(1)
                                             setLocation(value)
                                         }}
@@ -140,7 +141,7 @@ export default function LeaveBalanceEmployeePage() {
                                         displayKey="label"
                                         placeholder={t("admin.employees.filters.leaveType", "Leave Type")}
                                         value={leaveType}
-                                        onChangeValue={(value) => {
+                                        onChange={(value) => {
                                             setPage(1)
                                             setLeaveType(value)
                                         }}
@@ -198,9 +199,12 @@ export default function LeaveBalanceEmployeePage() {
                             </div>
                             <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between">
                                 <div className="text-sm text-neutral-500">
-                                    {t("admin.employees.pagination.showing")} <span className="font-medium text-neutral-900 dark:text-white">{((data?.meta.page || 1) - 1) * (data?.meta.limit || 10) + (data?.data.length ? 1 : 0)}</span> {t("admin.employees.pagination.to")}{" "}
-                                    <span className="font-medium text-neutral-900 dark:text-white">{((data?.meta.page || 1) - 1) * (data?.meta.limit || 10) + (data?.data.length || 0)}</span> {t("admin.employees.pagination.of")}{" "}
-                                    <span className="font-medium text-neutral-900 dark:text-white">{data?.meta.total}</span> {t("admin.employees.pagination.employees")}
+                                    {t("admin.employees.pagination.showing")}{" "}
+                                    <span className="font-medium text-neutral-900 dark:text-white">{((data?.meta.page || 1) - 1) * (data?.meta.limit || 10) + (data?.data.length ? 1 : 0)}</span>{" "}
+                                    {t("admin.employees.pagination.to")}{" "}
+                                    <span className="font-medium text-neutral-900 dark:text-white">{((data?.meta.page || 1) - 1) * (data?.meta.limit || 10) + (data?.data.length || 0)}</span>{" "}
+                                    {t("admin.employees.pagination.of")} <span className="font-medium text-neutral-900 dark:text-white">{data?.meta.total}</span>{" "}
+                                    {t("admin.employees.pagination.employees")}
                                 </div>
                                 <div className="flex gap-2">
                                     <button
