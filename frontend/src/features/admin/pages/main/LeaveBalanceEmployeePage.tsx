@@ -396,7 +396,7 @@ export default function LeaveBalanceEmployeePage() {
                                                     <span className="font-bold text-neutral-900 dark:text-neutral-50 font-mono text-base">{item.remainingDays}</span>
                                                     <span className="text-[10px] text-neutral-500 dark:text-neutral-400 ml-1.5 uppercase font-medium tracking-tight">{t("admin.employees.table.days")}</span>
                                                 </td>
-                                                <td className="py-4 px-6 text-right">
+                                                <td className="py-4 px-6 text-center">
                                                     <Button variant={"ghost"} onClick={() => handleOpenAdjust(item)}>
                                                         <Edit size={16} />
                                                     </Button>
