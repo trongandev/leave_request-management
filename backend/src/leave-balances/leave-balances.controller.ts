@@ -18,6 +18,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { Permission } from '../enum/permission.enum';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { HydratedDocument } from 'mongoose';
+import { User } from '../users/users.schema';
 
 @Controller('leave-balances')
 @ApiBearerAuth()
@@ -32,8 +35,19 @@ export class LeaveBalancesController {
     return this.leaveBalancesService.create(createLeaveBalanceDto);
   }
 
-  // Protected paginated listing for approval/admin use-cases.
+  // Employee self-service endpoint to read own leave balances.
   @Get()
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions(Permission.READ_OWN_LEAVE)
+  findMine(
+    @CurrentUser() user: HydratedDocument<User>,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.leaveBalancesService.findByUserId(user.id, paginationDto);
+  }
+
+  // Protected paginated listing for approval/admin use-cases.
+  @Get('all')
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions(Permission.READ_ALL_LEAVE)
   findAll(@Query() paginationDto: PaginationDto) {

@@ -12,15 +12,21 @@ import { useTranslation } from "react-i18next"
 
 export default function LeaveBalanceEmployeePage() {
     const { t } = useTranslation();
+    const [page, setPage] = useState(1)
+    const [search, setSearch] = useState("")
+    const [departmentCode, setDepartmentCode] = useState("all")
+    const [leaveType, setLeaveType] = useState("all")
+    const [location, setLocation] = useState("all")
+
     const departmentsData = [
         { value: "all", label: t("admin.employees.filters.allDepartments", "All Departments") },
-        { value: "tech", label: t("admin.common.departments.engineering") },
-        { value: "production", label: t("admin.common.departments.production") },
-        { value: "r&d", label: t("admin.common.departments.rnd") },
-        { value: "hr", label: t("admin.common.departments.hr") },
-        { value: "log", label: t("admin.common.departments.logistics") },
-        { value: "qa", label: t("admin.common.departments.qa") },
-        { value: "sys", label: t("admin.common.departments.system") },
+        { value: "TECH", label: t("admin.common.departments.engineering") },
+        { value: "PROD", label: t("admin.common.departments.production") },
+        { value: "RND", label: t("admin.common.departments.rnd") },
+        { value: "HR", label: t("admin.common.departments.hr") },
+        { value: "LOG", label: t("admin.common.departments.logistics") },
+        { value: "QA", label: t("admin.common.departments.qa") },
+        { value: "SYS", label: t("admin.common.departments.system") },
     ]
 
     const annualsData = [
@@ -39,8 +45,15 @@ export default function LeaveBalanceEmployeePage() {
     ]
 
     const { data, isLoading } = useQuery<UserResponse>({
-        queryKey: ["employees"],
-        queryFn: () => userService.getAllUsers({}),
+        queryKey: ["employees", page, search, departmentCode, leaveType, location],
+        queryFn: () => userService.getAllUsers({
+            page,
+            limit: 10,
+            search,
+            departmentCode,
+            leaveType,
+            location,
+        }),
     })
     const [adjustEmp, setAdjustEmp] = useState<User | null>(null)
 
@@ -86,13 +99,52 @@ export default function LeaveBalanceEmployeePage() {
                             <div className="flex flex-col lg:flex-row gap-4">
                                 <div className="flex-1 relative h-12">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 " size={20} />
-                                    <Input className="w-full h-full pl-10" placeholder={t("admin.employees.searchPlaceholder")} type="text" />
+                                    <Input
+                                        className="w-full h-full pl-10"
+                                        placeholder={t("admin.employees.searchPlaceholder")}
+                                        type="text"
+                                        value={search}
+                                        onChange={(e) => {
+                                            setPage(1)
+                                            setSearch(e.target.value)
+                                        }}
+                                    />
                                 </div>
                                 <div className="flex flex-wrap sm:flex-nowrap gap-3">
-                                    <CSelectOptions data={departmentsData} valueKey="value" displayKey="label" placeholder={t("admin.employees.filters.department", "Department")} />
+                                    <CSelectOptions
+                                        data={departmentsData}
+                                        valueKey="value"
+                                        displayKey="label"
+                                        placeholder={t("admin.employees.filters.department", "Department")}
+                                        value={departmentCode}
+                                        onChangeValue={(value) => {
+                                            setPage(1)
+                                            setDepartmentCode(value)
+                                        }}
+                                    />
 
-                                    <CSelectOptions data={locationData} valueKey="value" displayKey="label" placeholder={t("admin.employees.filters.location", "Location")} />
-                                    <CSelectOptions data={annualsData} valueKey="value" displayKey="label" placeholder={t("admin.employees.filters.leaveType", "Leave Type")} />
+                                    <CSelectOptions
+                                        data={locationData}
+                                        valueKey="value"
+                                        displayKey="label"
+                                        placeholder={t("admin.employees.filters.location", "Location")}
+                                        value={location}
+                                        onChangeValue={(value) => {
+                                            setPage(1)
+                                            setLocation(value)
+                                        }}
+                                    />
+                                    <CSelectOptions
+                                        data={annualsData}
+                                        valueKey="value"
+                                        displayKey="label"
+                                        placeholder={t("admin.employees.filters.leaveType", "Leave Type")}
+                                        value={leaveType}
+                                        onChangeValue={(value) => {
+                                            setPage(1)
+                                            setLeaveType(value)
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </CardContent>
@@ -146,15 +198,23 @@ export default function LeaveBalanceEmployeePage() {
                             </div>
                             <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between">
                                 <div className="text-sm text-neutral-500">
-                                    {t("admin.employees.pagination.showing")} <span className="font-medium text-neutral-900 dark:text-white">1</span> {t("admin.employees.pagination.to")}{" "}
-                                    <span className="font-medium text-neutral-900 dark:text-white">{data?.meta.limit}</span> {t("admin.employees.pagination.of")}{" "}
+                                    {t("admin.employees.pagination.showing")} <span className="font-medium text-neutral-900 dark:text-white">{((data?.meta.page || 1) - 1) * (data?.meta.limit || 10) + (data?.data.length ? 1 : 0)}</span> {t("admin.employees.pagination.to")}{" "}
+                                    <span className="font-medium text-neutral-900 dark:text-white">{((data?.meta.page || 1) - 1) * (data?.meta.limit || 10) + (data?.data.length || 0)}</span> {t("admin.employees.pagination.of")}{" "}
                                     <span className="font-medium text-neutral-900 dark:text-white">{data?.meta.total}</span> {t("admin.employees.pagination.employees")}
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 disabled:opacity-50 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                                    <button
+                                        className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 disabled:opacity-50 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                                        disabled={!data?.meta.has_prev}
+                                        onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                                    >
                                         {t("admin.employees.pagination.previous")}
                                     </button>
-                                    <button className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                                    <button
+                                        className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-md text-neutral-500 disabled:opacity-50 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                                        disabled={!data?.meta.has_next}
+                                        onClick={() => setPage((prev) => prev + 1)}
+                                    >
                                         {t("admin.employees.pagination.next")}
                                     </button>
                                 </div>

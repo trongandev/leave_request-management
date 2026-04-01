@@ -12,13 +12,13 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PaginationDto } from '../common/dto/pagination.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { Permission } from '../enum/permission.enum';
 import { AssignManagerDto, RemoveManagerDto } from './dto/assign-manager.dto';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { QueryUsersDto } from './dto/query-users.dto';
 
 @Controller('users')
 @ApiBearerAuth()
@@ -48,8 +48,8 @@ export class UsersController {
   @Get()
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions('ASSIGN_MANAGER')
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.usersService.findAll(paginationDto);
+  findAll(@Query() queryUsersDto: QueryUsersDto) {
+    return this.usersService.findAll(queryUsersDto);
   }
 
   @Get(':id')

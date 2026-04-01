@@ -11,7 +11,6 @@ import { User } from './users.schema';
 import { Model } from 'mongoose';
 import { ApiOperation } from '@nestjs/swagger';
 import { paginate } from '../common/utils/pagination.util';
-import { PaginationDto } from '../common/dto/pagination.dto';
 import { Counter } from 'src/counters/counters.schema';
 import { Role } from 'src/roles/roles.schema';
 import { faker } from '@faker-js/faker/locale/vi';
@@ -20,6 +19,7 @@ import { Position } from 'src/positions/positions.schema';
 import * as bcrypt from 'bcrypt';
 import { removeVietnameseTones } from 'src/common/utils/utils';
 import { LeaveBalancesService } from '../leave-balances/leave-balances.service';
+import { QueryUsersDto } from './dto/query-users.dto';
 
 @Injectable()
 export class UsersService {
@@ -179,7 +179,41 @@ export class UsersService {
 
   @Get()
   @ApiOperation({ summary: 'Get all users' })
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(queryUsersDto: QueryUsersDto) {
+    const filter: Record<string, unknown> = {};
+    const search = queryUsersDto.search?.trim();
+    const departmentCode = queryUsersDto.departmentCode?.trim();
+    const roleName = queryUsersDto.roleName?.trim();
+
+    if (search) {
+      filter.$or = [
+        { fullName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { empId: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    if (departmentCode && departmentCode.toLowerCase() !== 'all') {
+      const department = await this.departmentModel
+        .findOne({ code: departmentCode.toUpperCase() })
+        .select('_id')
+        .lean<{ _id?: unknown }>()
+        .exec();
+
+      filter.departmentId = department?._id ?? null;
+    }
+
+    if (roleName && roleName.toLowerCase() !== 'all') {
+      const role = await this.roleModel
+        .findOne({ name: roleName.toUpperCase() })
+        .select('_id')
+        .lean<{ _id?: unknown }>()
+        .exec();
+
+      filter.roleId = role?._id ?? null;
+    }
+
     const populateOptions = [
       {
         path: 'roleId',
@@ -192,15 +226,10 @@ export class UsersService {
         path: 'departmentId',
       },
     ];
-    return await paginate(
-      this.userModel,
-      paginationDto,
-      {},
-      {
-        populate: populateOptions,
-        sort: { createdAt: -1 },
-      },
-    );
+    return await paginate(this.userModel, queryUsersDto, filter, {
+      populate: populateOptions,
+      sort: { createdAt: -1 },
+    });
   }
 
   findOne(id: string) {
@@ -233,21 +262,7 @@ export class UsersService {
       .exec();
   }
   remove(id: string) {
-    const self = this as any;
-
-    if (typeof self.delete === 'function') {
-      return self.delete(id);
-    }
-
-    if (typeof self.deleteById === 'function') {
-      return self.deleteById(id);
-    }
-
-    if (typeof self.removeById === 'function') {
-      return self.removeById(id);
-    }
-
-    throw new Error(`UsersService.remove is not implemented (id=${id})`);
+    return this.userModel.findByIdAndDelete(id).exec();
   }
   // Helper function để kiểm tra vòng lặp quản lý
   private async assertNoManagerCycle(userId: string, newManagerId: string) {
