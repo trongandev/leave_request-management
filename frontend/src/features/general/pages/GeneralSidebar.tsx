@@ -98,6 +98,7 @@ export default function GeneralSidebar() {
                     { name: t("sidebar.home"), icon: HomeIcon, href: "/" },
                     { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/admin" },
                     { name: t("sidebar.employee"), icon: Users, href: "/admin/employee-management" },
+                    { name: t("sidebar.createNewRequest"), icon: BarChartIcon, href: "/employee/create-new-request-form" },
                     { name: t("sidebar.attendanceTracking"), icon: AlarmClockIcon, href: "/admin/attendance-tracking" },
                     { name: t("sidebar.globalRequests"), icon: GlobeIcon, href: "/admin/global-request" },
                 ],

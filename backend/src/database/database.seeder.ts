@@ -113,6 +113,16 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         maxDays: 365,
         autoApproval: false,
       },
+      {
+        req_typeId: 7,
+        name: 'Đơn khác',
+        code: 'OTHER_LEAVE',
+        desc: 'Không giới hạn nhưng cần phê duyệt gắt gao.',
+        isDeductible: false,
+        requireAttachment: false,
+        maxDays: 365,
+        autoApproval: false,
+      },
     ];
 
     const managedCodes = requestTypes.map((item) => item.code);

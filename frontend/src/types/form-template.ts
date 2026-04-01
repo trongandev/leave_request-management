@@ -4,11 +4,16 @@ export interface FormTemplate {
     _id: string
     userId: User
     code: string
-    name: string
+    vieName: string
+    engName: string
     fields: Field[]
     version: number
     isActive: boolean
-    settings: Settings
+    submitButtonText: string
+    autoApprove: boolean
+    maxDays: number
+    requireAttachment: boolean
+    isReductible: boolean
     createdAt: string
     updatedAt: string
 }

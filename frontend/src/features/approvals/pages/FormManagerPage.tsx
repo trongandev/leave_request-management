@@ -65,7 +65,7 @@ export default function FormManagerPage() {
                                             </div>
                                         </td>
                                         <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">{item?.code}</td>
-                                        <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">{item?.name}</td>
+                                        <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">{item?.vieName}</td>
                                         <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">{new Date(item?.createdAt).toLocaleDateString()}</td>
                                         <td className="py-4 px-6">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">

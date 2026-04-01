@@ -24,6 +24,7 @@ import DatePicker from "@/components/ui/date-picker"
 import LoadingUI from "@/components/etc/LoadingUI"
 import formTemplateService from "@/services/formTemplateService"
 import { useLocation } from "react-router-dom"
+import CToolTip from "@/components/etc/CToolTip"
 
 export default function EditFormBuilderPage() {
     const location = useLocation()
@@ -36,8 +37,17 @@ export default function EditFormBuilderPage() {
     useEffect(() => {
         setFields(data?.fields || [])
     }, [data?.fields, setFields])
-    const [templateName, setTemplateName] = useState(data?.name)
-    const [templateCode, setTemplateCode] = useState(data?.code)
+    const [stateData, setStateData] = useState({
+        vieName: "Đơn Xin Nghỉ Bệnh",
+        engName: "Sick Leave Application Form",
+        code: "SICK_LEAVE",
+        submitButtonText: "Gửi yêu cầu",
+        maxDays: 1,
+        requireAttachment: true,
+        autoApprove: false,
+        isActive: true,
+        isReductible: false,
+    })
     const [activeDragItem, setActiveDragItem] = useState<any>(null)
     const [isPreviewShow, setIsPreviewShow] = useState(false)
 
@@ -73,19 +83,14 @@ export default function EditFormBuilderPage() {
     })
 
     const handlePublish = () => {
-        if (!templateName || fields.length === 0) {
+        if (!stateData.vieName || fields.length === 0) {
             toast.error("Fill in all required fields and add at least one input")
             return
         }
 
         createTemplateMutation.mutate({
-            name: templateName,
-            code: templateCode,
             fields: [...fields].sort((a, b) => (a.order || 0) - (b.order || 0)),
-            settings: {
-                submitButtonText: "Gửi yêu cầu",
-                allowAttachment: fields.some((f) => f.type === "file"),
-            },
+            ...stateData,
         })
     }
 
@@ -127,6 +132,13 @@ export default function EditFormBuilderPage() {
 
     const activeField = fields.find((f) => f.id === activeFieldId)
     const rootFields = fields.filter((f) => !f.parentId).sort((a, b) => (a.order || 0) - (b.order || 0))
+
+    const handleChangeField = (key: string, value: any) => {
+        setStateData((prev) => ({
+            ...prev,
+            [key]: value,
+        }))
+    }
     if (isLoading) {
         return <LoadingUI />
     }
@@ -260,18 +272,30 @@ export default function EditFormBuilderPage() {
 
                 <main className="flex-1 bg-card rounded-xl shadow-xl p-5 overflow-y-auto flex flex-col items-center">
                     <div className="w-full max-w-4xl space-y-8">
-                        <div className="flex items-end justify-between mb-4">
-                            <div className="space-y-2 flex-1 mr-8">
-                                <Input value={templateName} onChange={(e) => setTemplateName(e.target.value)} className="" placeholder="Form Name" />
-                                <Input value={templateCode} onChange={(e) => setTemplateCode(e.target.value)} className="" placeholder="Form Code" />
+                        <div className="space-y-4">
+                            <div className="flex gap-5">
+                                <div className="space-y-1 flex-1">
+                                    <Label className="font-bold uppercase tracking-wider text-[11px] text-neutral-500">Vie Name</Label>
+                                    <Input value={stateData.vieName} onChange={(e) => handleChangeField("vieName", e.target.value)} className="" placeholder="Form Name" />
+                                </div>
+                                <div className="space-y-1 flex-1">
+                                    <Label className="font-bold uppercase tracking-wider text-[11px] text-neutral-500">Eng Name</Label>
+                                    <Input value={stateData.engName} onChange={(e) => handleChangeField("engName", e.target.value)} className="" placeholder="Form Name" />
+                                </div>
                             </div>
-                            <div className="flex gap-2">
-                                <Button variant={"outline"} onClick={() => setIsPreviewShow(true)}>
-                                    <Eye className="mr-2 h-4 w-4" /> Preview
-                                </Button>
-                                <Button onClick={handlePublish} disabled={createTemplateMutation.isPending}>
-                                    <Save className="mr-2 h-4 w-4" /> {createTemplateMutation.isPending ? "Saving..." : "Publish"}
-                                </Button>
+                            <div className="space-y-4 flex-1 flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <Label className="font-bold uppercase tracking-wider text-[11px] text-neutral-500">Form Code (VD:SICK_LEAVE)</Label>
+                                    <Input value={stateData.code} onChange={(e) => handleChangeField("code", e.target.value)} className="" placeholder="Form Code" />
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button variant={"outline"} onClick={() => setIsPreviewShow(true)}>
+                                        <Eye className="mr-2 h-4 w-4" /> Preview
+                                    </Button>
+                                    <Button onClick={handlePublish} disabled={createTemplateMutation.isPending}>
+                                        <Save className="mr-2 h-4 w-4" /> {createTemplateMutation.isPending ? "Saving..." : "Publish"}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
 
@@ -421,6 +445,52 @@ export default function EditFormBuilderPage() {
                     ) : (
                         <div className="p-6 flex-1 flex items-center justify-center text-center text-neutral-400 text-sm">Select a field to edit its settings</div>
                     )}
+                    <div className="p-5 space-y-6 overflow-y-auto  m-1.5 border-2 border-dashed  transition-all duration-300">
+                        <div className="space-y-1">
+                            <CToolTip content="Thay đổi text hiển thị trên nút submit của form. Mặc định là 'Gửi yêu cầu'">
+                                <Label className="font-bold uppercase tracking-wider text-[11px] text-neutral-500">Submit Button Text</Label>
+                            </CToolTip>
+                            <Input value={stateData.submitButtonText} onChange={(e) => handleChangeField("submitButtonText", e.target.value)} className="" placeholder="Form Code" />
+                        </div>{" "}
+                        <div className="space-y-1">
+                            <CToolTip content="Thời gian nghỉ tối đa">
+                                <Label className="font-bold uppercase tracking-wider text-[11px] text-neutral-500">Max Days</Label>
+                            </CToolTip>
+                            <Input value={stateData.maxDays} onChange={(e) => handleChangeField("maxDays", e.target.value)} className="" placeholder="Form Code" />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <CToolTip content="Bật tính năng này nếu bạn muốn form này không trừ vào phép năm của nhân viên khi được duyệt.">
+                                <Label htmlFor="is-reductible" className="cursor-pointer font-bold uppercase tracking-wider text-[11px] text-neutral-500">
+                                    Reductible
+                                </Label>
+                            </CToolTip>
+                            <Switch id="is-reductible" checked={stateData.isReductible} onCheckedChange={() => handleChangeField("isReductible", !stateData.isReductible)} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <CToolTip content="Bật tính năng này nếu bạn yêu cầu nhân viên phải đính kèm file khi gửi form.">
+                                <Label htmlFor="require-attachment" className="cursor-pointer font-bold uppercase tracking-wider text-[11px] text-neutral-500">
+                                    Require Attachment
+                                </Label>
+                            </CToolTip>
+                            <Switch id="require-attachment" checked={stateData.requireAttachment} onCheckedChange={() => handleChangeField("requireAttachment", !stateData.requireAttachment)} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <CToolTip content="Bật tính năng này nếu bạn muốn form này được duyệt tự động khi được gửi.">
+                                <Label htmlFor="auto-approve" className="cursor-pointer font-bold uppercase tracking-wider text-[11px] text-neutral-500">
+                                    Auto Approve
+                                </Label>
+                            </CToolTip>
+                            <Switch id="auto-approve" checked={stateData.autoApprove} onCheckedChange={() => handleChangeField("autoApprove", !stateData.autoApprove)} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <CToolTip content="Bật tính năng này khi bạn tạo form thì form sẽ luôn ở trạng thái active và có thể sử dụng được ngay mà không cần phải kích hoạt thủ công.">
+                                <Label htmlFor="active" className="cursor-pointer font-bold uppercase tracking-wider text-[11px] text-neutral-500">
+                                    Active
+                                </Label>
+                            </CToolTip>
+                            <Switch id="active" checked={true} />
+                        </div>
+                    </div>
                 </aside>
             </div>
             <DragOverlay>

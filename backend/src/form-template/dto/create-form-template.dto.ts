@@ -3,15 +3,38 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateFormTemplateDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  code: string;
 
   @IsString()
   @IsNotEmpty()
-  code: string;
+  vieName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  engName: string;
 
   @IsNotEmpty()
   fields: any[];
 
   @IsOptional()
-  settings?: any;
+  @IsString()
+  submitButtonText: string;
+
+  @IsOptional()
+  version?: number;
+
+  @IsOptional()
+  isActive?: boolean;
+
+  @IsOptional()
+  autoApprove?: boolean;
+
+  @IsOptional()
+  maxDays?: number;
+
+  @IsOptional()
+  requireAttachment?: boolean;
+
+  @IsOptional()
+  isReductible?: boolean;
 }
