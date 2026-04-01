@@ -76,7 +76,7 @@ export default function PaginationUI({ pagination, onPageChange }: PaginationUIP
                         </PaginationContent>
                     </Pagination>
                     <div className="text-xs text-gray-600 text-center mt-4">
-                        Trang {page} / {last_page}
+                        {t("etc.pagination.page")} {page} / {last_page}
                     </div>
                 </div>
             </div>
