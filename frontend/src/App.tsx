@@ -32,6 +32,8 @@ import AccessControlPage from "./features/admin/pages/system/AccessControlPage"
 import DashboardHomePage from "./features/general/pages/DashboardHomePage"
 import LeaveBalanceEmployeePage from "./features/admin/pages/main/LeaveBalanceEmployeePage"
 import EmployeeManagementPage from "./features/admin/pages/main/EmployeeManagementPage"
+import PositionManagementPage from "./features/admin/pages/main/PositionManagementPage"
+import DepartmentManagementPage from "./features/admin/pages/main/DepartmentManagementPage"
 import AssignManager from "./features/approvals/pages/AssignManager"
 import CreateFormBuilderPage from "./features/approvals/pages/CreateFormBuilderPage"
 import FormTemplateDetailPage from "./features/approvals/pages/FormTemplateDetailPage"
@@ -69,6 +71,8 @@ function App() {
                     {/* START MAIN GROUP*/}
                     <Route index element={<AdminDashboardPage />} />
                     <Route path="/admin/employee-management" element={<EmployeeManagementPage />} />
+                    <Route path="/admin/position-management" element={<PositionManagementPage />} />
+                    <Route path="/admin/department-management" element={<DepartmentManagementPage />} />
                     <Route path="/admin/attendance-tracking" element={<AttendanceTrackingPage />} />
                     {/* END MAIN GROUP */}
 
