@@ -6,7 +6,7 @@ import * as Yup from "yup"
 import InputField from "@/components/etc/InputField"
 import authService from "@/services/authService"
 import { toast } from "sonner"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { startJwtSession } from "@/utils/authSession"
 import { storage } from "@/utils/storage"
 import { useTranslation } from "react-i18next"
@@ -17,6 +17,7 @@ export default function LoginPage() {
     const { setUser, setLeaveBalance } = useAuthStore()
     const location = useLocation()
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
     const formik = useFormik({
         initialValues: {
             email: "",
@@ -42,8 +43,13 @@ export default function LoginPage() {
                 storage.setUser(res.data.user)
                 startJwtSession(res.data.accessToken)
                 toast.success(t("auth.login.success"))
-                if (location.state?.from) {
-                    navigate(location.state.from.pathname)
+                const redirectPath = searchParams.get("redirect")
+                const stateRedirect = location.state?.from?.pathname
+
+                if (redirectPath) {
+                    navigate(redirectPath)
+                } else if (stateRedirect) {
+                    navigate(stateRedirect)
                 } else {
                     navigate("/")
                 }
