@@ -23,10 +23,6 @@ export interface ChangePasswordRequest {
     confirmPassword: string
 }
 
-export interface RefreshTokenRequest {
-    refreshToken: string
-}
-
 export interface DefaultResponse {
     statusCode: number
     timestamp: string
@@ -39,11 +35,6 @@ export interface DefaultResponse {
 export interface AuthResponse {
     user: User
     lb: LeaveBalance
-    accessToken: string
-    refreshToken: string
-}
-
-export interface RefreshTokenResponse {
     accessToken: string
 }
 
@@ -72,17 +63,9 @@ class AuthService {
         return response.data.data
     }
 
-    // Refresh token
-    async refreshToken(data: RefreshTokenRequest): Promise<RefreshTokenResponse> {
-        const response = await axiosInstance.post<APIResponse<RefreshTokenResponse>>("/auth/refresh-token", data)
-        return response.data.data
-    }
-
     // Logout user
-    async logout(refreshToken: string): Promise<{ message: string }> {
-        const response = await axiosInstance.post<APIResponse<{ message: string }>>("/auth/logout", {
-            refreshToken,
-        })
+    async logout(): Promise<{ message: string }> {
+        const response = await axiosInstance.post<APIResponse<{ message: string }>>("/auth/logout")
         return response.data.data
     }
 

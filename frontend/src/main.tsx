@@ -5,6 +5,7 @@ import "./index.css"
 import App from "./App.tsx"
 import { TooltipProvider } from "./components/ui/tooltip.tsx"
 import { BrowserRouter } from "react-router-dom"
+import AuthSessionManager from "./features/auth/components/AuthSessionManager.tsx"
 
 import { QueryClient, QueryCache, MutationCache, QueryClientProvider } from "@tanstack/react-query"
 import { toast } from "sonner" // Hoặc thư viện toast bạn thích
@@ -53,6 +54,7 @@ createRoot(document.getElementById("root")!).render(
                 <TooltipProvider>
                     <ThemeProvider>
                         <FontProvider>
+                            <AuthSessionManager />
                             <App />
 
                             <Toaster position="top-center" richColors />

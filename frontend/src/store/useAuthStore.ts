@@ -1,3 +1,4 @@
+import { storage } from "@/utils/storage"
 import type { LeaveBalance, User } from "@/types/user"
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
@@ -16,11 +17,11 @@ export const useAuthStore = create<UserState>()(
             user: null,
             lb: null,
             isAuthenticated: false,
-            setUser: (user) => set({ user, isAuthenticated: true }),
+            setUser: (user) => set({ user, isAuthenticated: !!user }),
             setLeaveBalance: (lb) => set({ lb }),
             logout: () => {
+                storage.clearAll()
                 set({ user: null, isAuthenticated: false, lb: null })
-                // Xóa thêm cookie hoặc token thủ công nếu cần
                 localStorage.removeItem("auth-storage")
             },
         }),

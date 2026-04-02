@@ -1,3 +1,5 @@
+import { hasValidJwt } from "@/utils/jwt"
+import { storage } from "@/utils/storage"
 import { Navigate, Outlet, useLocation } from "react-router-dom"
 import GeneralSidebar from "./GeneralSidebar"
 import GeneralHeader from "./GeneralHeader"
@@ -8,7 +10,9 @@ export default function GeneralLayout() {
     const { isSidebarOpen } = useSidebarStore((state) => state)
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
     const location = useLocation()
-    if (!isAuthenticated) {
+    const hasValidToken = hasValidJwt(storage.getCookieToken())
+
+    if (!isAuthenticated || !hasValidToken) {
         return <Navigate to="/auth/login" state={{ from: location }} />
     }
     return (

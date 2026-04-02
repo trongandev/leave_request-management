@@ -2,6 +2,7 @@
 import CAvatarName from "@/components/etc/CAvatarName"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/useAuthStore"
+import { logoutClient } from "@/utils/authSession"
 import {
     AlarmClockIcon,
     BarChartIcon,
@@ -28,7 +29,7 @@ import { Link, useLocation } from "react-router-dom"
 
 export default function GeneralSidebar() {
     const { pathname } = useLocation()
-    const { user, logout } = useAuthStore()
+    const { user } = useAuthStore()
     const { t } = useTranslation()
 
     const [portalName, setPortalName] = useState(t("general.sidebar.portals.employee"))
@@ -200,7 +201,7 @@ export default function GeneralSidebar() {
             <div className="p-4 border-t">
                 <div className="flex items-center gap-3">
                     <CAvatarName user={user} />
-                    <Button variant={"ghost"} onClick={logout} className="text-red-500">
+                    <Button variant={"ghost"} onClick={() => logoutClient()} className="text-red-500">
                         <LogOutIcon />
                     </Button>
                 </div>

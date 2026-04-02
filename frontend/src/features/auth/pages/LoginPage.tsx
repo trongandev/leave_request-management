@@ -7,6 +7,7 @@ import InputField from "@/components/etc/InputField"
 import authService from "@/services/authService"
 import { toast } from "sonner"
 import { useLocation, useNavigate } from "react-router-dom"
+import { startJwtSession } from "@/utils/authSession"
 import { storage } from "@/utils/storage"
 import { useTranslation } from "react-i18next"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -34,9 +35,12 @@ export default function LoginPage() {
         try {
             const res = await authService.login(values)
             if (res.success) {
+                storage.clearAll()
                 setUser(res.data.user)
                 setLeaveBalance(res.data.lb)
                 storage.setCookieToken(res.data.accessToken)
+                storage.setUser(res.data.user)
+                startJwtSession(res.data.accessToken)
                 toast.success(t("auth.login.success"))
                 if (location.state?.from) {
                     navigate(location.state.from.pathname)
