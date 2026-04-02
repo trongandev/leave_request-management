@@ -15,7 +15,6 @@ import { SystemSettingService } from '../system-setting/system-setting.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { paginate } from '../common/utils/pagination.util';
 import { Counter } from '../counters/counters.schema';
-import path from 'path';
 
 @Injectable()
 export class LeaveBalancesService {
@@ -155,46 +154,61 @@ export class LeaveBalancesService {
       .exec();
   }
 
-  findAll(paginationDto: PaginationDto) {
+  findAll(paginationDto: PaginationDto, filters: any = {}) {
     // Reuse global pagination helper for scalable list queries.
-    return paginate(
-      this.leaveBalanceModel,
-      paginationDto,
-      {},
-      {
-        select: '_id userId usedDays totalDays remainingDays',
-        populate: {
-          path: 'userId',
-          select: 'empId fullName email departmentId',
-          populate: {
-            path: 'departmentId',
-            select: 'name originName',
-          },
-        },
-        sort: { createdAt: -1 },
-      },
-    );
-  }
-
-  findByUserId(userId: string, paginationDto: PaginationDto) {
-    return paginate(
-      this.leaveBalanceModel,
-      paginationDto,
-      { userId },
-      {
-        populate: {
+    return paginate(this.leaveBalanceModel, paginationDto, filters, {
+      populate: [
+        {
           path: 'userId',
           select: 'empId fullName email departmentId positionId',
+          populate: [
+            {
+              path: 'departmentId',
+              select: 'name originName',
+            },
+            {
+              path: 'positionId',
+              select: 'name fullName',
+            },
+          ],
         },
-        sort: { year: -1, createdAt: -1 },
-      },
-    );
+      ],
+    });
+  }
+
+  findByUserId(userId: string) {
+    return this.leaveBalanceModel
+      .findOne({ userId })
+      .populate([
+        {
+          path: 'userId',
+          select: 'empId fullName email departmentId positionId',
+          populate: [
+            {
+              path: 'departmentId positionId',
+              select: 'name',
+            },
+          ],
+        },
+      ])
+      .exec();
   }
 
   findOne(id: string) {
     return this.leaveBalanceModel
       .findById(id)
-      .populate('userId', 'empId fullName email')
+      .populate([
+        {
+          path: 'userId',
+          select: 'empId fullName email departmentId positionId',
+          populate: [
+            {
+              path: 'departmentId positionId',
+              select: 'name',
+            },
+          ],
+        },
+      ])
       .exec();
   }
 

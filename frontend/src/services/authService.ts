@@ -1,6 +1,6 @@
 import axiosInstance from "@/api/axiosInstance"
 import type { APIResponse } from "@/types/etc"
-import type { User } from "@/types/user"
+import type { LeaveBalance, User } from "@/types/user"
 
 // Types for auth requests
 export interface LoginRequest {
@@ -38,6 +38,7 @@ export interface DefaultResponse {
 // Response types
 export interface AuthResponse {
     user: User
+    lb: LeaveBalance
     accessToken: string
     refreshToken: string
 }

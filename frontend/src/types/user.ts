@@ -68,3 +68,9 @@ export interface Permission {
     description: string
     updatedAt: string
 }
+
+export interface LeaveBalance {
+    _id: string
+    remainingDays: number
+    totalDays: number
+}

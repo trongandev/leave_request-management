@@ -1,4 +1,4 @@
-import { BellRingIcon, GlobeIcon, LockKeyholeIcon, PaletteIcon, UserIcon } from "lucide-react"
+import { BellRingIcon, GlobeIcon, LockKeyholeIcon, PaletteIcon } from "lucide-react"
 import { createElement } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, Outlet, useLocation } from "react-router-dom"
@@ -7,7 +7,6 @@ export default function PreferenceLayout() {
     const { pathname } = useLocation()
     const { t } = useTranslation()
     const nav = [
-        { name: t("preferences.navbar.myAccount"), icon: UserIcon, href: "/preferences/my-account" },
         { name: t("preferences.navbar.appearence"), icon: PaletteIcon, href: "/preferences/appearance" },
         { name: t("preferences.navbar.security"), icon: LockKeyholeIcon, href: "/preferences/security" },
         { name: t("preferences.navbar.notifications"), icon: BellRingIcon, href: "/preferences/notifications" },

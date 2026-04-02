@@ -75,6 +75,7 @@ export default function GeneralSidebar() {
             {
                 name: "Manager",
                 items: [
+                    { name: t("sidebar.employee"), icon: Users, href: "/admin/employee-management" },
                     { name: t("sidebar.leaveBalances"), icon: Users, href: "/approvals/leave-balances" },
                     { name: t("sidebar.assignManager"), icon: LassoSelectIcon, href: "/approvals/assign-manager" },
                     { name: "Form Manager", icon: FormIcon, href: "/approvals/form-manager" },
@@ -163,7 +164,7 @@ export default function GeneralSidebar() {
 
     return (
         <>
-            <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-white/20">
+            <div className="h-16 flex items-center px-6 border-b ">
                 <div className="flex items-center gap-3">
                     <div className="w-9 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg">
                         {portalName
@@ -196,7 +197,7 @@ export default function GeneralSidebar() {
                 ))}
             </nav>
 
-            <div className="p-4 border-t border-slate-200 dark:border-white/20">
+            <div className="p-4 border-t">
                 <div className="flex items-center gap-3">
                     <CAvatarName user={user} />
                     <Button variant={"ghost"} onClick={logout} className="text-red-500">

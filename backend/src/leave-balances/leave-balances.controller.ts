@@ -36,22 +36,20 @@ export class LeaveBalancesController {
   }
 
   // Employee self-service endpoint to read own leave balances.
-  @Get()
+  @Get('profile')
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions(Permission.READ_OWN_LEAVE)
-  findMine(
-    @CurrentUser() user: HydratedDocument<User>,
-    @Query() paginationDto: PaginationDto,
-  ) {
-    return this.leaveBalancesService.findByUserId(user.id, paginationDto);
+  findMine(@CurrentUser() user: HydratedDocument<User>) {
+    return this.leaveBalancesService.findByUserId(user.id);
   }
 
   // Protected paginated listing for approval/admin use-cases.
-  @Get('all')
+  @Get('')
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions(Permission.READ_ALL_LEAVE)
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.leaveBalancesService.findAll(paginationDto);
+  findAll(@Query() query: any) {
+    const { page = 1, limit = 10, ...filters } = query;
+    return this.leaveBalancesService.findAll({ page, limit }, filters);
   }
 
   @Get(':id/logs')

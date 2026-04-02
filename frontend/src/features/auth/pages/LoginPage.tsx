@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default function LoginPage() {
     const { t, i18n } = useTranslation()
-    const { setUser } = useAuthStore()
+    const { setUser, setLeaveBalance } = useAuthStore()
     const location = useLocation()
     const navigate = useNavigate()
     const formik = useFormik({
@@ -35,6 +35,7 @@ export default function LoginPage() {
             const res = await authService.login(values)
             if (res.success) {
                 setUser(res.data.user)
+                setLeaveBalance(res.data.lb)
                 storage.setCookieToken(res.data.accessToken)
                 toast.success(t("auth.login.success"))
                 if (location.state?.from) {
@@ -57,7 +58,7 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="flex w-full h-screen overflow-hidden bg-white shadow-2xl dark:bg-background-dark">
+        <div className="flex w-full h-screen overflow-hidden bg-card shadow-2xl ">
             <div className="relative flex-col justify-between hidden p-12 text-white lg:flex lg:w-1/2 bg-primary">
                 <div className="absolute inset-0 z-0">
                     <img
@@ -114,7 +115,7 @@ export default function LoginPage() {
                     </div>
                 </div>
             </div>
-            <div className="relative flex flex-col items-center justify-center w-full p-8 bg-white lg:w-1/2 dark:bg-background-dark lg:p-16">
+            <div className="relative flex flex-col items-center justify-center w-full p-8  lg:w-1/2 dark:bg-background-dark lg:p-16">
                 <div className="absolute flex items-center space-x-2 lg:hidden top-8 left-8">
                     <span className="text-3xl material-icons text-primary">corporate_fare</span>
                     <span className="text-xl font-bold text-gray-900 dark:text-white">{t("auth.login.brandName")}</span>
@@ -150,7 +151,7 @@ export default function LoginPage() {
                             <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 text-gray-500 bg-white dark:bg-background-dark dark:text-gray-400">{t("auth.login.orContinueWith")}</span>
+                            <span className="px-2 text-gray-500 bg-card dark:text-gray-400">{t("auth.login.orContinueWith")}</span>
                         </div>
                     </div>
                     <Button className="w-full h-12" variant={"outline"}>

@@ -4,11 +4,12 @@ import CAvatarProfile from "@/components/etc/CAvatarProfile"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuthStore } from "@/store/useAuthStore"
-import { CalendarDaysIcon, Edit2, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react"
+import { CalendarDaysIcon, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react"
+import dayjs from "dayjs"
 
 export default function ProfilePage() {
     const { t } = useTranslation()
-    const user = useAuthStore((state) => state.user)
+    const { user, lb } = useAuthStore()
     console.log(user)
     return (
         <main className="max-w-7xl mx-auto w-full px-8 py-8">
@@ -50,16 +51,16 @@ export default function ProfilePage() {
                             <h3 className="font-bold text-slate-900 dark:text-white mb-4">{t("general.profile.contact.title")}</h3>
                             <div className="space-y-4">
                                 <div className="flex gap-3 items-center">
-                                    <MailIcon className="text-gray-500" />
+                                    <MailIcon className="text-neutral-500" size={20} />
                                     <div className="text-xs">
-                                        <p className="text-slate-400">{t("general.profile.contact.workEmail")}</p>
+                                        <p className="text-neutral-600">{t("general.profile.contact.workEmail")}</p>
                                         <p className="text-slate-900 dark:text-slate-200 font-medium">{user?.email}</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-3 items-center">
-                                    <PhoneIcon className="text-gray-500" />
+                                    <PhoneIcon className="text-neutral-500" size={20} />
                                     <div className="text-xs">
-                                        <p className="text-slate-400">{t("general.profile.contact.phone")}</p>
+                                        <p className="text-neutral-600">{t("general.profile.contact.phone")}</p>
                                         <p className="text-slate-900 dark:text-slate-200 font-medium">{user?.phone?.replace(/(\d{4})(\d{3})(\d{3})/, "$1 $2 $3")}</p>
                                     </div>
                                 </div>
@@ -72,32 +73,34 @@ export default function ProfilePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <Card>
                                 <CardContent>
-                                    <div className="flex items-center gap-3 mb-3">
+                                    <h4 className="font-bold text-slate-900 dark:text-white">{t("general.profile.details.joinedDate")}</h4>
+                                    <div className="flex items-center gap-3 mt-2">
                                         <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-primary">
                                             <CalendarDaysIcon />
                                         </div>
-                                        <h4 className="font-bold text-slate-900 dark:text-white">{t("general.profile.details.joinedDate")}</h4>
+                                        <div className="">
+                                            <p className="text-xl font-bold text-slate-900 dark:text-white">{new Date(user?.createdAt || new Date()).toLocaleDateString()}</p>
+                                            <p className="text-xs text-slate-500">{t("general.profile.details.tenure", { years: 2, months: 4 })}</p>
+                                        </div>
                                     </div>
-                                    <p className="text-xl font-bold text-slate-900 dark:text-white">{new Date(user?.createdAt || new Date()).toLocaleDateString()}</p>
-                                    <p className="text-xs text-slate-500 mt-1">{t("general.profile.details.tenure", { years: 2, months: 4 })}</p>
                                 </CardContent>
                             </Card>
                             <Card>
                                 <CardContent>
                                     <h4 className="font-bold text-slate-900 dark:text-white mb-3">{t("general.profile.details.lineManager")}</h4>
-                                    <CAvatarName user={user?.managerId} />
+                                    {user?.managerId ? <CAvatarName user={user?.managerId} /> : <div className="text-xs text-foreground">No line manager assigned</div>}
                                 </CardContent>
                             </Card>
                             <Card>
                                 <CardContent>
-                                    <h4 className="font-bold text-slate-900 dark:text-white mb-3">{t("general.profile.details.officeLocation")}</h4>
-                                    <div className="flex items-center gap-3">
-                                        <MapPinIcon className="text-purple-500" />
+                                    <h4 className="font-bold text-slate-900 dark:text-white">BirthDate</h4>
+                                    <div className="flex items-center gap-3 mt-2">
+                                        <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-500">
+                                            <Gift className="" />
+                                        </div>
                                         <div>
-                                            <p className="font-bold text-slate-900 dark:text-white" data-location="San Francisco">
-                                                San Francisco, HQ
-                                            </p>
-                                            <p className="text-xs text-slate-500">{t("general.profile.details.floorInfo")}</p>
+                                            <p className="font-medium text-slate-900 dark:text-white">{user?.birthDate ? dayjs(user.birthDate).format("MMMM D, YYYY") : "N/A"}</p>
+                                            <div className="text-xs text-slate-500">{user?.birthDate ? dayjs().year() - dayjs(user.birthDate).year() : "N/A"} Years Old</div>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -113,12 +116,14 @@ export default function ProfilePage() {
                                     <CardContent>
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-sm font-medium text-slate-900 dark:text-white">Số phép còn lại</span>
-                                            <span className="text-sm font-medium text-slate-900 dark:text-white">7/12</span>
+                                            <span className="text-sm font-medium text-slate-900 dark:text-white">
+                                                {lb?.remainingDays || 0}/{lb?.totalDays || 12}
+                                            </span>
                                         </div>
                                         <div className="w-full h-2 bg-secondary-foreground/20 rounded-full overflow-hidden relative  ">
                                             <div
                                                 className="absolute bg-primary z-10 w-full h-full rounded-full transition-all duration-500 min-w-0"
-                                                style={{ transform: `translateX(${-(1 - 7 / 12) * 100}%)` }}
+                                                style={{ transform: `translateX(${-(1 - (lb?.remainingDays || 0) / (lb?.totalDays || 12)) * 100}%)` }}
                                             ></div>
                                         </div>
                                     </CardContent>

@@ -16,7 +16,7 @@ export default function GeneralHeader() {
         i18n.changeLanguage(i18n.language === "en" ? "vi" : "en")
     }
     return (
-        <header className="h-16 bg-background border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between px-8 shrink-0 z-40">
+        <header className="h-16 bg-card border-b  flex items-center justify-between px-8 shrink-0 z-40">
             <div className="flex gap-2 items-center">
                 <Button variant="ghost" size="icon" onClick={toggleSidebar}>
                     <Menu />

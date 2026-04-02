@@ -103,9 +103,9 @@ axiosInstance.interceptors.response.use(
                 storage.clearAll()
 
                 // Redirect to login page
-                // if (typeof window !== "undefined") {
-                //     window.location.href = "/auth/login?redirect=" + window.location.pathname
-                // }
+                if (typeof window !== "undefined") {
+                    window.location.href = "/auth/login?redirect=" + window.location.pathname
+                }
 
                 return Promise.reject(refreshError)
             } finally {

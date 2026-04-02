@@ -1,5 +1,4 @@
 import CSelectOptions from "@/components/etc/CSelectOptions"
-import LoadingUI from "@/components/etc/LoadingUI"
 import CAvatarProfile from "@/components/etc/CAvatarProfile"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -17,14 +16,12 @@ import * as XLSX from "xlsx"
 import { jsPDF } from "jspdf"
 import html2canvas from "html2canvas"
 import userService from "@/services/userService"
+import CTable from "@/components/etc/CTable"
+import { CBadge } from "@/components/etc/CBadgeColor"
+import { deptMapColor } from "@/config/mapColor"
 
 export default function LeaveBalanceEmployeePage() {
     const { t } = useTranslation()
-    // const [page, setPage] = useState(1)
-    // const [search, setSearch] = useState("")
-    // const [departmentCode, setDepartmentCode] = useState("all")
-    // const [leaveType, setLeaveType] = useState("all")
-    // const [location, setLocation] = useState("all")
 
     const departmentsData = [
         { value: "all", label: t("admin.employees.filters.allDepartments", "All Departments") },
@@ -49,10 +46,11 @@ export default function LeaveBalanceEmployeePage() {
     const [selectedLeaveType, setSelectedLeaveType] = useState("all")
     const [selectedDept, setSelectedDept] = useState("all")
     const [searchTerm, setSearchTerm] = useState("")
+    const [page, setPage] = useState(1)
 
     const { data, isLoading } = useQuery<ResponsePagination<LeaveBalance[]>>({
-        queryKey: ["leave-balances", 1, 1000],
-        queryFn: () => leaveBalanceService.getAll({ page: 1, limit: 1000 }),
+        queryKey: ["leave-balances", page, searchTerm],
+        queryFn: () => leaveBalanceService.getAll({ page }),
     })
 
     // Fetch users separately to get avatars (since BE leave-balances populate doesn't include avatar)
@@ -68,28 +66,6 @@ export default function LeaveBalanceEmployeePage() {
         })
         return map
     }, [usersData])
-
-    const filteredData = useMemo(() => {
-        if (!data?.data) return []
-        return data.data.filter((item) => {
-            const user = item.userId as any
-            const itemAny = item as any
-            const fullName = user?.fullName?.toLowerCase() || ""
-            const empId = user?.empId?.toLowerCase() || ""
-            const email = user?.email?.toLowerCase() || ""
-            const deptCode = user?.departmentId?.code?.toLowerCase() || ""
-            const deptName = user?.departmentId?.originName?.toLowerCase() || ""
-            const itemType = (itemAny?.type || "annual").toLowerCase()
-
-            const term = searchTerm.toLowerCase()
-
-            const matchesSearch = !searchTerm || fullName.includes(term) || empId.includes(term) || email.includes(term)
-            const matchesDept = selectedDept === "all" || deptCode === selectedDept.toLowerCase() || deptName.includes(selectedDept.toLowerCase())
-            const matchesLeaveType = selectedLeaveType === "all" || itemType === selectedLeaveType.toLowerCase()
-
-            return matchesSearch && matchesDept && matchesLeaveType
-        })
-    }, [data?.data, searchTerm, selectedDept, selectedLeaveType])
 
     const navigate = useNavigate()
     const queryClient = useQueryClient()
@@ -279,11 +255,15 @@ export default function LeaveBalanceEmployeePage() {
     const columns = [
         t("admin.employees.table.employee", "EMPLOYEE"),
         t("admin.employees.table.department", "DEPARTMENT"),
-        t("admin.employees.table.leaveType", "LEAVE TYPE"),
+        "YEARS active",
         t("admin.employees.table.usedTotal", "USED / TOTAL"),
         t("admin.employees.table.balance", "BALANCE"),
         t("admin.employees.table.actions", "ACTIONS"),
     ]
+
+    const handlePageChange = (page: number) => {
+        setPage(page)
+    }
 
     return (
         <div className="flex-1 flex overflow-hidden relative">
@@ -326,6 +306,7 @@ export default function LeaveBalanceEmployeePage() {
                                         valueKey="value"
                                         displayKey="label"
                                         placeholder={t("admin.employees.filters.department", "Department")}
+                                        value={selectedDept}
                                         onChange={(val) => setSelectedDept(val)}
                                     />
                                     <CSelectOptions
@@ -340,103 +321,47 @@ export default function LeaveBalanceEmployeePage() {
                             </div>
                         </CardContent>
                     </Card>
-                    {isLoading && <LoadingUI />}
-                    {!isLoading && (
-                        <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-neutral-50 dark:bg-neutral-800/30 border-b border-neutral-200 dark:border-neutral-800">
-                                            {columns.map((column) => (
-                                                <th key={column} className="py-4 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-center">
-                                                    {column}
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700 text-sm">
-                                        {filteredData.map((item, index) => (
-                                            <tr
-                                                key={index}
-                                                className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/20 transition-colors border-b border-neutral-100 dark:border-neutral-800/50 last:border-0"
-                                            >
-                                                <td className="py-4 px-6">
-                                                    <div className="flex items-center gap-3">
-                                                        <CAvatarProfile user={{ ...(item.userId as any), avatar: userMap[item.userId?._id]?.avatar || item.userId?.avatar }} className="w-9 h-9" />
-                                                        <div>
-                                                            <div className="font-medium text-neutral-900 dark:text-white">{item.userId?.fullName}</div>
-                                                            <div className="text-xs text-neutral-500">ID: {item.userId?.empId}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="py-4 px-6 text-center">
-                                                    {(() => {
-                                                        const dept = (item.userId?.departmentId as any)?.originName || ""
-                                                        const colorMap: Record<string, string> = {
-                                                            Engineering: "bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/20",
-                                                            HR: "bg-pink-100 text-pink-800 border-pink-200 dark:bg-pink-500/10 dark:text-pink-400 dark:border-pink-500/20",
-                                                            Marketing: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20",
-                                                            Sales: "bg-green-100 text-green-800 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20",
-                                                            Finance: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20",
-                                                            Operations: "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20",
-                                                            Logistics: "bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20",
-                                                            QA: "bg-red-100 text-red-800 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20",
-                                                            Design: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200 dark:bg-fuchsia-500/10 dark:text-fuchsia-400 dark:border-fuchsia-500/20",
-                                                            "R&D": "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20",
-                                                            System: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20",
-                                                        }
-                                                        const colorKey = Object.keys(colorMap).find((k) => dept.toLowerCase().includes(k.toLowerCase()))
-                                                        const colorClass = colorKey
-                                                            ? colorMap[colorKey]
-                                                            : "bg-neutral-100 text-neutral-700 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-700"
-                                                        return (
-                                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${colorClass}`}>
-                                                                {dept || t("admin.employees.adjustModal.system")}
-                                                            </span>
-                                                        )
-                                                    })()}
-                                                </td>
-                                                <td className="py-4 px-6 text-center">
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
-                                                        {t("admin.employees.filters.annual", "Annual Leave")} {item.year}
-                                                    </span>
-                                                </td>
-                                                <td className="py-4 px-6 text-center text-neutral-600 dark:text-neutral-400 font-mono font-medium">
-                                                    {item.usedDays} / {item.totalDays}
-                                                </td>
-                                                <td className="py-4 px-6 text-center">
-                                                    <span className="font-bold text-neutral-900 dark:text-neutral-50 font-mono text-base">{item.remainingDays}</span>
-                                                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400 ml-1.5 uppercase font-medium tracking-tight">
-                                                        {t("admin.employees.table.days")}
-                                                    </span>
-                                                </td>
-                                                <td className="py-4 px-6 text-center">
-                                                    <Button variant={"ghost"} onClick={() => handleOpenAdjust(item)}>
-                                                        <Edit size={16} />
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="bg-neutral-50/30 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 px-6 py-4 flex items-center justify-between">
-                                <div className="text-sm text-neutral-500">
-                                    {t("admin.employees.pagination.showing")} <span className="font-medium text-neutral-900 dark:text-white">1</span> {t("admin.employees.pagination.to")}{" "}
-                                    <span className="font-medium text-neutral-900 dark:text-white">{data?.meta?.limit || 0}</span> {t("admin.employees.pagination.of")}{" "}
-                                    <span className="font-medium text-neutral-900 dark:text-white">{data?.meta?.total || 0}</span> {t("admin.employees.pagination.employees")}
-                                </div>
-                                <div className="flex gap-2">
-                                    <button className="px-4 py-2 text-sm border border-neutral-300 dark:border-neutral-700 rounded-lg text-neutral-600 dark:text-neutral-400 font-medium disabled:opacity-50 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-                                        {t("admin.employees.pagination.previous")}
-                                    </button>
-                                    <button className="px-4 py-2 text-sm border border-neutral-300 dark:border-neutral-700 rounded-lg text-neutral-600 dark:text-neutral-400 font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-                                        {t("admin.employees.pagination.next")}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+
+                    <CTable data={data} columns={columns} handlePageChange={handlePageChange} isLoading={isLoading}>
+                        {data?.data.map((item, index) => (
+                            <tr key={index} className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/20 transition-colors border-b border-neutral-100 dark:border-neutral-800/50 last:border-0">
+                                <td className="py-4 px-6">
+                                    <div className="flex items-center gap-3">
+                                        <CAvatarProfile user={{ ...(item.userId as any), avatar: userMap[item.userId?._id]?.avatar || item.userId?.avatar }} className="w-9 h-9" />
+                                        <div>
+                                            <div className="font-medium text-neutral-900 dark:text-white">{item.userId?.fullName}</div>
+                                            <div className="text-xs text-neutral-500">ID: {item.userId?.empId}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="py-4 px-6 text-center">
+                                    <CBadge className={deptMapColor((item.userId?.departmentId as any)?.originName || "")}>{item.userId.departmentId.originName}</CBadge>
+                                </td>
+                                <td className="py-4 px-6 text-center">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
+                                        {t("admin.employees.filters.annual", "Annual Leave")} {item.year}
+                                    </span>
+                                </td>
+                                <td className="py-4 px-6 text-center text-neutral-600 dark:text-neutral-400 font-mono font-medium">
+                                    <div className="text-right mb-0.5">
+                                        {item.usedDays} / {item.totalDays}
+                                    </div>
+                                    <div className="bg-secondary h-2 w-full rounded-full relative overflow-hidden">
+                                        <div className="absolute h-full bg-primary/50 transition-all duration-300" style={{ width: `${(1 - item.usedDays / item.totalDays) * 100}%` }}></div>
+                                    </div>
+                                </td>
+                                <td className="py-4 px-6 text-center">
+                                    <span className="font-bold text-neutral-900 dark:text-neutral-50 font-mono text-base">{item.remainingDays}</span>
+                                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400 ml-1.5 uppercase font-medium tracking-tight">{t("admin.employees.table.days")}</span>
+                                </td>
+                                <td className="py-4 px-6 text-center">
+                                    <Button variant={"ghost"} onClick={() => handleOpenAdjust(item)}>
+                                        <Edit size={16} />
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))}
+                    </CTable>
                 </div>
             </main>
             {adjustEmp && <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[5]" onClick={() => setAdjustEmp(null)}></div>}

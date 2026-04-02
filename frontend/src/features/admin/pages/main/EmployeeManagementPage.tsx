@@ -1,17 +1,16 @@
 import CSelectOptions from "@/components/etc/CSelectOptions"
-import LoadingUI from "@/components/etc/LoadingUI"
-import PaginationUI from "@/components/etc/PaginationUI"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { CirclePlus, Download, Search, X, Edit, SaveIcon } from "lucide-react"
+import { CirclePlus, Download, Search, X, SaveIcon, Edit } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
 import userService from "@/services/userService"
 import type { User, UserResponse } from "@/types/user"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
+import CTable from "@/components/etc/CTable"
+import { Switch } from "@/components/ui/switch"
+import { CBadge } from "@/components/etc/CBadgeColor"
 
 export default function EmployeeManagementPage() {
     const { t } = useTranslation()
@@ -56,7 +55,6 @@ export default function EmployeeManagementPage() {
         // Implementation for saving changes
     }
     const handlePageChange = (page: number) => {
-        // Implementation for handling page change
         setPage(page)
     }
 
@@ -98,59 +96,38 @@ export default function EmployeeManagementPage() {
                         </CardContent>
                     </Card>
 
-                    {isLoading && <LoadingUI />}
-                    {!isLoading && (
-                        <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-xs border bg-card  overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-neutral-50 dark:bg-neutral-800/50 border-b border-neutral-200 dark:border-neutral-700">
-                                            {columns.map((column) => (
-                                                <th key={column} className="py-5 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-center">
-                                                    {column}
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700 text-sm">
-                                        {data?.data.map((item, index) => (
-                                            <tr key={index} className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
-                                                <td className="py-4 px-6">
-                                                    <div className="flex items-center gap-3">
-                                                        <img className="h-9 w-9 rounded-full object-cover" data-alt="Close up of a man with glasses smiling" src={item.avatar} />
-                                                        <div>
-                                                            <div className="font-medium text-neutral-900 dark:text-white">{item.fullName}</div>
-                                                            <div className="text-xs text-neutral-500">ID: {item.empId}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">{item?.departmentId?.originName || "System"}</td>
-                                                <td className="py-4 px-6">
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                                        {item?.positionId?.fullName || "IT"}
-                                                    </span>
-                                                </td>
-                                                <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 text-xs">
-                                                    <Badge>{item?.roleId?.name || "User"}</Badge>
-                                                </td>
-                                                <td className="py-4 px-6 text-right">
-                                                    <Switch />
-                                                </td>
-                                                <td className="py-4 px-6 text-right">
-                                                    <Button variant={"ghost"} onClick={() => setAdjustEmp(item)}>
-                                                        <Edit />
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4">
-                                <PaginationUI pagination={data?.meta} onPageChange={handlePageChange} />
-                            </div>
-                        </div>
-                    )}
+                    <CTable data={data} columns={columns} handlePageChange={handlePageChange} isLoading={isLoading}>
+                        {data?.data.map((item, index) => (
+                            <tr key={index} className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                <td className="py-4 px-6">
+                                    <div className="flex items-center gap-3">
+                                        <img className="h-9 w-9 rounded-full object-cover" data-alt="Close up of a man with glasses smiling" src={item.avatar} />
+                                        <div>
+                                            <div className="font-medium text-neutral-900 dark:text-white">{item.fullName}</div>
+                                            <div className="text-xs text-neutral-500">ID: {item.empId}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="py-4 px-6 text-neutral-600 dark:text-neutral-400">{item?.departmentId?.originName || "System"}</td>
+                                <td className="py-4 px-6">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                        {item?.positionId?.fullName || "IT"}
+                                    </span>
+                                </td>
+                                <td className="py-4 px-6 text-right text-neutral-600 dark:text-neutral-400 text-xs">
+                                    <CBadge>{item?.roleId?.name || "User"}</CBadge>
+                                </td>
+                                <td className="py-4 px-6 text-right">
+                                    <Switch />
+                                </td>
+                                <td className="py-4 px-6 text-right">
+                                    <Button variant={"ghost"} onClick={() => setAdjustEmp(item)}>
+                                        <Edit />
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))}
+                    </CTable>
                 </div>
             </main>
             {adjustEmp && <div className="absolute inset-0 bg-black/10" onClick={() => setAdjustEmp(null)}></div>}

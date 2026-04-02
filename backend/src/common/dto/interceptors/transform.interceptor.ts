@@ -22,7 +22,6 @@ export class TransformInterceptor<T> implements NestInterceptor<
   ): Observable<Response<T>> {
     return next.handle().pipe(
       map((data) => ({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         statusCode: context.switchToHttp().getResponse().statusCode,
         success: true,
         message: 'Request successful',

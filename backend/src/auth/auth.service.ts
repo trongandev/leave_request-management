@@ -11,12 +11,15 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { User } from '../users/users.schema';
 import { Role } from '../roles/roles.schema';
+import { LeaveBalance } from 'src/leave-balances/leave-balances.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Role.name) private roleModel: Model<Role>,
+    @InjectModel(LeaveBalance.name)
+    private leaveBalanceModel: Model<LeaveBalance>,
     private jwtService: JwtService,
   ) {}
 
@@ -27,42 +30,31 @@ export class AuthService {
     // 1. Tìm user, populate role để lấy permissions
     const user = await this.userModel
       .findOne({ email })
-      .populate({
-        path: 'roleId',
-        populate: {
-          path: 'permissions',
-          model: 'PermissionDoc',
+      .populate([
+        { path: 'roleId', select: '-_id name' },
+        { path: 'positionId', select: '-_id fullName name description' },
+        { path: 'departmentId', select: '-_id code name originName' },
+        {
+          path: 'managerId',
+          select: '-_id empId fullName avatar',
+          populate: [
+            { path: 'roleId', select: '-_id name' },
+            { path: 'positionId', select: '-_id fullName' },
+          ],
         },
-      })
-      .populate({
-        path: 'positionId',
-        populate: {
-          path: 'departmentId',
-          model: 'Department',
-        },
-      })
-      .populate('departmentId')
-      .populate({
-        path: 'managerId',
-        select: 'empId fullName avatar',
-        populate: [
-          {
-            path: 'roleId',
-            model: 'Role',
-            select: 'name',
-          },
-          {
-            path: 'positionId',
-            model: 'Position',
-            select: 'fullName',
-          },
-        ],
-      })
+      ])
+      .select('-__v  -updatedAt')
+      .lean()
       .exec();
 
     if (!user) {
       throw new BadRequestException('Tài khoản hoặc mật khẩu không chính xác');
     }
+
+    const findLB = await this.leaveBalanceModel
+      .findOne({ userId: String(user._id) })
+      .select('-_id remainingDays totalDays')
+      .exec();
 
     // 2. So sánh password với hash trong DB
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -79,10 +71,11 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload);
-
+    delete user.password; // Xóa password trước khi trả về
     return {
       accessToken: accessToken,
       user: user,
+      lb: findLB,
     };
   }
 

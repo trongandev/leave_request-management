@@ -3,7 +3,7 @@ import { type APIResponse, type APIResponsePagination } from "../types/etc"
 import type { CreateLeaveBalanceDto, LeaveBalance, LeaveBalanceLog, AdjustLeaveBalanceDto } from "../types/leave-balances"
 
 class LeaveBalanceService {
-    async getAll(params: any = { page: 1, limit: 10 }) {
+    async getAll(params: any = { page: 1, limit: 10, search: "", dept: "all" }) {
         const response = await axiosInstance.get<APIResponsePagination<LeaveBalance[]>>(`/leave-balances`, { params })
         return response.data.data
     }

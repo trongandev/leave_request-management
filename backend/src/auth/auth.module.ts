@@ -11,6 +11,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../users/users.schema';
 import { Role, RoleSchema } from '../roles/roles.schema';
 import { UsersModule } from '../users/users.module';
+import {
+  LeaveBalance,
+  LeaveBalanceSchema,
+} from 'src/leave-balances/leave-balances.schema';
 
 @Module({
   imports: [
@@ -20,6 +24,7 @@ import { UsersModule } from '../users/users.module';
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Role.name, schema: RoleSchema },
+      { name: LeaveBalance.name, schema: LeaveBalanceSchema },
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { Badge } from "@/components/ui/badge"
 import { Trans, useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,7 +14,6 @@ import {
     ListTodoIcon,
     MonitorCogIcon,
     NotebookPenIcon,
-    Rocket,
     ScrollTextIcon,
     SettingsIcon,
     ShieldUserIcon,
@@ -26,10 +24,11 @@ import {
     WalletIcon,
 } from "lucide-react"
 import { createElement, useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 
 export default function DashboardHomePage() {
     const { t } = useTranslation()
-    const { user } = useAuthStore()
+    const { user, lb } = useAuthStore()
     const [namePointDay, setNamePointDay] = useState("")
     const roleName = user?.roleId.name
     const recentRequests = [
@@ -64,43 +63,45 @@ export default function DashboardHomePage() {
 
     return (
         <main className="space-y-10">
-            <Card>
-                <CardContent>
-                    <h1 className="text-2xl  tracking-tight text-slate-700 dark:text-white">
-                        {t("general.dashboard.greeting.hello")} {namePointDay},{" "}
-                        <span className="text-primary font-bold text-3xl uppercase">{user?.fullName || t("general.dashboard.greeting.user")}</span>
-                    </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">
-                        {t("general.dashboard.greeting.datePattern", { date: "Thứ Tư, ngày 24 tháng 5, 2024" })} {/*  chỉ hiển thị phần này khi người dùng là HR hoặc MANAGER */}
-                        {(roleName === "HR" || roleName === "MANAGER") && (
-                            <>
-                                <br />
-                                <Trans
-                                    i18nKey="general.dashboard.greeting.pendingApprovals"
-                                    values={{ count: 3 }}
-                                    components={{ 1: <span className="bg-yellow-500 text-white px-1.5 py-px rounded-sm" /> }}
-                                />
-                            </>
-                        )}
-                    </p>
-                </CardContent>
-            </Card>
+            <div className="">
+                <h1 className="text-2xl  tracking-tight text-slate-700 dark:text-white">
+                    {t("general.dashboard.greeting.hello")}, {namePointDay} <span className="text-primary font-bold text-3xl uppercase">{user?.fullName || t("general.dashboard.greeting.user")}</span>
+                </h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-1">
+                    {t("general.dashboard.greeting.datePattern", { date: "Thứ Tư, ngày 24 tháng 5, 2024" })} {/*  chỉ hiển thị phần này khi người dùng là HR hoặc MANAGER */}
+                    {(roleName === "HR" || roleName === "MANAGER") && (
+                        <>
+                            <br />
+                            <Trans
+                                i18nKey="general.dashboard.greeting.pendingApprovals"
+                                values={{ count: 3 }}
+                                components={{ 1: <span className="bg-yellow-500 text-white px-1.5 py-px rounded-sm" /> }}
+                            />
+                        </>
+                    )}
+                </p>
+            </div>
+
             <div className="mt-8">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t("general.profile.timeOff.title")}</h3>
-                    <button className="text-primary text-sm font-bold hover:underline">{t("general.profile.timeOff.request")}</button>
+                    <Link to="/employee/create-new-request-form">
+                        <Button variant={"link"}>{t("general.profile.timeOff.request")}</Button>
+                    </Link>
                 </div>
                 <div className="">
                     <Card>
                         <CardContent>
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm font-medium text-slate-900 dark:text-white">Số phép còn lại</span>
-                                <span className="text-sm font-medium text-slate-900 dark:text-white">7/12</span>
+                                <span className="text-sm font-medium text-slate-900 dark:text-white">
+                                    {lb?.remainingDays || 0}/{lb?.totalDays || 12}
+                                </span>
                             </div>
-                            <div className="w-full h-2 bg-secondary-foreground/20 rounded-full overflow-hidden relative  ">
+                            <div className="w-full h-5 bg-secondary-foreground/20 rounded-full overflow-hidden relative  ">
                                 <div
                                     className="absolute bg-primary z-10 w-full h-full rounded-full transition-all duration-500 min-w-0"
-                                    style={{ transform: `translateX(${-(1 - 7 / 12) * 100}%)` }}
+                                    style={{ transform: `translateX(${-(1 - (lb?.remainingDays || 0) / (lb?.totalDays || 12)) * 100}%)` }}
                                 ></div>
                             </div>
                         </CardContent>
@@ -199,25 +200,6 @@ export default function DashboardHomePage() {
                             <Button className="w-full h-8">
                                 <CloudSync /> Sync to Calendar
                             </Button>
-                        </div>
-                    </section>
-                    <section className="bg-primary dark:bg-card p-6 rounded-lg shadow-lg relative overflow-hidden group">
-                        <div className="absolute -right-4 -top-4 size-24 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all"></div>
-                        <div className="relative z-10 space-y-4">
-                            <h2 className="text-white font-bold text-lg">Need a break?</h2>
-                            <p className="text-primary-100/80 text-xs leading-relaxed text-white/70">Easily request leave, track your approvals, and view upcoming holidays all in one place.</p>
-                            <Button className="w-full h-10" variant={"secondary"}>
-                                <Rocket />
-                                New Request
-                            </Button>
-                            <div className="grid grid-cols-2 gap-2 pt-2">
-                                <Button className="text-[10px] bg-white/80" variant={"outline"}>
-                                    VIEW SLIPS
-                                </Button>
-                                <Button className="text-[10px] bg-white/80" variant={"outline"}>
-                                    TAX DOCS
-                                </Button>
-                            </div>
                         </div>
                     </section>
                 </div>
@@ -368,39 +350,6 @@ export default function DashboardHomePage() {
                     </section>
                 )}
             </div>
-            <section className="mt-12">
-                <div className="rounded-xl bg-primary/10 p-1">
-                    <div className="rounded-lg bg-card p-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                            <h3 className="text-lg font-bold">{t("general.dashboard.stats.title")}</h3>
-                            <div className="flex gap-2">
-                                <Badge variant={"outline"} className="text-xs">
-                                    {t("general.dashboard.stats.newEmployees", { count: 12 })}
-                                </Badge>
-                                <Badge variant={"outline"}>{t("general.dashboard.stats.openPositions", { count: 5 })}</Badge>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <div className="flex flex-col">
-                                <span className="text-xs text-slate-500 uppercase font-semibold">{t("general.dashboard.stats.totalEmployees.label")}</span>
-                                <span className="text-2xl font-black text-slate-900 dark:text-white">{t("general.dashboard.stats.totalEmployees.value")}</span>
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-xs text-slate-500 uppercase font-semibold">{t("general.dashboard.stats.leavesToday.label")}</span>
-                                <span className="text-2xl font-black text-slate-900 dark:text-white">{t("general.dashboard.stats.leavesToday.value")}</span>
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-xs text-slate-500 uppercase font-semibold">{t("general.dashboard.stats.turnoverRate.label")}</span>
-                                <span className="text-2xl font-black text-emerald">{t("general.dashboard.stats.turnoverRate.value")}</span>
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-xs text-slate-500 uppercase font-semibold">{t("general.dashboard.stats.pendingRequests.label")}</span>
-                                <span className="text-2xl font-black text-amber">{t("general.dashboard.stats.pendingRequests.value")}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </main>
     )
 }
