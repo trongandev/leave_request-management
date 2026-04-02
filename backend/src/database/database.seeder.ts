@@ -10,7 +10,9 @@ import { Department } from 'src/departments/departments.schema';
 import { orgStructure } from 'src/config/orgStructure.config';
 import { Position } from 'src/positions/positions.schema';
 import { FormTemplate } from '../form-template/form-template.schema';
-
+import { formTemplateSeed } from 'src/config/formTemplate.config';
+import { Request } from 'src/requests/requests.schema';
+import { requestsSeed } from 'src/config/requests.config';
 @Injectable()
 export class DatabaseSeeder implements OnApplicationBootstrap {
   private readonly logger = new Logger(DatabaseSeeder.name);
@@ -25,6 +27,8 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     private readonly departmentModel: Model<Department>,
     @InjectModel(FormTemplate.name)
     private readonly formTemplateModel: Model<FormTemplate>,
+    @InjectModel(Request.name)
+    private readonly requestModel: Model<Request>,
   ) {}
 
   // Hàm này tự động chạy khi ứng dụng khởi chạy xong
@@ -35,7 +39,54 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.seedRoles();
     await this.seedAdminUser();
     await this.seedFormTemplates();
+    await this.seedRequests();
     console.log('--- Seeding hoàn tất ---');
+  }
+
+  private async seedRequests() {
+    for (const request of requestsSeed) {
+      const creator = await this.userModel
+        .findOne({ email: request.creatorEmail })
+        .exec();
+
+      if (!creator) {
+        this.logger.warn(
+          `Khong tim thay user ${request.creatorEmail}, bo qua seed request ${request.code}`,
+        );
+        continue;
+      }
+
+      const formTemplate = await this.formTemplateModel
+        .findOne({ code: request.formTemplateCode })
+        .exec();
+
+      if (!formTemplate) {
+        this.logger.warn(
+          `Khong tim thay form template ${request.formTemplateCode}, bo qua seed request ${request.code}`,
+        );
+        continue;
+      }
+
+      await this.requestModel.updateOne(
+        {
+          creatorId: creator._id.toString(),
+          formTemplateId: formTemplate._id.toString(),
+          title: request.title,
+        },
+        {
+          $set: {
+            creatorId: creator._id.toString(),
+            formTemplateId: formTemplate._id.toString(),
+            code: request.code,
+            title: request.title,
+            values: request.values,
+            status: request.status,
+            currentStepOrder: request.currentStepOrder,
+          },
+        },
+        { upsert: true },
+      );
+    }
   }
 
   private async seedFormTemplates() {
@@ -48,320 +99,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       return;
     }
 
-    const allFields = [
-      {
-        id: 'text_mdg3fnsg',
-        type: 'text',
-        label: 'Lý do nghỉ',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 0,
-        parentId: null,
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'number_nt54khps',
-        type: 'number',
-        label: 'New number',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 1,
-        parentId: null,
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'checkbox_5yw0fp73',
-        type: 'checkbox',
-        label: 'New checkbox',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        options: [
-          {
-            label: 'Option 1',
-            value: 'opt_1775017323620',
-          },
-          {
-            label: 'Option 2',
-            value: 'opt_1775017323781',
-          },
-          {
-            label: 'Option 3',
-            value: 'opt_1775017323934',
-          },
-        ],
-        order: 2,
-        parentId: null,
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'radio_luqeb6f6',
-        type: 'radio',
-        label: 'New radio',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        options: [
-          {
-            label: 'Option 1',
-            value: 'opt_1',
-          },
-          {
-            label: 'Option 2',
-            value: 'opt_1775017325356',
-          },
-          {
-            label: 'Option 3',
-            value: 'opt_1775017325509',
-          },
-          {
-            label: 'Option 4',
-            value: 'opt_1775017325656',
-          },
-        ],
-        order: 3,
-        parentId: null,
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'select_zuliexbo',
-        type: 'select',
-        label: 'New select',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        options: [
-          {
-            label: 'Option 1',
-            value: 'opt_1',
-          },
-          {
-            label: 'Option 2',
-            value: 'opt_1775017327429',
-          },
-          {
-            label: 'Option 3',
-            value: 'opt_1775017327589',
-          },
-        ],
-        order: 4,
-        parentId: null,
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'container_khc8blpv',
-        type: 'container',
-        label: '',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 1,
-        parentId: null,
-        layout: {
-          direction: 'row',
-        },
-      },
-      {
-        id: 'file_jqqb7pjw',
-        type: 'file',
-        label: 'Đính kèm tệp',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 2,
-        parentId: null,
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'date_xdvtg807',
-        type: 'date',
-        label: 'Từ ngày:',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 3,
-        parentId: 'container_khc8blpv',
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'date_fbws9zgs',
-        type: 'date',
-        label: 'Đến ngày:',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 4,
-        parentId: 'container_khc8blpv',
-        layout: {
-          direction: 'col',
-        },
-      },
-    ];
-    const minimumFieldTemplate = [
-      {
-        id: 'text_mdg3fnsg',
-        type: 'text',
-        label: 'Lý do nghỉ',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 0,
-        parentId: null,
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'container_khc8blpv',
-        type: 'container',
-        label: '',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 1,
-        parentId: null,
-        layout: {
-          direction: 'row',
-        },
-      },
-      {
-        id: 'file_jqqb7pjw',
-        type: 'file',
-        label: 'Đính kèm tệp',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 2,
-        parentId: null,
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'date_xdvtg807',
-        type: 'date',
-        label: 'Từ ngày:',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 3,
-        parentId: 'container_khc8blpv',
-        layout: {
-          direction: 'col',
-        },
-      },
-      {
-        id: 'date_fbws9zgs',
-        type: 'date',
-        label: 'Đến ngày:',
-        placeholder: '',
-        required: false,
-        readOnly: false,
-        order: 4,
-        parentId: 'container_khc8blpv',
-        layout: {
-          direction: 'col',
-        },
-      },
-    ];
-    const formTemplates = [
-      {
-        code: 'ANNUAL_LEAVE',
-        vieName: 'Đơn Xin Nghỉ Phép Năm',
-        engName: 'Annual Leave Application Form',
-        fields: minimumFieldTemplate,
-        version: 1,
-        isActive: true,
-        submitButtonText: 'Gửi yêu cầu',
-        autoApprove: false,
-        maxDays: 12,
-        requireAttachment: false,
-        isReductible: true,
-      },
-      {
-        code: 'SICK_LEAVE',
-        vieName: 'Đơn Xin Nghỉ Bệnh',
-        engName: 'Sick Leave Application Form',
-        fields: minimumFieldTemplate,
-        version: 1,
-        isActive: true,
-        submitButtonText: 'Gửi yêu cầu',
-        autoApprove: false,
-        maxDays: 30,
-        requireAttachment: true,
-        isReductible: false,
-      },
-      {
-        code: 'MARRIAGE_LEAVE',
-        vieName: 'Đơn Xin Nghỉ Kết Hôn',
-        engName: 'Marriage Leave Application Form',
-        fields: minimumFieldTemplate,
-        version: 1,
-        isActive: true,
-        submitButtonText: 'Gửi yêu cầu',
-        autoApprove: false,
-        maxDays: 3,
-        requireAttachment: false,
-        isReductible: false,
-      },
-      {
-        code: 'BEREAVEMENT_CLOSE_FAMILY_LEAVE',
-        vieName: 'Đơn Xin Nghỉ Tang Chế (Gia Đình Gần)',
-        engName: 'Close Family Bereavement Leave Form',
-        fields: minimumFieldTemplate,
-        version: 1,
-        isActive: true,
-        submitButtonText: 'Gửi yêu cầu',
-        autoApprove: false,
-        maxDays: 3,
-        requireAttachment: false,
-        isReductible: false,
-      },
-      {
-        code: 'BEREAVEMENT_EXTENDED_FAMILY_LEAVE',
-        vieName: 'Đơn Xin Nghỉ Tang Chế (Gia Đình Gần)',
-        engName: 'Extended Family Bereavement Leave Form',
-        fields: minimumFieldTemplate,
-        version: 1,
-        isActive: true,
-        submitButtonText: 'Gửi yêu cầu',
-        autoApprove: false,
-        maxDays: 1,
-        requireAttachment: false,
-        isReductible: false,
-      },
-      {
-        code: 'TEMPLATE_FORM',
-        vieName: 'Đơn Xin Nghỉ',
-        engName: 'Leave Form',
-        fields: allFields,
-        version: 1,
-        isActive: true,
-        submitButtonText: 'Gửi yêu cầu',
-        autoApprove: false,
-        maxDays: 1,
-        requireAttachment: false,
-        isReductible: false,
-      },
-    ];
-
-    for (const template of formTemplates) {
+    for (const template of formTemplateSeed) {
       await this.formTemplateModel.updateOne(
         { code: template.code },
         {

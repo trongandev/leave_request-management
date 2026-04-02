@@ -23,6 +23,7 @@ import { LeaveBalancesModule } from './leave-balances/leave-balances.module';
 import { SystemSettingModule } from './system-setting/system-setting.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FormTemplateModule } from './form-template/form-template.module';
+import { RequestsModule } from './requests/requests.module';
 
 @Module({
   imports: [
@@ -65,6 +66,8 @@ import { FormTemplateModule } from './form-template/form-template.module';
     SystemSettingModule,
 
     FormTemplateModule,
+
+    RequestsModule,
   ],
   controllers: [AppController],
   providers: [

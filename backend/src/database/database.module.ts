@@ -16,6 +16,7 @@ import {
   FormTemplate,
   FormTemplateSchema,
 } from '../form-template/form-template.schema';
+import { Request, RequestSchema } from 'src/requests/requests.schema';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import {
     MongooseModule.forFeature([
       { name: FormTemplate.name, schema: FormTemplateSchema },
     ]),
+    MongooseModule.forFeature([{ name: Request.name, schema: RequestSchema }]),
   ],
   providers: [DatabaseSeeder],
 })
