@@ -40,13 +40,20 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.seedPermissions();
     await this.createDefaultDepartmentsAndPositions();
     await this.seedRoles();
-    await this.seedRequests();
     await this.seedAdminUser();
-    // await this.seedFormTemplates();
+    await this.seedFormTemplates();
+    await this.seedRequests();
     console.log('--- Seeding hoàn tất ---');
   }
 
   private async seedRequests() {
+    const formTemplates = await this.formTemplateModel
+      .find({}, { _id: 1, code: 1 })
+      .lean();
+    const formTemplateMap = new Map(
+      formTemplates.map((template) => [template.code, template._id.toString()]),
+    );
+
     for (const request of requestsSeed) {
       const creator = await this.userModel
         .findOne({ email: request.creatorEmail })
@@ -59,11 +66,8 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         continue;
       }
 
-      const formTemplate = await this.formTemplateModel
-        .findOne({ code: request.formTemplateCode })
-        .exec();
-
-      if (!formTemplate) {
+      const formTemplateId = formTemplateMap.get(request.formTemplateCode);
+      if (!formTemplateId) {
         this.logger.warn(
           `Khong tim thay form template ${request.formTemplateCode}, bo qua seed request ${request.code}`,
         );
@@ -73,13 +77,13 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       await this.requestModel.updateOne(
         {
           creatorId: creator._id.toString(),
-          formTemplateId: formTemplate._id.toString(),
+          formTemplateId,
           title: request.title,
         },
         {
           $set: {
             creatorId: creator._id.toString(),
-            formTemplateId: formTemplate._id.toString(),
+            formTemplateId,
             code: request.code,
             title: request.title,
             values: request.values,
@@ -191,19 +195,43 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       return;
     }
 
+    const findDept = await this.departmentModel.findOne({ code: 'SYS' });
+    if (!findDept) {
+      this.logger.warn('Khong tim thay department SYS, bo qua seed admin user');
+      return;
+    }
+    const currentHighestPosition = await this.positionModel
+      .findOne({}, { level: 1 })
+      .sort({ level: -1 })
+      .lean();
+
+    const adminLevel = (currentHighestPosition?.level ?? 0) + 1;
+    const adminPosition = await this.positionModel.findOneAndUpdate(
+      { name: 'SYS_ADMIN' },
+      {
+        $set: {
+          name: 'SYS_ADMIN',
+          fullName: 'System Administrator',
+          description: 'Quản trị hệ thống',
+          level: adminLevel,
+          departmentId: findDept._id.toString(),
+        },
+      },
+      { upsert: true, returnDocument: 'after' },
+    );
+
     const existingAdmin = await this.userModel.findOne({
       email: adminEmail,
     });
     if (!existingAdmin) {
       const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
-      const findDept = await this.departmentModel.findOne({ code: 'SYS' });
-
       const newUser = await this.userModel.create({
         email: adminEmail,
         password: hashedPassword,
         roleId: adminRole._id.toString(),
-        departmentId: findDept?._id.toString() || undefined,
+        departmentId: findDept._id.toString(),
+        positionId: adminPosition?._id.toString(),
         fullName: 'System Administrator',
       });
 
@@ -226,6 +254,19 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       });
 
       console.log('Đã tạo tài khoản Admin mặc định: admin@lrm.com / Admin@123');
+      return;
+    }
+
+    if (!existingAdmin.positionId && adminPosition?._id) {
+      await this.userModel.updateOne(
+        { _id: existingAdmin._id },
+        {
+          $set: {
+            positionId: adminPosition._id.toString(),
+            departmentId: findDept._id.toString(),
+          },
+        },
+      );
     }
   }
 

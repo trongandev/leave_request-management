@@ -55,6 +55,12 @@ export class RequestsController {
     return this.requestsService.findOne(id);
   }
 
+  @Patch(':id/resubmit-after-return')
+  @RequirePermissions(Permission.UPDATE_OWN_LEAVE)
+  resubmitAfterReturn(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.requestsService.resubmitAfterReturn(id, user);
+  }
+
   @Patch(':id')
   @RequirePermissions(Permission.UPDATE_OWN_LEAVE)
   update(
@@ -64,6 +70,12 @@ export class RequestsController {
   ) {
     console.log(id, updateRequestDto);
     return this.requestsService.update(id, updateRequestDto, user);
+  }
+
+  @Delete(':id/permanent')
+  @RequirePermissions(Permission.DELETE_OWN_LEAVE)
+  hardRemove(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.requestsService.hardRemove(id, user);
   }
 
   @Delete(':id')
