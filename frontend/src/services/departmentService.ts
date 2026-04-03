@@ -1,10 +1,10 @@
 import axiosInstance from "@/api/axiosInstance"
-import type { APIResponse } from "@/types/etc"
-import type { Department, DepartmentPayload, DepartmentResponse } from "@/types/organization"
+import type { APIResponse, APIResponsePagination } from "@/types/etc"
+import type { Department, DepartmentPayload } from "@/types/organization"
 
 class DepartmentService {
     async getAll({ page = 1, limit = 10 }: { page?: number; limit?: number }) {
-        const response = await axiosInstance.get<APIResponse<DepartmentResponse>>(`/departments?page=${page}&limit=${limit}`)
+        const response = await axiosInstance.get<APIResponsePagination<Department[]>>(`/departments?page=${page}&limit=${limit}`)
         return response.data.data
     }
 

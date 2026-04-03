@@ -1,6 +1,6 @@
 import axiosInstance from "@/api/axiosInstance"
 import { type APIResponse } from "../types/etc"
-import { type User, type UserResponse } from "../types/user"
+import { type User, type UserLB, type UserResponse } from "../types/user"
 
 type GetAllUsersParams = {
     page?: number
@@ -29,7 +29,7 @@ class UserService {
     }
 
     async getUserById(userId: string) {
-        const response = await axiosInstance.get<APIResponse<User>>(`/users/${userId}`)
+        const response = await axiosInstance.get<APIResponse<UserLB>>(`/users/${userId}`)
         return response.data.data
     }
 

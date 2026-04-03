@@ -63,7 +63,9 @@ export class RequestsService {
   }
 
   async findOne(id: string) {
-    const request = await this.requestModel.findById(id);
+    const request = await this.requestModel
+      .findById(id)
+      .populate('formTemplateId');
 
     if (!request) {
       return null;
@@ -78,6 +80,7 @@ export class RequestsService {
     if (!request) {
       return null;
     }
+    console.log(request);
 
     this.validateAccess(request, user);
 
@@ -115,7 +118,7 @@ export class RequestsService {
     // Kiểm tra user có phải ADMIN
     const isAdmin = user.roleId?.name === 'ADMIN';
 
-    if (!isCreator && !isAdmin) {
+    if (!isCreator || !isAdmin) {
       throw new ForbiddenException('Bạn không có quyền truy cập request này');
     }
   }

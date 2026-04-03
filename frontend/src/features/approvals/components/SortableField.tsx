@@ -69,7 +69,7 @@ export function SortableField({ field, isActive, onClick, onRemove, onCopy }: { 
                 </Label>
                 {field.type === "text" && <Input placeholder={field.placeholder || "Text input"} readOnly className="h-12 w-full" />}
                 {field.type === "number" && <Input type="number" placeholder={field.placeholder || "Number input"} readOnly className="h-12 w-full" />}
-                {field.type === "date" && <DatePicker className="" />}
+                {field.type === "date" && <DatePicker className="" placeholder={field.placeholder || "Date input"} />}
                 {field.type === "textarea" && <Textarea placeholder={field.placeholder || "Text area"} readOnly className="h-24 w-full" />}
                 {field.type === "select" && <CSelectOptions data={field.options || []} placeholder={field.placeholder || "Select option"} valueKey="value" />}
                 {field.type === "radio" && <div className="text-sm text-neutral-500">Radio group ({field.options?.length || 0} options)</div>}

@@ -4,7 +4,7 @@ import PaginationUI from "./PaginationUI"
 interface Props {
     data?: any
     columns?: string[]
-    handlePageChange: (page: number) => void
+    handlePageChange?: (page: number) => void
     isLoading?: boolean
     children?: React.ReactNode
 }
@@ -58,7 +58,7 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                                         ))}
                                     </tr>
                                 ))}
-                                {data?.data.length === 0 && (
+                                {(data?.length === 0 || data?.data?.length === 0) && (
                                     <tr>
                                         <td colSpan={columns?.length || Object.keys(data?.data[0] || {}).length} className="h-125 w-full">
                                             <div className="flex items-center justify-center text-gray-600 h-full">No data available</div>
@@ -70,9 +70,11 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                     </tbody>
                 </table>
             </div>
-            <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4">
-                <PaginationUI pagination={data?.meta} onPageChange={handlePageChange} />
-            </div>
+            {handlePageChange && (
+                <div className="bg-surface-light dark:bg-surface-dark border-t border-neutral-200 dark:border-neutral-700 px-6 py-4">
+                    <PaginationUI pagination={data?.meta} onPageChange={handlePageChange} />
+                </div>
+            )}
         </div>
     )
 }

@@ -17,24 +17,23 @@ import {
   FormTemplateSchema,
 } from '../form-template/form-template.schema';
 import { Request, RequestSchema } from 'src/requests/requests.schema';
+import {
+  LeaveBalance,
+  LeaveBalanceSchema,
+} from 'src/leave-balances/leave-balances.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
     MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
       { name: Position.name, schema: PositionSchema },
-    ]),
-    MongooseModule.forFeature([
+      { name: Role.name, schema: RoleSchema },
       { name: Department.name, schema: DepartmentSchema },
-    ]),
-    MongooseModule.forFeature([
       { name: PermissionDoc.name, schema: PermissionSchema },
-    ]),
-    MongooseModule.forFeature([
       { name: FormTemplate.name, schema: FormTemplateSchema },
+      { name: Request.name, schema: RequestSchema },
+      { name: LeaveBalance.name, schema: LeaveBalanceSchema },
     ]),
-    MongooseModule.forFeature([{ name: Request.name, schema: RequestSchema }]),
   ],
   providers: [DatabaseSeeder],
 })

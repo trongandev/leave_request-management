@@ -13,6 +13,7 @@ import { FormTemplate } from '../form-template/form-template.schema';
 import { formTemplateSeed } from 'src/config/formTemplate.config';
 import { Request } from 'src/requests/requests.schema';
 import { requestsSeed } from 'src/config/requests.config';
+import { LeaveBalance } from 'src/leave-balances/leave-balances.schema';
 @Injectable()
 export class DatabaseSeeder implements OnApplicationBootstrap {
   private readonly logger = new Logger(DatabaseSeeder.name);
@@ -29,6 +30,8 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     private readonly formTemplateModel: Model<FormTemplate>,
     @InjectModel(Request.name)
     private readonly requestModel: Model<Request>,
+    @InjectModel(LeaveBalance.name)
+    private readonly leaveBalanceModel: Model<LeaveBalance>,
   ) {}
 
   // Hàm này tự động chạy khi ứng dụng khởi chạy xong
@@ -37,9 +40,9 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.seedPermissions();
     await this.createDefaultDepartmentsAndPositions();
     await this.seedRoles();
-    await this.seedAdminUser();
-    await this.seedFormTemplates();
     await this.seedRequests();
+    await this.seedAdminUser();
+    // await this.seedFormTemplates();
     console.log('--- Seeding hoàn tất ---');
   }
 
@@ -155,6 +158,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     const hrPerms = allPermissions.filter(
       (p) =>
         p.code.includes('OWN') ||
+        p.code === 'CREATE_LEAVE' ||
         p.code === 'VIEW_REPORT' ||
         p.code === 'READ_ALL_LEAVE' ||
         p.code === 'MANAGE_LEAVE_TYPES' ||
@@ -194,13 +198,33 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
       const findDept = await this.departmentModel.findOne({ code: 'SYS' });
-      await this.userModel.create({
+
+      const newUser = await this.userModel.create({
         email: adminEmail,
         password: hashedPassword,
         roleId: adminRole._id.toString(),
         departmentId: findDept?._id.toString() || undefined,
         fullName: 'System Administrator',
       });
+
+      const baseDays = 12;
+      const seniorityDays = 0;
+      const adjustedDays = 0;
+      const totalDays = baseDays + seniorityDays + adjustedDays;
+      const usedDays = 0;
+      const remainingDays = totalDays - usedDays;
+
+      await this.leaveBalanceModel.create({
+        userId: newUser._id.toString(),
+        year: new Date().getFullYear(),
+        baseDays,
+        seniorityDays,
+        adjustedDays,
+        totalDays,
+        usedDays,
+        remainingDays,
+      });
+
       console.log('Đã tạo tài khoản Admin mặc định: admin@lrm.com / Admin@123');
     }
   }

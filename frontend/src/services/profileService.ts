@@ -18,6 +18,11 @@ class ProfileService {
         return response.data.data
     }
 
+    async getById(id: string) {
+        const response = await axiosInstance.get<APIResponse<User>>(`/profile/id/${id}`)
+        return response.data.data
+    }
+
     async updateProfile(userId: string, data: Partial<User>, files?: { avatar?: File; projects?: { [key: number]: File } }) {
         const formData = new FormData()
 

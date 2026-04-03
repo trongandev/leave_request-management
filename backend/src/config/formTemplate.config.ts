@@ -530,7 +530,7 @@ export const formTemplateSeed = [
     autoApprove: false,
     maxDays: 365,
     requireAttachment: false,
-    isReductible: false,
+    isReductible: true,
   },
   {
     code: 'RESIGNATION',
