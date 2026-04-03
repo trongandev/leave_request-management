@@ -23,7 +23,7 @@ export interface Position {
     fullName: string
     level: number
     description: string
-    departmentId: string | Department
+    departmentId: Department
     createdAt: string
     updatedAt: string
 }

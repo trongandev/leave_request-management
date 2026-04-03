@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState } from "react"
-export default function DatePicker({ onChangeValue, placeholder, className }: { onChangeValue?: (date: Date | undefined) => void; placeholder?: string; className?: string }) {
-    const [date, setDate] = useState<Date | undefined>(undefined)
+export default function DatePicker({ value, onChangeValue, placeholder, className }: { value?: Date; onChangeValue?: (date: Date | undefined) => void; placeholder?: string; className?: string }) {
+    const [date, setDate] = useState<Date | undefined>(value)
     return (
         <Popover>
             <PopoverTrigger asChild>

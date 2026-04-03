@@ -8,17 +8,32 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { convertBase64 } from "@/lib/utils"
 import formTemplateService from "@/services/formTemplateService"
-import { useQuery } from "@tanstack/react-query"
+import requestService from "@/services/requestService"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { FileUpIcon } from "lucide-react"
 import { useState } from "react"
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
 export default function FormTemplateDetailPage() {
     const location = useLocation()
+    const navigate = useNavigate()
     const [stateValueData, setStateValueData] = useState<{ [key: string]: any }>({})
     const { data, isLoading } = useQuery({
         queryKey: ["form-template-detail" + location.pathname.split("/")[3]],
         queryFn: () => formTemplateService.getById(location.pathname.split("/")[3]),
+    })
+
+    const mutation = useMutation({
+        mutationFn: (data: any) => requestService.create(data),
+        onSuccess: () => {
+            toast.success("Request submitted successfully!")
+            navigate("/employee/my-request-history-list")
+        },
+        onError: (error) => {
+            console.error("Failed to submit request:", error)
+            toast.error("Failed to submit request. Please try again.")
+        },
     })
 
     const handleChangeValue = (fieldId: string, value: any) => {
@@ -30,7 +45,7 @@ export default function FormTemplateDetailPage() {
 
     const rootFields = data?.fields.filter((f) => !f.parentId).sort((a, b) => (a.order || 0) - (b.order || 0))
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const submitData = Object.entries(stateValueData).reduce((acc, [key, value]) => {
             const field = data?.fields.find((f) => f.id === key)
             if (field?.type === "file" && value instanceof File) {
@@ -50,7 +65,7 @@ export default function FormTemplateDetailPage() {
             values: submitData,
             code: data?.code || "",
         }
-        console.log(newFormData)
+        mutation.mutate(newFormData)
     }
     if (isLoading) {
         return <LoadingUI />

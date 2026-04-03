@@ -20,7 +20,17 @@ export class PositionsService {
   }
 
   findAll(paginationDto: PaginationDto) {
-    return paginate(this.positionsModel, paginationDto);
+    return paginate(
+      this.positionsModel,
+      paginationDto,
+      {},
+      {
+        populate: {
+          path: 'departmentId',
+          select: '-_id name originName',
+        },
+      },
+    );
   }
 
   findOne(id: string) {

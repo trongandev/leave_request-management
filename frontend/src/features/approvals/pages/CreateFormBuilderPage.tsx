@@ -22,9 +22,12 @@ import { GripVerticalIcon, PlusIcon, SlidersHorizontalIcon, XIcon, ChevronLeft, 
 import { Textarea } from "@/components/ui/textarea"
 import DatePicker from "@/components/ui/date-picker"
 import CToolTip from "@/components/etc/CToolTip"
+import CSelectOptionsTable from "@/components/etc/CSelectOptionsTable"
+import { useNavigate } from "react-router-dom"
 
 export default function CreateFormBuilderPage() {
     const { fields, setFields, activeFieldId, setActiveFieldId, addField, updateField, removeField, moveField } = useFormBuilder()
+    const navigate = useNavigate()
     const [stateData, setStateData] = useState({
         vieName: "Đơn Xin Nghỉ Bệnh",
         engName: "Sick Leave Application Form",
@@ -57,14 +60,14 @@ export default function CreateFormBuilderPage() {
 
     const createTemplateMutation = useMutation({
         mutationFn: async (data: any) => {
-            console.log(data)
             const res = await axiosInstance.post("/form-template", data)
             console.log(res)
             return res.data
         },
-        onSuccess: () => {
+        onSuccess: (res: any) => {
             toast.success("Form template created successfully")
             setFields([])
+            navigate("/approvals/form-manager/" + res.data._id)
         },
         onError: (error: any) => {
             toast.error(error?.response?.data?.message || error?.message || "Failed to create template")
@@ -247,6 +250,62 @@ export default function CreateFormBuilderPage() {
         )
     }
 
+    const dataFieldName = [
+        { label: "Start Date", value: "startDate", desc: "Ngày bắt đầu nghỉ", fieldType: "date" },
+        { label: "End Date", value: "endDate", desc: "Ngày kết thúc nghỉ", fieldType: "date" },
+        { label: "Attachment", value: "attachment", desc: "Tệp đính kèm", fieldType: "file" },
+        { label: "Reason", value: "reason", desc: "Lý do xin nghỉ", fieldType: "textarea" },
+        { label: "Total Hours", value: "totalHours", desc: "Áp dụng cho form đăng ký làm thêm theo giờ hoặc đăng ký chấm công ngoài văn phòng theo giờ", fieldType: "number" },
+        { label: "Location", value: "location", desc: "Áp dụng cho form đăng ký làm việc tại nhà hoặc đăng ký chấm công ngoài văn phòng", fieldType: "text" },
+        { label: "Destination", value: "destination", desc: "Áp dụng cho form đăng ký công tác, đi công tác cần điền địa điểm đến", fieldType: "text" },
+        { label: "Replacement Person", value: "replacementId", desc: "Người được phân công làm thay trong thời gian đi nghỉ phép", fieldType: "text" },
+        { label: "Shift", value: "shiftId", desc: "Ca làm việc (sáng, chiều, tối) - áp dụng cho form xin nghỉ phép theo ca hoặc đăng ký làm thêm theo ca", fieldType: "text" },
+        { label: "Handover Detail", value: "handoverDetail", desc: "Thông tin bàn giao công việc khi đi nghỉ phép", fieldType: "textarea" },
+        { label: "Estimated Cost", value: "estimatedCost", desc: "Chi phí dự kiến cho form đăng ký công tác", fieldType: "number" },
+        { label: "Currency", value: "currency", desc: "Đơn vị tiền tệ cho chi phí dự kiến", fieldType: "text" },
+    ]
+
+    const handleChangeValueOption = (value: string) => {
+        if (value === "startDate" && activeField?.type !== "date") {
+            updateField(activeFieldId!, {
+                id: "startDate",
+                label: "Start Date",
+                placeholder: "Select start date",
+                required: true,
+            })
+        } else if (value === "endDate" && activeField?.type !== "date") {
+            updateField(activeFieldId!, {
+                id: "endDate",
+                label: "End Date",
+                placeholder: "Select end date",
+                required: true,
+            })
+        } else if (value === "reason" && activeField?.type !== "textarea") {
+            updateField(activeFieldId!, {
+                id: "reason",
+                label: "Reason",
+                placeholder: "Enter reason for your request",
+                required: true,
+            })
+        } else if (value === "attachment" && activeField?.type !== "file") {
+            updateField(activeFieldId!, {
+                id: "attachment",
+                label: "Attachment",
+                required: true,
+            })
+        } else {
+            const selectedOption = dataFieldName.find((opt) => opt.value === value)
+            if (selectedOption) {
+                updateField(activeFieldId!, {
+                    id: selectedOption.value,
+                    label: selectedOption.label,
+                    placeholder: `Enter ${selectedOption.label.toLowerCase()}`,
+                    required: false,
+                })
+            }
+        }
+    }
+
     return (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div className="flex overflow-hidden gap-3 h-[calc(100vh-6rem)] select-none">
@@ -386,7 +445,17 @@ export default function CreateFormBuilderPage() {
                                         <Label className="font-bold uppercase tracking-wider text-[11px] text-neutral-500">Placeholder Text</Label>
                                         <Input value={activeField.placeholder || ""} onChange={(e) => updateField(activeField.id, { placeholder: e.target.value })} className="w-full" />
                                     </div>
-
+                                    <div className="space-y-2">
+                                        <Label className="font-bold uppercase tracking-wider text-[11px] text-neutral-500">Field Name</Label>
+                                        <CSelectOptionsTable
+                                            data={dataFieldName.filter((f) => f.fieldType === activeField.type)}
+                                            valueKey="value"
+                                            displayKey="label"
+                                            descKey="desc"
+                                            placeholder={dataFieldName.filter((f) => f.fieldType === activeField.type).length > 0 ? "Select a predefined field" : "No predefined field for this type"}
+                                            onChange={(value) => handleChangeValueOption(value)}
+                                        />
+                                    </div>
                                     <div className="space-y-4 pt-4 border-t">
                                         <div className="flex items-center justify-between">
                                             <Label htmlFor="required-field" className="cursor-pointer font-bold uppercase tracking-wider text-[11px] text-neutral-500">

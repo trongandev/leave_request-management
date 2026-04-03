@@ -1,24 +1,6 @@
 import type { Field } from "@/types/form-template"
 import { useState, useCallback } from "react"
 
-// export interface FormField {
-//     id: string
-//     type: "text" | "number" | "date" | "textarea" | "select" | "radio" | "checkbox" | "file" | "container"
-//     label: string
-//     placeholder?: string
-//     required?: boolean
-//     readOnly?: boolean
-//     defaultValue?: any
-//     options?: Array<{ label: string; value: string }>
-//     validation?: any
-//     ui?: any
-//     order?: number
-//     parentId?: string | null
-//     layout?: {
-//         direction: "row" | "col"
-//     }
-// }
-
 export const useFormBuilder = () => {
     const [fields, setFields] = useState<Field[]>([])
     const [activeFieldId, setActiveFieldId] = useState<string | null>(null)

@@ -62,6 +62,7 @@ export class RequestsController {
     @Body() updateRequestDto: UpdateRequestDto,
     @CurrentUser() user: any,
   ) {
+    console.log(id, updateRequestDto);
     return this.requestsService.update(id, updateRequestDto, user);
   }
 

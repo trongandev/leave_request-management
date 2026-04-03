@@ -33,7 +33,7 @@ export class Request extends Document {
   })
   status!: RequestStatus;
 
-  @Prop({ required: true, default: 1, min: 1 })
+  @Prop({ required: true, default: 0 })
   currentStepOrder!: number;
 }
 

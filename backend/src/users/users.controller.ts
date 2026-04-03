@@ -41,8 +41,8 @@ export class UsersController {
   @Post('fake')
   @UseGuards(AuthGuard('jwt'))
   @RequirePermissions('MANAGE_USERS')
-  createFakeUser() {
-    return this.usersService.createFakeUser();
+  createFakeUser(@Query('count') count: number) {
+    return this.usersService.createFakeUser(count);
   }
 
   @Get()

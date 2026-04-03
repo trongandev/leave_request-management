@@ -12,7 +12,6 @@ export default function CreateNewRequestFormPage() {
     if (isLoading) {
         return <LoadingUI />
     }
-    console.log(data)
 
     return (
         <div className="p-10 flex-1 bg-surface">

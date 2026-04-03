@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next"
 import CAvatarProfile from "@/components/etc/CAvatarProfile"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { useAuthStore } from "@/store/useAuthStore"
 import { CalendarDaysIcon, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react"
 import dayjs from "dayjs"
 import { useQuery } from "@tanstack/react-query"
@@ -12,12 +11,11 @@ import LoadingUI from "@/components/etc/LoadingUI"
 import CTable from "@/components/etc/CTable"
 import { format } from "date-fns"
 
-export default function ProfilePage() {
+export default function ProfileAnotherPage() {
     const { t } = useTranslation()
-    const { user: us } = useAuthStore()
     const { data, isLoading } = useQuery({
-        queryKey: ["profile" + us?._id],
-        queryFn: () => userService.getUserById(us?._id || ""),
+        queryKey: ["profile" + location.pathname.split("/")[2]],
+        queryFn: () => userService.getUserById(location.pathname.split("/")[2]),
     })
     const user = data?.user
     const lb = data?.lb
@@ -26,7 +24,6 @@ export default function ProfilePage() {
         return <LoadingUI />
     }
     const columns = ["TYPE", "DATE", "DURATION", "STATUS"]
-
     return (
         <main className="max-w-7xl mx-auto w-full px-8 py-8">
             <div className="flex gap-8 items-start">
@@ -153,7 +150,7 @@ export default function ProfilePage() {
                                     {t("general.profile.activity.viewLog")} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                 </button>
                             </div>
-                            <CTable columns={columns} data={data?.rqUser || []} isLoading={isLoading}>
+                            <CTable columns={columns} data={data?.rqUser} isLoading={isLoading}>
                                 {data?.rqUser?.map((request) => (
                                     <tr>
                                         <td className="px-4 py-4">
@@ -162,11 +159,9 @@ export default function ProfilePage() {
                                                 <span className="font-medium">{request.title}</span>
                                             </div>
                                         </td>
-                                        {request?.values && (
-                                            <td className="px-4 py-4 text-slate-500">
-                                                {format(new Date(request?.values?.startDate), "MMM dd, yyyy")} - {format(new Date(request?.values?.endDate), "MMM dd, yyyy")}
-                                            </td>
-                                        )}
+                                        <td className="px-4 py-4 text-slate-500">
+                                            {format(new Date(request?.values?.startDate), "MMM dd, yyyy")} - {format(new Date(request?.values?.endDate), "MMM dd, yyyy")}
+                                        </td>
 
                                         {(() => {
                                             const start = dayjs(request?.values?.startDate)

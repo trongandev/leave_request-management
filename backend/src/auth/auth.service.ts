@@ -69,9 +69,7 @@ export class AuthService {
       email: user.email,
       role: role?.name,
     };
-
     const accessToken = this.jwtService.sign(payload);
-    delete user.password; // Xóa password trước khi trả về
     return {
       accessToken: accessToken,
       user: user,

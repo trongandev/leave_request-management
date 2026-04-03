@@ -20,6 +20,7 @@ import * as bcrypt from 'bcrypt';
 import { removeVietnameseTones } from 'src/common/utils/utils';
 import { LeaveBalancesService } from '../leave-balances/leave-balances.service';
 import { QueryUsersDto } from './dto/query-users.dto';
+import { Request } from 'src/requests/requests.schema';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +30,7 @@ export class UsersService {
     @InjectModel(Role.name) private roleModel: Model<Role>,
     @InjectModel(Department.name) private departmentModel: Model<Department>,
     @InjectModel(Position.name) private positionModel: Model<Position>,
+    @InjectModel(Request.name) private requestModel: Model<Request>,
     private leaveBalancesService: LeaveBalancesService,
   ) {}
 
@@ -101,34 +103,137 @@ export class UsersService {
     return populatedUser;
   }
 
-  async createFakeUser() {
-    // 1. Lấy ngẫu nhiên 1 phòng ban
-    const departments = await this.departmentModel.find();
-    const randomDept =
-      departments[Math.floor(Math.random() * departments.length)];
+  async createFakeUser(count: number = 1) {
+    if (count < 1) {
+      throw new BadRequestException('Count must be at least 1');
+    }
+    if (count > 100) {
+      throw new BadRequestException('Count must not exceed 100');
+    }
+    const [departments, roles, allPositions] = await Promise.all([
+      this.departmentModel.find(),
+      this.roleModel.find(),
+      this.positionModel.find(),
+    ]);
 
-    // 2. Tìm các vị trí thuộc phòng ban đó
-    const positions = await this.positionModel.find({
-      departmentId: String(randomDept._id),
+    if (!departments.length) throw new Error('No departments found');
+
+    const roleMap = new Map(roles.map((r) => [r.name, r]));
+    const positionsByDept = new Map<string, Position[]>();
+
+    // Nhóm positions theo departmentId
+    allPositions.forEach((pos) => {
+      const deptId = String(pos.departmentId);
+      if (!positionsByDept.has(deptId)) {
+        positionsByDept.set(deptId, []);
+      }
+      positionsByDept.get(deptId)!.push(pos);
     });
 
-    // Phòng hờ trường hợp phòng ban đó chưa có vị trí nào
-    const randomPos =
-      positions.length > 0
-        ? positions[Math.floor(Math.random() * positions.length)]
-        : null;
+    const usersToCreate: any = [];
+    const usedEmails = new Set<string>();
+    let emailRetries = 0;
 
-    let roleName = 'EMPLOYEE'; // Mặc định
+    // Tạo tất cả fake data trước
+    for (let i = 0; i < count; i++) {
+      const randomDept =
+        departments[Math.floor(Math.random() * departments.length)];
+      const deptId = String(randomDept._id);
+      const positionsForDept = positionsByDept.get(deptId) || [];
+      const randomPos =
+        positionsForDept.length > 0
+          ? positionsForDept[
+              Math.floor(Math.random() * positionsForDept.length)
+            ]
+          : null;
 
-    // Logic tự động phân vai trò dựa trên Level của vị trí
-    if (randomPos && randomPos.level >= 3) {
-      roleName = 'MANAGER';
+      let fakeData: any;
+      let retries = 0;
+      // Retry nếu email trùng (tối đa 3 lần)
+      do {
+        fakeData = this.generateFakeUserData(randomDept, randomPos, roleMap, i);
+        retries++;
+      } while (usedEmails.has(fakeData.email) && retries < 3);
+
+      if (usedEmails.has(fakeData.email)) {
+        emailRetries++;
+        console.warn(
+          `Failed to generate unique email after ${retries} retries for user ${i + 1}`,
+        );
+        continue; // Skip user nếu không thể tạo unique email
+      }
+
+      usedEmails.add(fakeData.email);
+      const hashedPassword = await bcrypt.hash('Password@123', 10);
+      const empId = await this.generateEmployeeId();
+
+      usersToCreate.push({
+        ...fakeData,
+        password: hashedPassword,
+        empId,
+      });
     }
 
-    // Ngoại lệ cho phòng HR (Dù level thấp vẫn có thể là HR role nếu bạn muốn)
-    if (randomDept.code === 'HR') {
-      roleName = 'HR';
+    // Insert tất cả cùng lúc
+    try {
+      const created = await this.userModel.insertMany(usersToCreate);
+
+      // Auto-create leave balances cho từng user
+      const currentYear = new Date().getFullYear();
+      for (const user of created) {
+        try {
+          await this.leaveBalancesService.create({
+            userId: String(user._id),
+            year: currentYear,
+            adjustedDays: 0,
+            usedDays: 0,
+          });
+        } catch (error) {
+          console.error(
+            `Failed to create leave balance for user ${user._id}:`,
+            error,
+          );
+        }
+      }
+
+      if (emailRetries > 0) {
+        console.warn(
+          `Skipped ${emailRetries} users due to email collision. Created ${created.length} users.`,
+        );
+      }
+
+      return created;
+    } catch (error) {
+      console.error('Batch user creation failed:', error);
+      throw error;
     }
+  }
+
+  private async generateEmployeeId(): Promise<string> {
+    const currentYear = new Date().getFullYear().toString().slice(-2);
+    const birthYear = new Date().getFullYear().toString().slice(-2); // có thể thay bằng user's birth year nếu cần
+    const prefix = `${currentYear}${birthYear}`;
+
+    const counter = await this.counterModel.findOneAndUpdate(
+      { _id: prefix },
+      { $inc: { seq: 1 } },
+      { upsert: true, new: true },
+    );
+
+    const sequence = counter.seq.toString().padStart(4, '0');
+    return `${prefix}${sequence}`;
+  }
+
+  private generateFakeUserData(
+    department: Department,
+    position: Position | null,
+    roleMap: Map<string, Role>,
+    index: number,
+  ) {
+    const roleNames = ['EMPLOYEE', 'MANAGER', 'HR'];
+    const roleName = roleNames[index % roleNames.length];
+    const role = roleMap.get(roleName) || roleMap.get('EMPLOYEE');
+    const positionId = position ? String(position._id) : undefined;
 
     const fullName = faker.person.fullName();
     const nameParts = removeVietnameseTones(fullName)
@@ -142,39 +247,35 @@ export class UsersService {
       [nameParts[i], nameParts[j]] = [nameParts[j], nameParts[i]];
     }
 
-    const birthDate = new Date(
-      faker.date.birthdate({ min: 1980, max: 2005, mode: 'year' }),
-    );
-    const birthDateSuffix = birthDate.getFullYear().toString().slice(-2);
+    // Tạo birthDate 1 lần duy nhất
+    const birthDate = faker.date.birthdate({
+      min: 1980,
+      max: 2005,
+      mode: 'year',
+    });
+    const birthDateSuffix = new Date(birthDate)
+      .getFullYear()
+      .toString()
+      .slice(-2);
 
     // Chèn năm sinh vào vị trí ngẫu nhiên
     const insertIndex = Math.floor(Math.random() * (nameParts.length + 1));
     nameParts.splice(insertIndex, 0, birthDateSuffix);
-    const email = `${nameParts.join('.')}` + '@lrm.com';
-    const defaultPassword = 'DefAult@passw0rd';
-    const fakeData: CreateUserDto = {
-      phone: faker.helpers.fromRegExp(/0[35789][0-9]{8}/),
-      email: email,
-      password: defaultPassword,
-      fullName: fullName,
+
+    const email = `${nameParts.join('.')}@lrm.com`;
+
+    return {
+      fullName,
       avatar: faker.image.avatar(),
-      // Giới hạn năm sinh từ 1980 đến 2005 để phù hợp thực tế đi làm
       gender: faker.person.sex(),
-      birthDate: birthDate,
-      roleName: roleName, // Gán role dựa trên logic
-      departmentId: String(randomDept._id),
-      positionId: String(randomPos ? randomPos._id : null),
-      roleId: '',
+      email,
+      phone: faker.helpers.fromRegExp(/0[35789][0-9]{8}/),
+      birthDate: new Date(birthDate),
+      roleName,
+      departmentId: String(department._id),
+      positionId,
+      roleId: String(role?._id),
     };
-    console.log(fakeData);
-    try {
-      return await this.create(fakeData);
-    } catch (error) {
-      // Nếu trùng email ngẫu nhiên thì thử lại một lần nữa
-      const message = error instanceof Error ? error.message : String(error);
-      console.error('Fake User Creation failed, retrying...', message);
-      return this.createFakeUser();
-    }
   }
 
   @Get()
@@ -232,22 +333,22 @@ export class UsersService {
     });
   }
 
-  findOne(id: string) {
-    return this.userModel
+  async findOne(id: string) {
+    const user = await this.userModel
       .findById(id)
       .populate('roleId')
       .populate('positionId')
       .populate('departmentId')
       .populate('managerId')
       .exec();
-  }
-  /*
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { new: true })
+
+    const findLB = await this.leaveBalancesService.findByUserId(id);
+    const findRqUser = await this.requestModel
+      .find({ creatorId: id })
+      .select('title status type createdAt values')
       .exec();
+    return { user, lb: findLB, rqUser: findRqUser };
   }
-  */
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     if (updateUserDto.managerId) {

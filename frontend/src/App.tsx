@@ -40,6 +40,8 @@ import FormManagerPage from "./features/approvals/pages/FormManagerPage"
 import EditFormBuilderPage from "./features/approvals/pages/EditFormBuilderPage"
 import AdjustLeaveBalance from "./features/approvals/pages/AdjustLeaveBalance"
 import LoginPage from "./features/auth/pages/LoginPage"
+import ViewDetailRequestPage from "./features/requests/pages/ViewDetailRequestPage"
+import ProfileAnotherPage from "./features/general/pages/ProfileAnotherPage"
 
 function App() {
     return (
@@ -48,11 +50,13 @@ function App() {
             <Route element={<GeneralLayout />}>
                 <Route index element={<DashboardHomePage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile/:id" element={<ProfileAnotherPage />} />
                 {/* request layout: dành cho nhân viên khi truy cập vào */}
                 <Route path="/employee" element={<RequestLayout />}>
                     <Route index element={<EmployeeDashboardOverviewPage />} />
                     <Route path="/employee/create-new-request-form" element={<CreateNewRequestFormPage />} />
                     <Route path="/employee/my-request-history-list" element={<MyRequestHistoryListPage />} />
+                    <Route path="/employee/view-detail-request/:id" element={<ViewDetailRequestPage />} />
                 </Route>
                 <Route path="/approvals" element={<ApprovalLayout />}>
                     <Route index element={<PendingApprovalsListPage />} />

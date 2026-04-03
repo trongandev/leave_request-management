@@ -1,3 +1,5 @@
+import type { Request } from "./request"
+
 export interface UserResponse {
     data: User[]
     meta: IMetaTag
@@ -73,4 +75,10 @@ export interface LeaveBalance {
     _id: string
     remainingDays: number
     totalDays: number
+}
+
+export interface UserLB {
+    user: User
+    lb: LeaveBalance
+    rqUser: Request[]
 }

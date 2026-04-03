@@ -1,6 +1,6 @@
 import CSelectOptions from "@/components/etc/CSelectOptions"
 import { Button } from "@/components/ui/button"
-import { CirclePlus, Download, Search, X, SaveIcon, Edit } from "lucide-react"
+import { CirclePlus, Download, Search, X, SaveIcon, Edit, Eye } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,6 +11,7 @@ import { useState } from "react"
 import CTable from "@/components/etc/CTable"
 import { Switch } from "@/components/ui/switch"
 import { CBadge } from "@/components/etc/CBadgeColor"
+import { Link } from "react-router-dom"
 
 export default function EmployeeManagementPage() {
     const { t } = useTranslation()
@@ -121,6 +122,11 @@ export default function EmployeeManagementPage() {
                                     <Switch />
                                 </td>
                                 <td className="py-4 px-6 text-right">
+                                    <Link to={`/profile/${item._id}`}>
+                                        <Button variant={"ghost"}>
+                                            <Eye />
+                                        </Button>
+                                    </Link>
                                     <Button variant={"ghost"} onClick={() => setAdjustEmp(item)}>
                                         <Edit />
                                     </Button>
