@@ -80,5 +80,10 @@ export interface LeaveBalance {
 export interface UserLB {
     user: User
     lb: LeaveBalance
-    rqUser: Request[]
+    rq: Request[]
+}
+
+export interface ProfileResponse {
+    user: User
+    lb: LeaveBalance
 }

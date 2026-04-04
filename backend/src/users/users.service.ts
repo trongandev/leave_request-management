@@ -347,7 +347,7 @@ export class UsersService {
       .find({ creatorId: id })
       .select('title status type createdAt values')
       .exec();
-    return { user, lb: findLB, rqUser: findRqUser };
+    return { user, lb: findLB, rq: findRqUser };
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

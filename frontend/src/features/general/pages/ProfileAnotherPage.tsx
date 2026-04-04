@@ -150,7 +150,7 @@ export default function ProfileAnotherPage() {
                                     {t("general.profile.activity.viewLog")} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                 </button>
                             </div>
-                            <CTable columns={columns} data={data?.rqUser} isLoading={isLoading}>
+                            <CTable columns={columns} data={data?.rq} isLoading={isLoading}>
                                 {data?.rqUser?.map((request) => (
                                     <tr>
                                         <td className="px-4 py-4">

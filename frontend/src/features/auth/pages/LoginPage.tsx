@@ -34,9 +34,8 @@ export default function LoginPage() {
         try {
             const res = await authService.login(values)
             if (res.success) {
-                setUser(res.data.user)
-                setLeaveBalance(res.data.lb)
-                storage.setCookieToken(res.data.accessToken)
+                setUser(res.data.user, res.data.lb)
+                storage.setCookieToken(res.data)
                 toast.success(t("auth.login.success"))
                 if (location.state?.from) {
                     navigate(location.state.from.pathname)

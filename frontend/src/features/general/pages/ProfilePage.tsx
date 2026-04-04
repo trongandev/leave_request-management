@@ -4,23 +4,21 @@ import CAvatarProfile from "@/components/etc/CAvatarProfile"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuthStore } from "@/store/useAuthStore"
-import { CalendarDaysIcon, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react"
+import { CalendarDaysIcon, ChevronRight, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react"
 import dayjs from "dayjs"
 import { useQuery } from "@tanstack/react-query"
-import userService from "@/services/userService"
 import LoadingUI from "@/components/etc/LoadingUI"
 import CTable from "@/components/etc/CTable"
 import { format } from "date-fns"
+import requestService from "@/services/requestService"
 
 export default function ProfilePage() {
     const { t } = useTranslation()
-    const { user: us } = useAuthStore()
+    const { user, lb } = useAuthStore()
     const { data, isLoading } = useQuery({
-        queryKey: ["profile" + us?._id],
-        queryFn: () => userService.getUserById(us?._id || ""),
+        queryKey: ["request" + user?._id],
+        queryFn: () => requestService.getRequestProfile({}),
     })
-    const user = data?.user
-    const lb = data?.lb
 
     if (isLoading) {
         return <LoadingUI />
@@ -28,7 +26,7 @@ export default function ProfilePage() {
     const columns = ["TYPE", "DATE", "DURATION", "STATUS"]
 
     return (
-        <main className="max-w-7xl mx-auto w-full px-8 py-8">
+        <main className="max-w-7xl mx-auto w-full px-8 py-8 ">
             <div className="flex gap-8 items-start">
                 <aside className="w-[300px] shrink-0 flex flex-col gap-6">
                     <Card className="p-0! overflow-hidden">
@@ -150,40 +148,43 @@ export default function ProfilePage() {
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t("general.profile.activity.title")}</h3>
                                 <button className="text-slate-500 text-sm font-medium flex items-center gap-1 hover:text-primary transition-colors">
-                                    {t("general.profile.activity.viewLog")} <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                    {t("general.profile.activity.viewLog")} <ChevronRight />
                                 </button>
                             </div>
-                            <CTable columns={columns} data={data?.rqUser || []} isLoading={isLoading}>
-                                {data?.rqUser?.map((request) => (
-                                    <tr>
-                                        <td className="px-4 py-4">
-                                            <div className="flex items-center gap-2">
-                                                <span className="h-2 w-2 rounded-full bg-primary"></span>
-                                                <span className="font-medium">{request.title}</span>
-                                            </div>
-                                        </td>
-                                        {request?.values && (
-                                            <td className="px-4 py-4 text-slate-500">
-                                                {format(new Date(request?.values?.startDate), "MMM dd, yyyy")} - {format(new Date(request?.values?.endDate), "MMM dd, yyyy")}
+                            <CTable columns={columns} data={data || []} isLoading={isLoading}>
+                                {data &&
+                                    data?.data.map((request) => (
+                                        <tr>
+                                            <td className="px-4 py-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="h-2 w-2 rounded-full bg-primary"></span>
+                                                    <span className="font-medium">{request.title}</span>
+                                                </div>
                                             </td>
-                                        )}
-
-                                        {(() => {
-                                            const start = dayjs(request?.values?.startDate)
-                                            const end = dayjs(request?.values?.endDate)
-                                            const durationDays = start.isValid() && end.isValid() ? Math.max(end.diff(start, "day") + 1, 0) : 0
-
-                                            return (
+                                            {request?.values && (
                                                 <td className="px-4 py-4 text-slate-500">
-                                                    {durationDays} {durationDays > 1 ? "days" : "day"}
+                                                    {format(new Date(request?.values?.startDate), "MMM dd, yyyy")} - {format(new Date(request?.values?.endDate), "MMM dd, yyyy")}
                                                 </td>
-                                            )
-                                        })()}
-                                        <td className="px-4 py-4">
-                                            <span className="px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold uppercase">{request.status}</span>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            )}
+
+                                            {(() => {
+                                                const start = dayjs(request?.values?.startDate)
+                                                const end = dayjs(request?.values?.endDate)
+                                                const durationDays = start.isValid() && end.isValid() ? Math.max(end.diff(start, "day") + 1, 0) : 0
+
+                                                return (
+                                                    <td className="px-4 py-4 text-slate-500">
+                                                        {durationDays} {durationDays > 1 ? "days" : "day"}
+                                                    </td>
+                                                )
+                                            })()}
+                                            <td className="px-4 py-4">
+                                                <span className="px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold uppercase">
+                                                    {request.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
                             </CTable>
                         </div>
                     </CardContent>

@@ -29,8 +29,8 @@ import {
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const expiresIn = (configService.get<string>('JWT_EXPIRES') ||
-          '1d') as unknown as number;
+        const expiresIn = (configService.get<string>('JWT_EXPIRES1') ||
+          '10s') as unknown as number;
         return {
           secret: configService.get<string>('JWT_SECRET'),
           signOptions: { expiresIn },

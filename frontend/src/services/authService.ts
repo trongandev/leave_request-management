@@ -1,6 +1,6 @@
 import axiosInstance from "@/api/axiosInstance"
 import type { APIResponse } from "@/types/etc"
-import type { LeaveBalance, User } from "@/types/user"
+import type { LeaveBalance, ProfileResponse, User } from "@/types/user"
 
 // Types for auth requests
 export interface LoginRequest {
@@ -87,8 +87,8 @@ class AuthService {
     }
 
     // Get current user profile (requires authentication)
-    async getProfile(): Promise<User> {
-        const response = await axiosInstance.get<APIResponse<User>>("/auth/profile")
+    async getProfile(): Promise<ProfileResponse> {
+        const response = await axiosInstance.get<APIResponse<ProfileResponse>>("/profile")
         return response.data.data
     }
 }

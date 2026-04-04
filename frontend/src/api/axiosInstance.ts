@@ -9,7 +9,7 @@ const axiosInstance: AxiosInstance = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
-    timeout: 10000, // 10 seconds timeout
+    timeout: 2 * 60 * 1000, // 2 minutes timeout
 })
 
 // Flag để tránh multiple refresh token calls
@@ -33,7 +33,7 @@ const processQueue = (error: any = null) => {
 // Request Interceptor - Thêm access token vào header
 axiosInstance.interceptors.request.use(
     (config) => {
-        const accessToken = storage.getCookieToken()
+        const accessToken = storage.getCookieToken("accessToken")
         if (accessToken && config.headers) {
             config.headers.Authorization = `Bearer ${accessToken}`
         }
@@ -71,7 +71,7 @@ axiosInstance.interceptors.response.use(
             isRefreshing = true
 
             try {
-                const refreshToken = storage.getRefreshToken()
+                const refreshToken = storage.getCookieToken("refreshToken")
 
                 if (!refreshToken) {
                     // Không có refresh token, logout user
@@ -83,10 +83,11 @@ axiosInstance.interceptors.response.use(
                     refreshToken: refreshToken,
                 })
 
-                const { accessToken: newAccessToken } = response.data.data
+                const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data
+                console.log(response.data.data)
 
                 // Lưu access token mới
-                storage.setCookieToken(newAccessToken)
+                storage.setCookieToken({ accessToken: newAccessToken, refreshToken: newRefreshToken })
 
                 // Cập nhật authorization header
                 if (originalRequest.headers) {
@@ -100,8 +101,8 @@ axiosInstance.interceptors.response.use(
             } catch (refreshError) {
                 // Refresh token failed, clear all tokens và logout
                 processQueue(refreshError)
-                storage.clearAll()
-
+                storage.removeAllToken()
+                // Redirect to login page
                 // Redirect to login page
                 if (typeof window !== "undefined") {
                     window.location.href = "/auth/login?redirect=" + window.location.pathname
