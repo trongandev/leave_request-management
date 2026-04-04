@@ -1,15 +1,31 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom"
+import { Outlet } from "react-router-dom"
 import GeneralSidebar from "./GeneralSidebar"
 import GeneralHeader from "./GeneralHeader"
-import { useAuthStore } from "@/store/useAuthStore"
 import { useSidebarStore } from "@/store/useSidebarStore"
+import { useAuthStore } from "@/store/useAuthStore"
+import { useEffect } from "react"
 
 export default function GeneralLayout() {
     const { isSidebarOpen } = useSidebarStore((state) => state)
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-    const location = useLocation()
-    if (!isAuthenticated) {
-        return <Navigate to="/auth/login" state={{ from: location }} />
+    const { loadProfile, isLoading } = useAuthStore()
+
+    useEffect(() => {
+        // Khi app load, tự động load profile từ server
+        loadProfile()
+    }, [])
+
+    // Hiển thị loading screen trong khi đang load profile
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 to-blue-50 dark:from-slate-950 dark:to-slate-900">
+                <div className="text-center">
+                    <div className="inline-flex items-center justify-center w-12 h-12 mb-4 rounded-full bg-primary/10">
+                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    </div>
+                    <p className="text-slate-600 dark:text-slate-400">Đang tải...</p>
+                </div>
+            </div>
+        )
     }
     return (
         <div className="flex transition-all duration-300 bg-background">

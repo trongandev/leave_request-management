@@ -7,6 +7,8 @@ import { ApproverResolutionPolicy } from './policies/approver-resolution.policy'
 import { ApprovalOrchestratorService } from './policies/approval-orchestrator.service';
 import { DelegationsModule } from '../delegations/delegations.module';
 import { Request, RequestSchema } from '../requests/requests.schema';
+import { LeaveBalance, LeaveBalanceSchema } from '../leave-balances/leave-balances.schema';
+import { FormTemplate, FormTemplateSchema } from '../form-template/form-template.schema';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { Request, RequestSchema } from '../requests/requests.schema';
     MongooseModule.forFeature([
       { name: ApprovalStep.name, schema: ApprovalStepSchema },
       { name: Request.name, schema: RequestSchema },
+      { name: LeaveBalance.name, schema: LeaveBalanceSchema },
+      { name: FormTemplate.name, schema: FormTemplateSchema },
     ]),
   ],
   controllers: [ApprovalStepsController],

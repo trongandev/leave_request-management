@@ -70,8 +70,10 @@ export class AuthService {
       role: role?.name,
     };
     const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
     return {
       accessToken: accessToken,
+      refreshToken: refreshToken,
       user: user,
       lb: findLB,
     };
@@ -120,5 +122,54 @@ export class AuthService {
       roleId: roleName,
       departmentId: populated?.departmentId,
     };
+  }
+
+  // ─── REFRESH TOKEN ─────────────────────────────────────────────────────────────
+  async refreshToken(oldRefreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(oldRefreshToken);
+      const user = await this.userModel.findById(payload.sub).exec();
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      const newPayload = {
+        sub: user._id,
+        email: user.email,
+      };
+      const newAccessToken = this.jwtService.sign(newPayload);
+
+      return {
+        accessToken: newAccessToken,
+      };
+    } catch (error) {
+      throw new BadRequestException('Invalid refresh token');
+    }
+  }
+
+  // ─── CHANGE PASSWORD ─────────────────────────────────────────────────────────────
+  async changePassword(userId: string, newPassword: string) {
+    if (!userId) {
+      throw new BadRequestException('Thiếu thông tin người dùng');
+    }
+
+    if (!newPassword) {
+      throw new BadRequestException('Thiếu mật khẩu mới');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      userId,
+      {
+        password: hashedPassword,
+      },
+      { new: true },
+    );
+
+    if (!updatedUser) {
+      throw new BadRequestException('Không tìm thấy người dùng');
+    }
+
+    return { message: 'Đổi mật khẩu thành công' };
   }
 }

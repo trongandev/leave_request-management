@@ -1,5 +1,6 @@
 import {
   Injectable,
+  BadRequestException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
@@ -20,6 +21,8 @@ import { DelegationsService } from '../delegations/delegations.service';
 import { ApprovalStepInput } from './policies/types';
 import { Request } from '../requests/requests.schema';
 import { RequestStatus } from '../enum/request-status.enum';
+import { LeaveBalance } from '../leave-balances/leave-balances.schema';
+import { FormTemplate } from '../form-template/form-template.schema';
 
 type RequestActor = {
   _id?: string;
@@ -37,6 +40,10 @@ export class ApprovalStepsService {
     private readonly approvalStepModel: Model<ApprovalStep>,
     @InjectModel(Request.name)
     private readonly requestModel: Model<Request>,
+    @InjectModel(LeaveBalance.name)
+    private readonly leaveBalanceModel: Model<LeaveBalance>,
+    @InjectModel(FormTemplate.name)
+    private readonly formTemplateModel: Model<FormTemplate>,
     private readonly delegationsService: DelegationsService,
   ) {}
 
@@ -461,6 +468,11 @@ export class ApprovalStepsService {
     );
 
     if (activeSteps.length === 0) {
+      const request = await this.requestModel.findById(requestId).exec();
+      if (request) {
+        await this.deductLeaveBalanceIfNeeded(request);
+      }
+
       await this.requestModel.findByIdAndUpdate(requestId, {
         status: RequestStatus.APPROVED,
         currentStepOrder: steps[steps.length - 1]?.stepOrder ?? 1,
@@ -472,6 +484,95 @@ export class ApprovalStepsService {
       status: RequestStatus.PENDING,
       currentStepOrder: Math.min(...activeSteps.map((step) => step.stepOrder)),
     });
+  }
+
+  private extractApprovalAmount(
+    values?: Record<string, unknown>,
+  ): number | undefined {
+    if (!values || typeof values !== 'object') {
+      return undefined;
+    }
+
+    const rawAmount = values.totalDays ?? values.amount;
+
+    if (typeof rawAmount === 'number' && Number.isFinite(rawAmount)) {
+      return rawAmount;
+    }
+
+    if (typeof rawAmount === 'string' && rawAmount.trim() !== '') {
+      const parsed = Number(rawAmount);
+      return Number.isFinite(parsed) ? parsed : undefined;
+    }
+
+    return undefined;
+  }
+
+  private resolveLeaveBalanceYear(values?: Record<string, unknown>): number {
+    const dateCandidate =
+      values?.fromDate ?? values?.startDate ?? values?.submissionDate;
+
+    if (typeof dateCandidate === 'string' || dateCandidate instanceof Date) {
+      const parsedDate = new Date(dateCandidate);
+      if (!Number.isNaN(parsedDate.getTime())) {
+        return parsedDate.getFullYear();
+      }
+    }
+
+    return new Date().getFullYear();
+  }
+
+  private async shouldDeductLeaveBalance(request: Request): Promise<boolean> {
+    const template = await this.formTemplateModel
+      .findById(request.formTemplateId)
+      .select('isReductible')
+      .lean<{ isReductible?: boolean }>()
+      .exec();
+
+    if (template && typeof template.isReductible === 'boolean') {
+      return template.isReductible;
+    }
+
+    const normalizedType = String(request.code ?? '').toUpperCase();
+    return (
+      normalizedType.includes('LEAVE') &&
+      !normalizedType.includes('RESIGNATION')
+    );
+  }
+
+  private async deductLeaveBalanceIfNeeded(request: Request): Promise<void> {
+    if (!(await this.shouldDeductLeaveBalance(request))) {
+      return;
+    }
+
+    const requestedDays = this.extractApprovalAmount(request.values);
+    if (!requestedDays || requestedDays <= 0) {
+      return;
+    }
+
+    const year = this.resolveLeaveBalanceYear(request.values);
+
+    const balance = await this.leaveBalanceModel
+      .findOne({ userId: String(request.creatorId), year })
+      .select('usedDays remainingDays')
+      .exec();
+
+    if (!balance) {
+      throw new BadRequestException(
+        `Không tìm thấy leave balance cho năm ${year}`,
+      );
+    }
+
+    const currentRemaining = Number(balance.remainingDays ?? 0);
+    if (currentRemaining < requestedDays) {
+      throw new BadRequestException(
+        `Số dư nghỉ phép không đủ để trừ. Còn lại ${currentRemaining} ngày, cần trừ ${requestedDays} ngày`,
+      );
+    }
+
+    const currentUsed = Number(balance.usedDays ?? 0);
+    balance.usedDays = currentUsed + requestedDays;
+    balance.remainingDays = currentRemaining - requestedDays;
+    await balance.save();
   }
 
   private async resolveParallelGroupAfterApprove(

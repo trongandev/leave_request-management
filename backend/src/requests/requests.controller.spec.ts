@@ -18,7 +18,9 @@ describe('RequestsController', () => {
           useValue: {
             create: jest.fn(),
             findAll: jest.fn(),
+            findAllAccessible: jest.fn(),
             findOne: jest.fn(),
+            findOneAccessible: jest.fn(),
             update: jest.fn(),
             resubmitAfterReturn: jest.fn(),
             remove: jest.fn(),

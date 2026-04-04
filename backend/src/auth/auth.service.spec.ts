@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { User } from '../users/users.schema';
 import { Role } from '../roles/roles.schema';
+import { LeaveBalance } from '../leave-balances/leave-balances.schema';
 
 const mockUserModel = {
   findOne: jest.fn(),
@@ -12,6 +13,10 @@ const mockUserModel = {
 };
 
 const mockRoleModel = {
+  findOne: jest.fn(),
+};
+
+const mockLeaveBalanceModel = {
   findOne: jest.fn(),
 };
 
@@ -33,6 +38,10 @@ describe('AuthService', () => {
         {
           provide: getModelToken(Role.name),
           useValue: mockRoleModel,
+        },
+        {
+          provide: getModelToken(LeaveBalance.name),
+          useValue: mockLeaveBalanceModel,
         },
         {
           provide: JwtService,

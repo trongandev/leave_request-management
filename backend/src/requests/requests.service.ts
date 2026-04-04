@@ -17,6 +17,9 @@ import { ApprovalOrchestratorService } from '../approval-steps/policies/approval
 import { ApprovalStepsService } from '../approval-steps/approval-steps.service';
 import { UserProfile } from '../approval-steps/policies/types';
 import { LeaveBalance } from '../leave-balances/leave-balances.schema';
+import { FormTemplate } from '../form-template/form-template.schema';
+import { ApprovalStep } from '../approval-steps/approval-steps.schema';
+import { ApprovalStepStatus } from '../enum/approval-step-status.enum';
 
 type RequestActor = {
   _id?: string;
@@ -32,6 +35,10 @@ export class RequestsService {
     private readonly requestModel: Model<Request>,
     @InjectModel(LeaveBalance.name)
     private readonly leaveBalanceModel: Model<LeaveBalance>,
+    @InjectModel(FormTemplate.name)
+    private readonly formTemplateModel: Model<FormTemplate>,
+    @InjectModel(ApprovalStep.name)
+    private readonly approvalStepModel: Model<ApprovalStep>,
     private readonly usersService: UsersService,
     private readonly approvalOrchestratorService: ApprovalOrchestratorService,
     private readonly approvalStepsService: ApprovalStepsService,
@@ -39,8 +46,13 @@ export class RequestsService {
 
   async create(createRequestDto: CreateRequestDto, user: any) {
     const status = createRequestDto.status ?? RequestStatus.PENDING;
+    const normalizedValues = this.normalizeRequestValues(
+      createRequestDto.values,
+    );
+
     const createNewRequest = new this.requestModel({
       ...createRequestDto,
+      values: normalizedValues,
       creatorId: user?._id,
       status,
       currentStepOrder:
@@ -58,10 +70,11 @@ export class RequestsService {
     await this.ensureSufficientLeaveBalance(
       String(user?._id),
       String(createRequestDto.code),
-      createRequestDto.values,
+      String(createRequestDto.formTemplateId),
+      normalizedValues,
     );
 
-    const approvalAmount = this.extractApprovalAmount(createRequestDto.values);
+    const approvalAmount = this.extractApprovalAmount(normalizedValues);
 
     const resolution = await this.planApprovalResolution(
       String(user?._id),
@@ -70,6 +83,7 @@ export class RequestsService {
     );
 
     if (resolution.autoApprove) {
+      await this.deductLeaveBalanceIfNeeded(request);
       request.status = RequestStatus.APPROVED;
       await request.save();
       return request;
@@ -112,6 +126,7 @@ export class RequestsService {
     await this.ensureSufficientLeaveBalance(
       String(request.creatorId),
       String(request.code),
+      String(request.formTemplateId),
       request.values,
     );
 
@@ -122,6 +137,7 @@ export class RequestsService {
     );
 
     if (resolution.autoApprove) {
+      await this.deductLeaveBalanceIfNeeded(request);
       request.status = RequestStatus.APPROVED;
       request.currentStepOrder = 1;
       return request.save();
@@ -147,7 +163,43 @@ export class RequestsService {
   }
 
   findAll(queryRequestsDto: QueryRequestsDto) {
+    const filter = this.buildRequestFilter(queryRequestsDto);
+
+    return paginate(this.requestModel, queryRequestsDto, filter, {
+      sort: { createdAt: -1 },
+    });
+  }
+
+  async findAllAccessible(queryRequestsDto: QueryRequestsDto, user: any) {
+    const filter = await this.buildAccessibleFilter(queryRequestsDto, user);
+
+    return paginate(this.requestModel, queryRequestsDto, filter, {
+      sort: { createdAt: -1 },
+    });
+  }
+
+  async findOneAccessible(id: string, user: any) {
+    const filter = await this.buildAccessibleFilter(undefined, user);
+    const request = await this.requestModel
+      .findOne({ _id: id, ...filter })
+      .populate('formTemplateId')
+      .exec();
+
+    if (!request) {
+      return null;
+    }
+
+    return request;
+  }
+
+  private buildRequestFilter(
+    queryRequestsDto?: QueryRequestsDto,
+  ): Record<string, any> {
     const filter: Record<string, any> = {};
+
+    if (!queryRequestsDto) {
+      return filter;
+    }
 
     if (queryRequestsDto.status) {
       filter.status = queryRequestsDto.status;
@@ -173,9 +225,7 @@ export class RequestsService {
       }
     }
 
-    return paginate(this.requestModel, queryRequestsDto, filter, {
-      sort: { createdAt: -1 },
-    });
+    return filter;
   }
 
   async findOne(id: string) {
@@ -188,6 +238,119 @@ export class RequestsService {
     }
 
     return request;
+  }
+
+  private async buildAccessibleFilter(
+    queryRequestsDto: QueryRequestsDto | undefined,
+    user: any,
+  ): Promise<Record<string, any>> {
+    const baseFilter = this.buildRequestFilter(queryRequestsDto);
+
+    if (!user?._id) {
+      return { ...baseFilter, creatorId: null };
+    }
+
+    const userId = String(user._id);
+    const roleName = String(user?.roleId?.name ?? '').toUpperCase();
+    if (roleName === 'ADMIN') {
+      return baseFilter;
+    }
+
+    const userPermissions = this.extractPermissionCodes(user);
+    const canReadAll = userPermissions.includes('READ_ALL_LEAVE');
+    if (canReadAll) {
+      return baseFilter;
+    }
+
+    const scopeFilters: Record<string, any>[] = [{ creatorId: userId }];
+
+    const canReadDepartment = userPermissions.includes('READ_DEPARTMENT_LEAVE');
+    if (canReadDepartment) {
+      const departmentId = String(
+        user?.departmentId?._id ?? user?.departmentId ?? '',
+      );
+
+      if (!departmentId) {
+        throw new ForbiddenException(
+          'Không thể xác định phòng ban để xem đơn theo phạm vi department',
+        );
+      }
+
+      const userIds =
+        await this.usersService.findUserIdsByDepartment(departmentId);
+
+      if (userIds.length > 0) {
+        scopeFilters.push({ creatorId: { $in: userIds } });
+      }
+    }
+
+    const canAccessApprovalFlow =
+      userPermissions.includes('APPROVE_LEAVE') ||
+      userPermissions.includes('REJECT_LEAVE') ||
+      userPermissions.includes('FORWARD_LEAVE');
+
+    if (canAccessApprovalFlow) {
+      const approverRequestIds =
+        await this.findPendingRequestIdsForApprover(userId);
+
+      if (approverRequestIds.length > 0) {
+        scopeFilters.push({ _id: { $in: approverRequestIds } });
+      }
+    }
+
+    if (scopeFilters.length === 0) {
+      return { ...baseFilter, creatorId: null };
+    }
+
+    if (Object.keys(baseFilter).length === 0) {
+      return scopeFilters.length === 1
+        ? scopeFilters[0]
+        : { $or: scopeFilters };
+    }
+
+    return {
+      $and: [
+        baseFilter,
+        scopeFilters.length === 1 ? scopeFilters[0] : { $or: scopeFilters },
+      ],
+    };
+  }
+
+  private async findPendingRequestIdsForApprover(
+    approverId: string,
+  ): Promise<string[]> {
+    const steps = await this.approvalStepModel
+      .find({
+        $or: [
+          { originalApproverId: approverId },
+          { groupId: approverId },
+          { actualApproverId: approverId },
+        ],
+        status: {
+          $in: [ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED],
+        },
+      })
+      .select('requestId')
+      .lean<Array<{ requestId?: unknown }>>()
+      .exec();
+
+    return [
+      ...new Set(steps.map((step) => String(step.requestId)).filter(Boolean)),
+    ];
+  }
+
+  private extractPermissionCodes(user: any): string[] {
+    const rawPermissions: unknown[] = Array.isArray(user?.roleId?.permissions)
+      ? (user.roleId.permissions as unknown[])
+      : [];
+
+    return rawPermissions
+      .map((permission: unknown) =>
+        typeof permission === 'object' && permission !== null
+          ? (permission as { code?: unknown }).code
+          : permission,
+      )
+      .filter((code: unknown): code is string => typeof code === 'string');
   }
 
   async update(id: string, updateRequestDto: UpdateRequestDto, user: any) {
@@ -370,7 +533,91 @@ export class RequestsService {
     return undefined;
   }
 
-  private shouldValidateLeaveBalance(requestTypeCode: string): boolean {
+  private normalizeRequestValues(
+    values?: Record<string, unknown>,
+  ): Record<string, unknown> {
+    if (!values || typeof values !== 'object') {
+      return values ?? {};
+    }
+
+    const normalized = { ...values };
+
+    const startRaw = normalized.startDate ?? normalized.fromDate;
+    const endRaw = normalized.endDate ?? normalized.toDate;
+
+    if (!startRaw || !endRaw) {
+      return normalized;
+    }
+
+    const startDate = this.parseDateInput(startRaw);
+    const endDate = this.parseDateInput(endRaw);
+
+    if (!startDate || !endDate) {
+      throw new BadRequestException(
+        'Ngày bắt đầu/kết thúc không hợp lệ để tính totalDays',
+      );
+    }
+
+    if (endDate < startDate) {
+      throw new BadRequestException(
+        'Ngày bắt đầu/kết thúc không hợp lệ để tính totalDays',
+      );
+    }
+
+    const existingAmount = this.extractApprovalAmount(normalized);
+
+    if (typeof existingAmount === 'number' && Number.isFinite(existingAmount)) {
+      return normalized;
+    }
+
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+    const utcStart = Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate(),
+    );
+    const utcEnd = Date.UTC(
+      endDate.getUTCFullYear(),
+      endDate.getUTCMonth(),
+      endDate.getUTCDate(),
+    );
+
+    // Inclusive range: from startDate through endDate.
+    const totalDays = Math.floor((utcEnd - utcStart) / MS_PER_DAY) + 1;
+    normalized.totalDays = totalDays;
+
+    return normalized;
+  }
+
+  private parseDateInput(value: unknown): Date | null {
+    if (value instanceof Date) {
+      return Number.isNaN(value.getTime()) ? null : value;
+    }
+
+    if (typeof value === 'string' || typeof value === 'number') {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    return null;
+  }
+
+  private async shouldValidateLeaveBalance(
+    requestTypeCode: string,
+    formTemplateId?: string,
+  ): Promise<boolean> {
+    if (formTemplateId) {
+      const template = await this.formTemplateModel
+        .findById(formTemplateId)
+        .select('isReductible')
+        .lean<{ isReductible?: boolean }>()
+        .exec();
+
+      if (template && typeof template.isReductible === 'boolean') {
+        return template.isReductible;
+      }
+    }
+
     const normalizedType = String(requestTypeCode ?? '').toUpperCase();
     return (
       normalizedType.includes('LEAVE') &&
@@ -395,9 +642,12 @@ export class RequestsService {
   private async ensureSufficientLeaveBalance(
     creatorId: string,
     requestTypeCode: string,
+    formTemplateId: string,
     values?: Record<string, unknown>,
   ): Promise<void> {
-    if (!this.shouldValidateLeaveBalance(requestTypeCode)) {
+    if (
+      !(await this.shouldValidateLeaveBalance(requestTypeCode, formTemplateId))
+    ) {
       return;
     }
 
@@ -425,5 +675,46 @@ export class RequestsService {
         `Số dư nghỉ phép không đủ. Còn lại ${balance.remainingDays} ngày, yêu cầu ${requestedDays} ngày`,
       );
     }
+  }
+
+  private async deductLeaveBalanceIfNeeded(request: Request): Promise<void> {
+    const shouldDeduct = await this.shouldValidateLeaveBalance(
+      String(request.code),
+      String(request.formTemplateId),
+    );
+
+    if (!shouldDeduct) {
+      return;
+    }
+
+    const requestedDays = this.extractApprovalAmount(request.values);
+    if (!requestedDays || requestedDays <= 0) {
+      return;
+    }
+
+    const year = this.resolveLeaveBalanceYear(request.values);
+
+    const balance = await this.leaveBalanceModel
+      .findOne({ userId: String(request.creatorId), year })
+      .select('usedDays remainingDays')
+      .exec();
+
+    if (!balance) {
+      throw new BadRequestException(
+        `Không tìm thấy leave balance cho năm ${year}`,
+      );
+    }
+
+    const currentRemaining = Number(balance.remainingDays ?? 0);
+    if (currentRemaining < requestedDays) {
+      throw new BadRequestException(
+        `Số dư nghỉ phép không đủ để trừ. Còn lại ${currentRemaining} ngày, cần trừ ${requestedDays} ngày`,
+      );
+    }
+
+    const currentUsed = Number(balance.usedDays ?? 0);
+    balance.usedDays = currentUsed + requestedDays;
+    balance.remainingDays = currentRemaining - requestedDays;
+    await balance.save();
   }
 }

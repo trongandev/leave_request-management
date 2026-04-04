@@ -12,7 +12,6 @@ import { Position } from 'src/positions/positions.schema';
 import { FormTemplate } from '../form-template/form-template.schema';
 import { formTemplateSeed } from 'src/config/formTemplate.config';
 import { Request } from 'src/requests/requests.schema';
-import { requestsSeed } from 'src/config/requests.config';
 import { LeaveBalance } from 'src/leave-balances/leave-balances.schema';
 @Injectable()
 export class DatabaseSeeder implements OnApplicationBootstrap {
@@ -42,58 +41,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.seedRoles();
     await this.seedAdminUser();
     await this.seedFormTemplates();
-    await this.seedRequests();
     console.log('--- Seeding hoàn tất ---');
-  }
-
-  private async seedRequests() {
-    const formTemplates = await this.formTemplateModel
-      .find({}, { _id: 1, code: 1 })
-      .lean();
-    const formTemplateMap = new Map(
-      formTemplates.map((template) => [template.code, template._id.toString()]),
-    );
-
-    for (const request of requestsSeed) {
-      const creator = await this.userModel
-        .findOne({ email: request.creatorEmail })
-        .exec();
-
-      if (!creator) {
-        this.logger.warn(
-          `Khong tim thay user ${request.creatorEmail}, bo qua seed request ${request.code}`,
-        );
-        continue;
-      }
-
-      const formTemplateId = formTemplateMap.get(request.formTemplateCode);
-      if (!formTemplateId) {
-        this.logger.warn(
-          `Khong tim thay form template ${request.formTemplateCode}, bo qua seed request ${request.code}`,
-        );
-        continue;
-      }
-
-      await this.requestModel.updateOne(
-        {
-          creatorId: creator._id.toString(),
-          formTemplateId,
-          title: request.title,
-        },
-        {
-          $set: {
-            creatorId: creator._id.toString(),
-            formTemplateId,
-            code: request.code,
-            title: request.title,
-            values: request.values,
-            status: request.status,
-            currentStepOrder: request.currentStepOrder,
-          },
-        },
-        { upsert: true },
-      );
-    }
   }
 
   private async seedFormTemplates() {
@@ -149,7 +97,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         p.code === 'CREATE_LEAVE' ||
         p.code === 'APPROVE_LEAVE' ||
         p.code === 'REJECT_LEAVE' ||
-        p.code === 'READ_ALL_LEAVE' ||
+        p.code === 'READ_DEPARTMENT_LEAVE' ||
         p.code === 'ASSIGN_MANAGER',
     );
     await this.roleModel.updateOne(

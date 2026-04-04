@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { Body, Controller, Post, Response, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  Response,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -8,6 +16,8 @@ import { Public } from './decorators/public.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RequirePermissions } from './decorators/permissions.decorator';
 import { Permission } from '../enum/permission.enum';
+import { getCookie } from 'src/common/utils/utils';
+import { CurrentUser } from './decorators/current-user.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -29,6 +39,14 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production', // chỉ dùng HTTPS ở production
       sameSite: 'strict',
       maxAge: 3600000, // 1 giờ (tính bằng milliseconds)
+      path: '/',
+    });
+
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // chỉ dùng HTTPS ở production
+      sameSite: 'strict',
+      maxAge: 1000 * 3600 * 24 * 7, // 7 ngày
       path: '/',
     });
 
@@ -54,5 +72,40 @@ export class AuthController {
   logout(@Response({ passthrough: true }) res) {
     res.clearCookie('accessToken');
     return { message: 'Đăng xuất thành công' };
+  }
+
+  @Public()
+  @Post('refresh-token')
+  async refreshToken(
+    @Req() req: Request,
+    @Body('refreshToken') refreshToken: string,
+    @Response({ passthrough: true }) res,
+  ) {
+    const rtCookie = getCookie(req, 'refreshToken');
+
+    const rt = rtCookie || refreshToken;
+    if (!rt) {
+      throw new UnauthorizedException('Missing refresh token');
+    }
+
+    const result = await this.authService.refreshToken(rt);
+    res.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 3600000,
+    });
+    return result;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('change-password')
+  @ApiOperation({ summary: 'Đổi mật khẩu (yêu cầu đăng nhập)' })
+  async changePassword(
+    @Body('newPassword') newPassword: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.authService.changePassword(String(user?._id), newPassword);
   }
 }

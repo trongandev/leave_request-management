@@ -34,6 +34,11 @@ export const PERMISSIONS_METADATA = [
     module: 'APPROVAL',
   },
   {
+    code: 'READ_DEPARTMENT_LEAVE',
+    description: 'Xem đơn từ thuộc phòng ban của mình',
+    module: 'APPROVAL',
+  },
+  {
     code: 'APPROVE_LEAVE',
     description: 'Phê duyệt đơn xin nghỉ',
     module: 'APPROVAL',

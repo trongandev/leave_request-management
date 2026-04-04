@@ -1,54 +1,31 @@
-import type { User } from "@/types/user"
+const EXPIRATION_TIME_REFRESH = 1000 * 60 * 60 * 24 * 7 // 7 days
+const EXPIRATION_TIME_ACCESS = 1000 * 60 * 60 * 8 // 8 hours
+// const EXPIRATION_TIME_REFRESH = 1000 * 20 // 20s
+// const EXPIRATION_TIME_ACCESS = 10 * 1000 // 10s
 
-// Token storage utilities với bảo mật cao
 export const storage = {
     // Sử dụng sessionStorage cho accessToken (tự động xóa khi đóng tab)
 
-    getCookieToken: () => {
-        const match = document.cookie.match(new RegExp("(^| )token=([^;]+)"))
+    getCookieToken: (key: string) => {
+        const match = document.cookie.match(new RegExp("(^| )" + key + "=([^;]+)"))
         if (match) {
             return match[2]
         }
         return null
     },
-    setCookieToken: (token: string) => {
-        document.cookie = `token=${token}; path=/;expires=${new Date(Date.now() + 3600 * 1000 * 24 * 7).toUTCString()}` // 7 day expiry
+    setAccessToken: (token: string) => {
+        document.cookie = `accessToken=${token}; path=/;expires=${new Date(Date.now() + EXPIRATION_TIME_ACCESS).toUTCString()}`
     },
-    removeAccessToken: () => {
-        sessionStorage.removeItem("accessToken")
-    },
+    setCookieToken: (token: { accessToken: string; refreshToken?: string | null }) => {
+        document.cookie = `accessToken=${token.accessToken}; path=/;expires=${new Date(Date.now() + EXPIRATION_TIME_ACCESS).toUTCString()}`
 
-    // Sử dụng localStorage cho refreshToken (httpOnly cookie sẽ tốt hơn trong production)
-    setRefreshToken: (token: string) => {
-        localStorage.setItem("refreshToken", token)
+        if (token.refreshToken) {
+            document.cookie = `refreshToken=${token.refreshToken}; path=/;expires=${new Date(Date.now() + EXPIRATION_TIME_REFRESH).toUTCString()}`
+        }
     },
-    getRefreshToken: (): string | null => {
-        return localStorage.getItem("refreshToken")
-    },
-    removeRefreshToken: () => {
-        localStorage.removeItem("refreshToken")
-    },
-
-    // User data trong localStorage
-    setUser: (user: User) => {
-        localStorage.setItem("user", JSON.stringify(user))
-    },
-    getUser: (): User | null => {
-        const userData = localStorage.getItem("user")
-        return userData ? JSON.parse(userData) : null
-    },
-    removeUser: () => {
-        localStorage.removeItem("user")
-    },
-    removeCookieToken: () => {
-        document.cookie = "token=; Max-Age=0; path=/;"
-    },
-
-    // Clear all tokens và user data
-    clearAll: () => {
-        storage.removeAccessToken()
-        storage.removeRefreshToken()
-        storage.removeUser()
-        storage.removeCookieToken()
+    removeAllToken: () => {
+        // Remove all tokens by setting them to expired
+        document.cookie = "accessToken=; Max-Age=0; path=/;"
+        document.cookie = "refreshToken=; Max-Age=0; path=/;"
     },
 }

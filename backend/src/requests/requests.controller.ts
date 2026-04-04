@@ -43,16 +43,19 @@ export class RequestsController {
 
   // Chỉ admin mới được xem tất cả request.
   @Get()
-  @RequirePermissions(Permission.READ_ALL_LEAVE)
-  findAll(@Query() queryRequestsDto: QueryRequestsDto) {
-    return this.requestsService.findAll(queryRequestsDto);
+  @RequirePermissions(Permission.READ_OWN_LEAVE)
+  findAll(
+    @Query() queryRequestsDto: QueryRequestsDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.requestsService.findAllAccessible(queryRequestsDto, user);
   }
 
   // Chỉ admin được xem chi tiết request theo request id.
   @Get(':id')
-  @RequirePermissions(Permission.READ_ALL_LEAVE)
-  findOne(@Param('id') id: string) {
-    return this.requestsService.findOne(id);
+  @RequirePermissions(Permission.READ_OWN_LEAVE)
+  findOne(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.requestsService.findOneAccessible(id, user);
   }
 
   @Patch(':id/resubmit-after-return')

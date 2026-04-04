@@ -6,6 +6,6 @@ export const envValidationSchema = Joi.object({
     .default('development'),
   PORT: Joi.number().default(5050),
   JWT_SECRET: Joi.string().required(),
-  JWT_EXPIRES: Joi.string().default('1d'),
+  JWT_EXPIRES: Joi.string().default('8h'),
   MONGO_URI: Joi.string().required().default('mongodb://localhost:27017/lrm'),
 });

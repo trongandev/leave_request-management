@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import type { StringValue } from 'ms';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseConfig } from '../config/database.config';
@@ -30,7 +31,7 @@ import {
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const expiresIn = (configService.get<string>('JWT_EXPIRES') ||
-          '1d') as unknown as number;
+          '8h') as StringValue;
         return {
           secret: configService.get<string>('JWT_SECRET'),
           signOptions: { expiresIn },

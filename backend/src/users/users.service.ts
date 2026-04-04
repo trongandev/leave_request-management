@@ -209,6 +209,16 @@ export class UsersService {
     }
   }
 
+  async findUserIdsByDepartment(departmentId: string): Promise<string[]> {
+    const users = await this.userModel
+      .find({ departmentId })
+      .select('_id')
+      .lean<Array<{ _id: unknown }>>()
+      .exec();
+
+    return users.map((user) => String(user._id));
+  }
+
   private async generateEmployeeId(): Promise<string> {
     const currentYear = new Date().getFullYear().toString().slice(-2);
     const birthYear = new Date().getFullYear().toString().slice(-2); // có thể thay bằng user's birth year nếu cần
@@ -347,7 +357,7 @@ export class UsersService {
       .find({ creatorId: id })
       .select('title status type createdAt values')
       .exec();
-    return { user, lb: findLB, rqUser: findRqUser };
+    return { user, lb: findLB, rq: findRqUser };
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

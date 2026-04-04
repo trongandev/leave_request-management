@@ -78,7 +78,7 @@ export const formTemplateSeed = [
     autoApprove: false,
     maxDays: 12,
     requireAttachment: false,
-    isReductible: true,
+    isReductible: false,
   },
   {
     code: 'UNPAID_LEAVE',
@@ -91,6 +91,6 @@ export const formTemplateSeed = [
     autoApprove: false,
     maxDays: 12,
     requireAttachment: false,
-    isReductible: true,
+    isReductible: false,
   },
 ];

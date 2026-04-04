@@ -4,6 +4,8 @@ import { ApprovalStepsService } from './approval-steps.service';
 import { ApprovalStep } from './approval-steps.schema';
 import { DelegationsService } from '../delegations/delegations.service';
 import { Request } from '../requests/requests.schema';
+import { LeaveBalance } from '../leave-balances/leave-balances.schema';
+import { FormTemplate } from '../form-template/form-template.schema';
 
 describe('ApprovalStepsService', () => {
   let service: ApprovalStepsService;
@@ -18,6 +20,14 @@ describe('ApprovalStepsService', () => {
         },
         {
           provide: getModelToken(Request.name),
+          useValue: {},
+        },
+        {
+          provide: getModelToken(LeaveBalance.name),
+          useValue: {},
+        },
+        {
+          provide: getModelToken(FormTemplate.name),
           useValue: {},
         },
         {

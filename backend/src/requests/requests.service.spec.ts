@@ -10,6 +10,8 @@ import { ApprovalOrchestratorService } from '../approval-steps/policies/approval
 import { ApprovalStepsService } from '../approval-steps/approval-steps.service';
 import { Request } from './requests.schema';
 import { LeaveBalance } from '../leave-balances/leave-balances.schema';
+import { FormTemplate } from '../form-template/form-template.schema';
+import { ApprovalStep } from '../approval-steps/approval-steps.schema';
 
 describe('RequestsService', () => {
   let service: RequestsService;
@@ -26,6 +28,18 @@ describe('RequestsService', () => {
           provide: getModelToken(LeaveBalance.name),
           useValue: {
             findOne: jest.fn(),
+          },
+        },
+        {
+          provide: getModelToken(FormTemplate.name),
+          useValue: {
+            findById: jest.fn(),
+          },
+        },
+        {
+          provide: getModelToken(ApprovalStep.name),
+          useValue: {
+            find: jest.fn(),
           },
         },
         {
@@ -57,5 +71,15 @@ describe('RequestsService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('should reject when endDate is before startDate', () => {
+    expect(() =>
+      (service as any).normalizeRequestValues({
+        startDate: '2026-04-04',
+        endDate: '2026-04-03',
+        totalDays: 1,
+      }),
+    ).toThrow();
   });
 });
