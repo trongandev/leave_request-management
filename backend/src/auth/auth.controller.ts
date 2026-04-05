@@ -17,6 +17,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RequirePermissions } from './decorators/permissions.decorator';
 import { Permission } from '../enum/permission.enum';
 import { getCookie } from 'src/common/utils/utils';
+import { CurrentUser } from './decorators/current-user.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -102,9 +103,9 @@ export class AuthController {
   @Post('change-password')
   @ApiOperation({ summary: 'Đổi mật khẩu (yêu cầu đăng nhập)' })
   async changePassword(
-    @Body('userId') userId: string,
     @Body('newPassword') newPassword: string,
+    @CurrentUser() user: any,
   ) {
-    return this.authService.changePassword(userId, newPassword);
+    return this.authService.changePassword(String(user?._id), newPassword);
   }
 }

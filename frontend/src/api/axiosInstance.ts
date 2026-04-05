@@ -87,7 +87,10 @@ axiosInstance.interceptors.response.use(
                 console.log(response.data.data)
 
                 // Lưu access token mới
-                storage.setCookieToken({ accessToken: newAccessToken, refreshToken: newRefreshToken })
+                storage.setCookieToken({
+                    accessToken: newAccessToken,
+                    refreshToken: newRefreshToken || refreshToken,
+                })
 
                 // Cập nhật authorization header
                 if (originalRequest.headers) {

@@ -1,11 +1,13 @@
 import {
   IsEnum,
+  IsInt,
   IsMongoId,
   IsNotEmpty,
   IsNotEmptyObject,
   IsObject,
   IsOptional,
   IsString,
+  Min,
 } from 'class-validator';
 import { RequestStatus } from 'src/enum/request-status.enum';
 
@@ -32,4 +34,9 @@ export class CreateRequestDto {
       'status không hợp lệ. Giá trị cho phép: pending, approved, returned, rejected, cancelled',
   })
   status?: RequestStatus;
+
+  @IsOptional()
+  @IsInt({ message: 'currentStepOrder phải là số nguyên' })
+  @Min(1, { message: 'currentStepOrder phải lớn hơn hoặc bằng 1' })
+  currentStepOrder?: number;
 }

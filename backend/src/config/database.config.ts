@@ -18,7 +18,7 @@ export class DatabaseConfig {
   }
 
   get JWT_EXPIRES(): string {
-    return this.configService.get<string>('JWT_EXPIRES') || '1d';
+    return this.configService.get<string>('JWT_EXPIRES') || '8h';
   }
 
   get MONGO_URI(): string {

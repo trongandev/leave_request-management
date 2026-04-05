@@ -97,7 +97,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         p.code === 'CREATE_LEAVE' ||
         p.code === 'APPROVE_LEAVE' ||
         p.code === 'REJECT_LEAVE' ||
-        p.code === 'READ_ALL_LEAVE' ||
+        p.code === 'READ_DEPARTMENT_LEAVE' ||
         p.code === 'ASSIGN_MANAGER',
     );
     await this.roleModel.updateOne(
@@ -143,19 +143,43 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       return;
     }
 
+    const findDept = await this.departmentModel.findOne({ code: 'SYS' });
+    if (!findDept) {
+      this.logger.warn('Khong tim thay department SYS, bo qua seed admin user');
+      return;
+    }
+    const currentHighestPosition = await this.positionModel
+      .findOne({}, { level: 1 })
+      .sort({ level: -1 })
+      .lean();
+
+    const adminLevel = (currentHighestPosition?.level ?? 0) + 1;
+    const adminPosition = await this.positionModel.findOneAndUpdate(
+      { name: 'SYS_ADMIN' },
+      {
+        $set: {
+          name: 'SYS_ADMIN',
+          fullName: 'System Administrator',
+          description: 'Quản trị hệ thống',
+          level: adminLevel,
+          departmentId: findDept._id.toString(),
+        },
+      },
+      { upsert: true, returnDocument: 'after' },
+    );
+
     const existingAdmin = await this.userModel.findOne({
       email: adminEmail,
     });
     if (!existingAdmin) {
       const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
-      const findDept = await this.departmentModel.findOne({ code: 'SYS' });
-
       const newUser = await this.userModel.create({
         email: adminEmail,
         password: hashedPassword,
         roleId: adminRole._id.toString(),
-        departmentId: findDept?._id.toString() || undefined,
+        departmentId: findDept._id.toString(),
+        positionId: adminPosition?._id.toString(),
         fullName: 'System Administrator',
       });
 
@@ -178,6 +202,19 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       });
 
       console.log('Đã tạo tài khoản Admin mặc định: admin@lrm.com / Admin@123');
+      return;
+    }
+
+    if (!existingAdmin.positionId && adminPosition?._id) {
+      await this.userModel.updateOne(
+        { _id: existingAdmin._id },
+        {
+          $set: {
+            positionId: adminPosition._id.toString(),
+            departmentId: findDept._id.toString(),
+          },
+        },
+      );
     }
   }
 

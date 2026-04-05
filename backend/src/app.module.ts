@@ -24,6 +24,8 @@ import { SystemSettingModule } from './system-setting/system-setting.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FormTemplateModule } from './form-template/form-template.module';
 import { RequestsModule } from './requests/requests.module';
+import { ApprovalStepsModule } from './approval-steps/approval-steps.module';
+import { DelegationsModule } from './delegations/delegations.module';
 
 @Module({
   imports: [
@@ -68,6 +70,10 @@ import { RequestsModule } from './requests/requests.module';
     FormTemplateModule,
 
     RequestsModule,
+
+    ApprovalStepsModule,
+
+    DelegationsModule,
   ],
   controllers: [AppController],
   providers: [

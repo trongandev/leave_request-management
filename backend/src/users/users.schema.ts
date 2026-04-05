@@ -16,32 +16,32 @@ import { Document } from 'mongoose';
 export class User extends Document {
   @Prop({ unique: true })
   @ApiProperty({ example: 'EMP001', description: 'Mã nhân viên' })
-  empId: string;
+  empId!: string;
 
   @Prop({ required: true })
   @ApiProperty({ example: 'Nguyễn Văn A', description: 'Full name' })
-  fullName: string;
+  fullName!: string;
 
   @Prop({ required: true, unique: true })
   @ApiProperty({
     example: 'nguyen.vana@example.com',
     description: 'Email đăng nhập (unique)',
   })
-  email: string;
+  email!: string;
 
   @Prop({ unique: true })
   @ApiProperty({
     example: '0901234567',
     description: 'Số điện thoại (unique)',
   })
-  phone: string;
+  phone!: string;
 
   @Prop({ required: true })
   @ApiProperty({
     example: 'hashedPassword123',
     description: 'Mật khẩu đã hash',
   })
-  password: string;
+  password!: string;
 
   @Prop({ type: 'ObjectId', ref: 'User' })
   @ApiProperty({
@@ -56,7 +56,7 @@ export class User extends Document {
     example: '',
     description: 'Tham chiếu tới Role',
   })
-  roleId: string;
+  roleId!: string;
 
   @Prop({ type: 'ObjectId', ref: 'Department' })
   @ApiProperty({
@@ -69,21 +69,21 @@ export class User extends Document {
   @ApiProperty({
     description: 'Hình ảnh',
   })
-  avatar: string;
+  avatar!: string;
 
   @Prop({ type: 'ObjectId', ref: 'Position' })
   @ApiProperty({
     example: '',
     description: 'Tham chiếu tới Position',
   })
-  positionId: string;
+  positionId!: string;
 
   @Prop({ default: 'male' })
   @ApiProperty({
     example: 'male',
     description: 'Giới tính',
   })
-  gender: string;
+  gender!: string;
 
   @Prop()
   @ApiProperty({
@@ -91,7 +91,7 @@ export class User extends Document {
     example: new Date(),
     description: 'Ngày sinh',
   })
-  birthDate: Date;
+  birthDate!: Date;
 
   @Prop({ required: true, default: true })
   @ApiProperty({
@@ -99,7 +99,7 @@ export class User extends Document {
     description: 'Trạng thái người dùng',
     enum: [true, false],
   })
-  status: boolean;
+  status!: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

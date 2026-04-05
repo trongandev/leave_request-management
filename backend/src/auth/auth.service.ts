@@ -69,8 +69,8 @@ export class AuthService {
       email: user.email,
       role: role?.name,
     };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '10s' });
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '20s' });
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
     return {
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -149,10 +149,27 @@ export class AuthService {
 
   // ─── CHANGE PASSWORD ─────────────────────────────────────────────────────────────
   async changePassword(userId: string, newPassword: string) {
+    if (!userId) {
+      throw new BadRequestException('Thiếu thông tin người dùng');
+    }
+
+    if (!newPassword) {
+      throw new BadRequestException('Thiếu mật khẩu mới');
+    }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await this.userModel.findByIdAndUpdate(userId, {
-      password: hashedPassword,
-    });
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      userId,
+      {
+        password: hashedPassword,
+      },
+      { new: true },
+    );
+
+    if (!updatedUser) {
+      throw new BadRequestException('Không tìm thấy người dùng');
+    }
+
     return { message: 'Đổi mật khẩu thành công' };
   }
 }

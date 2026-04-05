@@ -1,8 +1,7 @@
-// const EXPIRATION_TIME_REFRESH = 3600 * 1000 * 24 * 7 // 7 days
-// const EXPIRATION_TIME_ACCESS = 3600 * 1000 * 24 * 1 // 1 days
-
-const EXPIRATION_TIME_REFRESH = 1000 * 20 // 20s
-const EXPIRATION_TIME_ACCESS = 10 * 1000 // 10s
+const EXPIRATION_TIME_REFRESH = 1000 * 60 * 60 * 24 * 7 // 7 days
+const EXPIRATION_TIME_ACCESS = 1000 * 60 * 60 * 8 // 8 hours
+// const EXPIRATION_TIME_REFRESH = 1000 * 20 // 20s
+// const EXPIRATION_TIME_ACCESS = 10 * 1000 // 10s
 
 export const storage = {
     // Sử dụng sessionStorage cho accessToken (tự động xóa khi đóng tab)
@@ -17,9 +16,12 @@ export const storage = {
     setAccessToken: (token: string) => {
         document.cookie = `accessToken=${token}; path=/;expires=${new Date(Date.now() + EXPIRATION_TIME_ACCESS).toUTCString()}`
     },
-    setCookieToken: (token: { accessToken: string; refreshToken: string }) => {
+    setCookieToken: (token: { accessToken: string; refreshToken?: string | null }) => {
         document.cookie = `accessToken=${token.accessToken}; path=/;expires=${new Date(Date.now() + EXPIRATION_TIME_ACCESS).toUTCString()}`
-        document.cookie = `refreshToken=${token.refreshToken}; path=/;expires=${new Date(Date.now() + EXPIRATION_TIME_REFRESH).toUTCString()}`
+
+        if (token.refreshToken) {
+            document.cookie = `refreshToken=${token.refreshToken}; path=/;expires=${new Date(Date.now() + EXPIRATION_TIME_REFRESH).toUTCString()}`
+        }
     },
     removeAllToken: () => {
         // Remove all tokens by setting them to expired
