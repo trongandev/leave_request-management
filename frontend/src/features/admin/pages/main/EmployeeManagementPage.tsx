@@ -1,7 +1,8 @@
 import CSelectOptions from "@/components/etc/CSelectOptions"
+import { format } from "date-fns"
 import CAvatarProfile from "@/components/etc/CAvatarProfile"
 import { Button } from "@/components/ui/button"
-import { CirclePlus, Download, Search, X, SaveIcon, Edit, Eye, Sparkles, UserPlus } from "lucide-react"
+import { CirclePlus, Download, Search, X, SaveIcon, Edit, Eye, EyeOff, UserPlus, CalendarIcon, Sparkles } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,15 +13,19 @@ import roleService from "@/services/roleService"
 import type { User, UserResponse, RoleId } from "@/types/user"
 import type { Department, Position } from "@/types/organization"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import CTable from "@/components/etc/CTable"
 import { Switch } from "@/components/ui/switch"
 import { CBadge } from "@/components/etc/CBadgeColor"
 import { Link } from "react-router-dom"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { appConfig } from "@/config/appConfig"
+import { formatString, getFirstName, getLastDigits, normalizeForPassword } from "@/utils/format"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 
 type UserFormState = {
     fullName: string
@@ -50,8 +55,16 @@ const DEFAULT_FORM_STATE: UserFormState = {
 
 function formatBirthDateForApi(value: string) {
     if (!value) return ""
-    const [year, month, day] = value.split("-")
-    return `${day}/${month}/${year}`
+    try {
+        const date = new Date(value)
+        if (isNaN(date.getTime())) return value
+        const day = String(date.getDate()).padStart(2, "0")
+        const month = String(date.getMonth() + 1).padStart(2, "0")
+        const year = date.getFullYear()
+        return `${day}/${month}/${year}`
+    } catch {
+        return value
+    }
 }
 
 export default function EmployeeManagementPage() {
@@ -71,8 +84,95 @@ export default function EmployeeManagementPage() {
     const [selectedRole, setSelectedRole] = useState("all")
     const [isCreateOpen, setIsCreateOpen] = useState(false)
     const [isFakeOpen, setIsFakeOpen] = useState(false)
+    const [showPassword, setShowPassword] = useState(true)
     const [fakeCount, setFakeCount] = useState("1")
     const [formData, setFormData] = useState<UserFormState>(DEFAULT_FORM_STATE)
+    const [touched, setTouched] = useState<Partial<Record<keyof UserFormState, boolean>>>({})
+
+    const errors = useMemo(() => {
+        const newErrors: Partial<Record<keyof UserFormState, string>> = {}
+        const trimmedName = formData.fullName.trim()
+        const trimmedEmail = formData.email.trim()
+        const trimmedPhone = formData.phone.trim()
+        const trimmedPassword = formData.password.trim()
+
+        if (!trimmedName) {
+            newErrors.fullName = t("admin.employeeManagement.messages.required")
+        } else if (trimmedName.length < 2) {
+            newErrors.fullName = t("admin.employeeManagement.messages.invalidFullName")
+        } else if (!/^[\p{L}\s]+$/u.test(trimmedName)) {
+            newErrors.fullName = t("admin.employeeManagement.messages.invalidFullName")
+        }
+
+        if (!trimmedEmail) {
+            newErrors.email = t("admin.employeeManagement.messages.required")
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+            newErrors.email = t("admin.employeeManagement.messages.invalidEmail")
+        }
+
+        if (!trimmedPhone) {
+            newErrors.phone = t("admin.employeeManagement.messages.required")
+        } else if (!/^0\d{9}$/.test(trimmedPhone)) {
+            newErrors.phone = t("admin.employeeManagement.messages.invalidPhone")
+        }
+
+        if (!trimmedPassword) {
+            newErrors.password = t("admin.employeeManagement.messages.required")
+        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,32}$/.test(trimmedPassword)) {
+            newErrors.password = t("admin.employeeManagement.messages.invalidPassword")
+        }
+
+        if (!formData.birthDate) {
+            newErrors.birthDate = t("admin.employeeManagement.messages.required")
+        } else {
+            const birthDate = new Date(formData.birthDate)
+            const today = new Date()
+            if (birthDate > today) {
+                newErrors.birthDate = t("admin.employeeManagement.messages.invalidBirthDate")
+            } else {
+                let age = today.getFullYear() - birthDate.getFullYear()
+                const m = today.getMonth() - birthDate.getMonth()
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--
+                }
+                if (age < 18) {
+                    newErrors.birthDate = t("admin.employeeManagement.messages.tooYoung")
+                }
+            }
+        }
+
+        if (!formData.roleId) newErrors.roleId = t("admin.employeeManagement.messages.required")
+        if (!formData.positionId) newErrors.positionId = t("admin.employeeManagement.messages.required")
+
+        return newErrors
+    }, [formData, t])
+
+    const handleBlur = (field: keyof UserFormState) => {
+        setTouched((prev) => ({ ...prev, [field]: true }))
+        if (field === "fullName") {
+            setFormData((prev) => ({
+                ...prev,
+                fullName: formatString(prev.fullName, "title"),
+            }))
+        }
+    }
+
+    const generateDefaultPassword = () => {
+        const trimmedPhone = formData.phone.trim()
+        const trimmedName = formData.fullName.trim()
+        if (!trimmedName || trimmedPhone.length < 4) {
+            toast.error(t("admin.employeeManagement.messages.required"))
+            return
+        }
+
+        const firstName = getFirstName(trimmedName)
+        const normalizedFirstName = formatString(normalizeForPassword(firstName), "title")
+        const lastDigits = getLastDigits(trimmedPhone, 4)
+
+        setFormData((prev) => ({ ...prev, password: `${normalizedFirstName}@${lastDigits}` }))
+        setTouched((prev) => ({ ...prev, password: true }))
+    }
+
     const { data, isLoading } = useQuery<UserResponse>({
         queryKey: ["employees", page, search, selectedDepartment, selectedRole],
         queryFn: () =>
@@ -96,9 +196,25 @@ export default function EmployeeManagementPage() {
         queryFn: () => roleService.getAll(),
     })
     const [adjustEmp, setAdjustEmp] = useState<User | null>(null)
-    const positionFormOptions = (positionsOptions?.data ?? []).filter((position: Position) =>
-        formData.departmentId ? position.departmentId?._id === formData.departmentId : true,
-    )
+    const allPositions = positionsOptions?.data ?? []
+
+    const getDepartmentFromPosition = (pos: Position) => {
+        const deptField = pos?.departmentId as unknown
+        if (!deptField) return { id: "", name: "" }
+        if (typeof deptField === "string") {
+            const dept = departmentsOptions?.data?.find((d: Department) => d._id === deptField)
+            return { id: deptField, name: dept?.originName ?? "" }
+        }
+        const deptObj = deptField as Department
+        return { id: deptObj._id, name: deptObj.originName }
+    }
+
+    const selectedPositionDepartmentName = useMemo(() => {
+        if (!formData.positionId) return ""
+        const pos = allPositions.find((p: Position) => p._id === formData.positionId)
+        if (!pos) return ""
+        return getDepartmentFromPosition(pos).name
+    }, [formData.positionId, allPositions, departmentsOptions])
 
     const columns = [
         t("admin.employeeManagement.table.employee"),
@@ -111,6 +227,7 @@ export default function EmployeeManagementPage() {
 
     const resetCreateForm = () => {
         setFormData(DEFAULT_FORM_STATE)
+        setTouched({})
     }
 
     const { mutate: createUser, isPending: isCreatingUser } = useMutation({
@@ -147,47 +264,28 @@ export default function EmployeeManagementPage() {
     }
 
     const handleCreateUser = () => {
-        const trimmedName = formData.fullName.trim()
-        const trimmedEmail = formData.email.trim()
-        const trimmedPhone = formData.phone.trim()
-        const trimmedPassword = formData.password.trim()
-
-        if (!trimmedName || !trimmedEmail || !trimmedPhone || !trimmedPassword || !formData.birthDate || !formData.roleId || !formData.departmentId || !formData.positionId) {
+        if (Object.keys(errors).length > 0) {
+            // Mark all as touched to show all errors
+            const allTouched: Partial<Record<keyof UserFormState, boolean>> = {}
+            Object.keys(DEFAULT_FORM_STATE).forEach((key) => {
+                allTouched[key as keyof UserFormState] = true
+            })
+            setTouched(allTouched)
             toast.error(t("admin.employeeManagement.messages.required"))
             return
         }
 
-        if (!/^[\p{L}\s]+$/u.test(trimmedName)) {
-            toast.error(t("admin.employeeManagement.messages.invalidFullName"))
-            return
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-            toast.error(t("admin.employeeManagement.messages.invalidEmail"))
-            return
-        }
-
-        if (!/^0\d{9}$/.test(trimmedPhone)) {
-            toast.error(t("admin.employeeManagement.messages.invalidPhone"))
-            return
-        }
-
-        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,32}$/.test(trimmedPassword)) {
-            toast.error(t("admin.employeeManagement.messages.invalidPassword"))
-            return
-        }
-
         createUser({
-            phone: trimmedPhone,
-            email: trimmedEmail,
-            password: trimmedPassword,
-            fullName: trimmedName,
+            phone: formData.phone.trim(),
+            email: formData.email.trim(),
+            password: formData.password.trim(),
+            fullName: formData.fullName.trim(),
             birthDate: formatBirthDateForApi(formData.birthDate),
             gender: formData.gender,
             avatar: formData.avatar.trim() || undefined,
-            roleId: formData.roleId,
-            departmentId: formData.departmentId,
-            positionId: formData.positionId,
+            roleId: formData.roleId || undefined,
+            departmentId: formData.departmentId || undefined,
+            positionId: formData.positionId || undefined,
         })
     }
 
@@ -453,36 +551,131 @@ export default function EmployeeManagementPage() {
                     <div className="grid gap-4 py-2">
                         <div className="grid gap-2">
                             <Label htmlFor="create-full-name">{t("admin.employeeManagement.createDialog.fields.fullName")}</Label>
-                            <Input id="create-full-name" value={formData.fullName} onChange={(event) => setFormData((current) => ({ ...current, fullName: event.target.value }))} />
+                            <Input
+                                id="create-full-name"
+                                value={formData.fullName}
+                                onChange={(event) => {
+                                    const val = event.target.value
+                                    if (val === "" || /^[\p{L}\s]+$/u.test(val)) {
+                                        setFormData((current) => ({ ...current, fullName: val }))
+                                    }
+                                }}
+                                onBlur={() => handleBlur("fullName")}
+                                className={`${errors.fullName && touched.fullName ? "border-red-500 animate-shake" : ""}`}
+                            />
+                            {errors.fullName && touched.fullName && <p className="text-xs text-red-500">{errors.fullName}</p>}
                         </div>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="create-email">{t("admin.employeeManagement.createDialog.fields.email")}</Label>
-                                <Input id="create-email" type="email" value={formData.email} onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))} />
+                                <Input
+                                    id="create-email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))}
+                                    onBlur={() => handleBlur("email")}
+                                    className={`${errors.email && touched.email ? "border-red-500 animate-shake" : ""}`}
+                                />
+                                {errors.email && touched.email && <p className="text-xs text-red-500">{errors.email}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="create-phone">{t("admin.employeeManagement.createDialog.fields.phone")}</Label>
-                                <Input id="create-phone" value={formData.phone} onChange={(event) => setFormData((current) => ({ ...current, phone: event.target.value }))} />
+                                <Input
+                                    id="create-phone"
+                                    value={formData.phone}
+                                    onChange={(event) => {
+                                        const val = event.target.value
+                                        if (val === "" || /^[0-9]+$/.test(val)) {
+                                            setFormData((current) => ({ ...current, phone: val }))
+                                        }
+                                    }}
+                                    onBlur={() => handleBlur("phone")}
+                                    className={`${errors.phone && touched.phone ? "border-red-500 animate-shake" : ""}`}
+                                />
+                                {errors.phone && touched.phone && <p className="text-xs text-red-500">{errors.phone}</p>}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">
-                                <Label htmlFor="create-password">{t("admin.employeeManagement.createDialog.fields.password")}</Label>
-                                <Input
-                                    id="create-password"
-                                    type="password"
-                                    value={formData.password}
-                                    onChange={(event) => setFormData((current) => ({ ...current, password: event.target.value }))}
-                                />
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="create-password">{t("admin.employeeManagement.createDialog.fields.password")}</Label>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <button
+                                                    type="button"
+                                                    onClick={generateDefaultPassword}
+                                                    className="text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-help"
+                                                >
+                                                    {t("admin.employeeManagement.createDialog.placeholders.useDefaultPassword")}
+                                                </button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                {t("admin.employeeManagement.createDialog.placeholders.useDefaultPasswordTooltip")}
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </div>
+                                <div className="relative">
+                                    <Input
+                                        id="create-password"
+                                        type={showPassword ? "text" : "password"}
+                                        value={formData.password}
+                                        onChange={(event) => setFormData((current) => ({ ...current, password: event.target.value }))}
+                                        onBlur={() => handleBlur("password")}
+                                        className={`pr-10 ${errors.password && touched.password ? "border-red-500 animate-shake" : ""}`}
+                                    />
+                                    <div className="absolute right-0 top-0 flex h-full items-center pr-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-secondary"
+                                        >
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                {errors.password && touched.password && <p className="text-xs text-red-500">{errors.password}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="create-birth-date">{t("admin.employeeManagement.createDialog.fields.birthDate")}</Label>
-                                <Input
-                                    id="create-birth-date"
-                                    type="date"
-                                    value={formData.birthDate}
-                                    onChange={(event) => setFormData((current) => ({ ...current, birthDate: event.target.value }))}
-                                />
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={`${
+                                                errors.birthDate && touched.birthDate ? "border-red-500 animate-shake" : ""
+                                            } w-full h-12 justify-start text-left font-normal`}
+                                            onBlur={() => handleBlur("birthDate")}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {formData.birthDate ? (
+                                                format(new Date(formData.birthDate), "dd/MM/yyyy")
+                                            ) : (
+                                                <span>{t("admin.employeeManagement.createDialog.fields.birthDate")}</span>
+                                            )}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={formData.birthDate ? new Date(formData.birthDate) : undefined}
+                                            onSelect={(date) => {
+                                                if (date) {
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        birthDate: date.toISOString(),
+                                                    }))
+                                                    handleBlur("birthDate")
+                                                }
+                                            }}
+                                            fromYear={1900}
+                                            toYear={new Date().getFullYear()}
+                                            captionLayout="dropdown"
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                {errors.birthDate && touched.birthDate && <p className="text-xs text-red-500">{errors.birthDate}</p>}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -518,36 +711,45 @@ export default function EmployeeManagementPage() {
                                     valueKey="_id"
                                     displayKey="name"
                                     value={formData.roleId}
-                                    onChange={(value) => setFormData((current) => ({ ...current, roleId: value }))}
+                                    onChange={(value) => {
+                                        setFormData((current) => ({ ...current, roleId: value }))
+                                        handleBlur("roleId")
+                                    }}
+                                    className={`${errors.roleId && touched.roleId ? "border-red-500 animate-shake" : ""}`}
                                     placeholder={t("admin.employeeManagement.createDialog.placeholders.role")}
                                 />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label>{t("admin.employeeManagement.createDialog.fields.department")}</Label>
-                                <CSelectOptions
-                                    data={departmentsOptions?.data ?? []}
-                                    valueKey="_id"
-                                    displayKey="originName"
-                                    value={formData.departmentId}
-                                    onChange={(value) =>
-                                        setFormData((current) => ({
-                                            ...current,
-                                            departmentId: value,
-                                            positionId: "",
-                                        }))
-                                    }
-                                    placeholder={t("admin.employeeManagement.createDialog.placeholders.department")}
-                                />
+                                {errors.roleId && touched.roleId && <p className="text-xs text-red-500">{errors.roleId}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label>{t("admin.employeeManagement.createDialog.fields.position")}</Label>
                                 <CSelectOptions
-                                    data={positionFormOptions}
+                                    data={allPositions}
                                     valueKey="_id"
                                     displayKey="fullName"
                                     value={formData.positionId}
-                                    onChange={(value) => setFormData((current) => ({ ...current, positionId: value }))}
+                                    onChange={(value) => {
+                                        const pos = allPositions.find((p: Position) => p._id === value)
+                                        const dept = pos ? getDepartmentFromPosition(pos) : { id: "" }
+                                        setFormData((current) => ({
+                                            ...current,
+                                            positionId: value,
+                                            departmentId: dept.id,
+                                        }))
+                                        handleBlur("positionId")
+                                    }}
+                                    className={`${errors.positionId && touched.positionId ? "border-red-500 animate-shake" : ""}`}
                                     placeholder={t("admin.employeeManagement.createDialog.placeholders.position")}
+                                />
+                                {errors.positionId && touched.positionId && <p className="text-xs text-red-500">{errors.positionId}</p>}
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>{t("admin.employeeManagement.createDialog.fields.department")}</Label>
+                                <Input
+                                    value={selectedPositionDepartmentName}
+                                    readOnly
+                                    onChange={() => {}}
+                                    className="bg-muted cursor-not-allowed"
+                                    placeholder={t("admin.employeeManagement.createDialog.placeholders.department")}
                                 />
                             </div>
                         </div>
