@@ -1,21 +1,21 @@
-import { Button } from "@/components/ui/button"
-import { useAuthStore } from "@/store/useAuthStore"
-import { KeyRoundIcon, LockIcon, MailIcon, VerifiedIcon, GlobeIcon } from "lucide-react"
-import { useFormik } from "formik"
-import * as Yup from "yup"
-import InputField from "@/components/etc/InputField"
-import authService from "@/services/authService"
-import { toast } from "sonner"
-import { useLocation, useNavigate } from "react-router-dom"
-import { storage } from "@/utils/storage"
-import { useTranslation } from "react-i18next"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/useAuthStore";
+import { KeyRoundIcon, LockIcon, MailIcon, VerifiedIcon, GlobeIcon } from "lucide-react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import InputField from "@/components/etc/InputField";
+import authService from "@/services/authService";
+import { toast } from "sonner";
+import { useLocation, useNavigate } from "react-router-dom";
+import { storage } from "@/utils/storage";
+import { useTranslation } from "react-i18next";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function LoginPage() {
-    const { t, i18n } = useTranslation()
-    const { setUser, setLeaveBalance } = useAuthStore()
-    const location = useLocation()
-    const navigate = useNavigate()
+    const { t, i18n } = useTranslation();
+    const { setUser } = useAuthStore();
+    const location = useLocation();
+    const navigate = useNavigate();
     const formik = useFormik({
         initialValues: {
             email: "",
@@ -26,35 +26,35 @@ export default function LoginPage() {
             password: Yup.string().min(6, t("auth.login.passwordMin")).required(t("auth.login.passwordRequired")),
         }),
         onSubmit: async (values) => {
-            await handleLogin(values)
+            await handleLogin(values);
         },
-    })
+    });
 
     const handleLogin = async (values: { email: string; password: string }) => {
         try {
-            const res = await authService.login(values)
+            const res = await authService.login(values);
             if (res.success) {
-                setUser(res.data.user, res.data.lb)
-                storage.setCookieToken(res.data)
-                toast.success(t("auth.login.success"))
+                setUser(res.data.user, res.data.lb);
+                storage.setCookieToken(res.data);
+                toast.success(t("auth.login.success"));
                 if (location.state?.from) {
-                    navigate(location.state.from.pathname)
+                    navigate(location.state.from.pathname);
                 } else {
-                    navigate("/")
+                    navigate("/");
                 }
             }
         } catch (error: any) {
-            console.log(error)
+            console.log(error);
             toast.error(t("auth.login.failed"), {
                 description: error?.response?.data?.message,
-            })
+            });
         }
         // if (res.success) {
         //     toast.success("Đăng nhập thành công")
         // } else {
         //     toast.error("Đăng nhập thất bại")
         // }
-    }
+    };
 
     return (
         <div className="flex w-full h-screen overflow-hidden bg-card shadow-2xl ">
@@ -192,5 +192,5 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
