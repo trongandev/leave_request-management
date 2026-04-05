@@ -14,6 +14,8 @@ import { User } from '../users/users.schema';
 
 @Injectable()
 export class DelegationsService {
+  // Delegation module centralizes "act on behalf" rules for approval steps.
+  // Approval module should call this service instead of duplicating date/type checks.
   private readonly MANAGER_MIN_LEVEL = 3;
 
   constructor(
@@ -145,6 +147,8 @@ export class DelegationsService {
     typeCode?: string,
     atDate: Date = new Date(),
   ): Promise<string[]> {
+    // Return owners that currently delegate to this user.
+    // Used to expand approver inbox and action permission checks.
     const query = this.buildActiveDelegationQuery({
       toUserId,
       typeCode,
@@ -166,6 +170,7 @@ export class DelegationsService {
     typeCode?: string,
     atDate: Date = new Date(),
   ): Promise<boolean> {
+    // Fast-path: owner always can act on own step even without delegation.
     if (fromUserId === actorUserId) {
       return true;
     }
@@ -191,6 +196,7 @@ export class DelegationsService {
     typeCode?: string;
     atDate: Date;
   }): Record<string, any> {
+    // Effective delegation means: active flag + in date range + matching type scope.
     const query: Record<string, any> = {
       isActive: true,
       startDate: { $lte: params.atDate },
@@ -249,6 +255,7 @@ export class DelegationsService {
     fromUserId: string,
     toUserId: string,
   ): Promise<void> {
+    // Prevent upward bypass: delegatee must be managerial and at least the required hierarchy level.
     const [fromUser, toUser] = await Promise.all([
       this.getUserHierarchyProfile(fromUserId),
       this.getUserHierarchyProfile(toUserId),

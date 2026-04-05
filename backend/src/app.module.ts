@@ -26,6 +26,8 @@ import { FormTemplateModule } from './form-template/form-template.module';
 import { RequestsModule } from './requests/requests.module';
 import { ApprovalStepsModule } from './approval-steps/approval-steps.module';
 import { DelegationsModule } from './delegations/delegations.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { AuditLogsModule } from './audit-logs/audit-logs.module';
 
 @Module({
   imports: [
@@ -74,6 +76,10 @@ import { DelegationsModule } from './delegations/delegations.module';
     ApprovalStepsModule,
 
     DelegationsModule,
+
+    NotificationsModule,
+
+    AuditLogsModule,
   ],
   controllers: [AppController],
   providers: [

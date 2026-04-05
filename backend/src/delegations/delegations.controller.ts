@@ -19,12 +19,14 @@ import { Permission } from '../enum/permission.enum';
 export class DelegationsController {
   constructor(private readonly delegationsService: DelegationsService) {}
 
+  // Create a delegation window so delegatee can act on approver's steps.
   @Post()
   @RequirePermissions(Permission.FORWARD_LEAVE)
   create(@Body() createDelegationDto: CreateDelegationDto) {
     return this.delegationsService.create(createDelegationDto);
   }
 
+  // Query delegation records by owner/delegatee/date/type scope.
   @Get()
   @RequirePermissions(Permission.READ_ALL_LEAVE)
   findAll(@Query() queryDelegationDto: QueryDelegationDto) {

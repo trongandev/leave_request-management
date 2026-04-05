@@ -30,6 +30,11 @@ type RequestActor = {
 
 @Injectable()
 export class RequestsService {
+  // Responsibilities:
+  // 1) Validate/normalize payload when requester submits a request.
+  // 2) Resolve approval routing plan and create approval steps.
+  // 3) Enforce access scope for list/detail (admin, department, approver-assigned, self).
+  // 4) Guard leave-balance rules before submit and deduct only when request is actually approved.
   constructor(
     @InjectModel(Request.name)
     private readonly requestModel: Model<Request>,
@@ -171,6 +176,7 @@ export class RequestsService {
   }
 
   async findAllAccessible(queryRequestsDto: QueryRequestsDto, user: any) {
+    // Route-level guard checks permission existence; this method applies data scope.
     const filter = await this.buildAccessibleFilter(queryRequestsDto, user);
 
     return paginate(this.requestModel, queryRequestsDto, filter, {
@@ -244,6 +250,11 @@ export class RequestsService {
     queryRequestsDto: QueryRequestsDto | undefined,
     user: any,
   ): Promise<Record<string, any>> {
+    // Access priority:
+    // - ADMIN / READ_ALL_LEAVE: global data.
+    // - READ_DEPARTMENT_LEAVE: creators in same department.
+    // - Approver permissions: include requests where current user is assigned approver/delegate.
+    // - Fallback: own requests only.
     const baseFilter = this.buildRequestFilter(queryRequestsDto);
 
     if (!user?._id) {
@@ -319,6 +330,8 @@ export class RequestsService {
   private async findPendingRequestIdsForApprover(
     approverId: string,
   ): Promise<string[]> {
+    // Keep request-list visibility aligned with approval inbox visibility.
+    // If a user can act on a pending/delegated step, they should also be able to read that request.
     const steps = await this.approvalStepModel
       .find({
         $or: [
@@ -645,6 +658,7 @@ export class RequestsService {
     formTemplateId: string,
     values?: Record<string, unknown>,
   ): Promise<void> {
+    // Pre-submit balance validation only. Actual deduction happens after request is fully approved.
     if (
       !(await this.shouldValidateLeaveBalance(requestTypeCode, formTemplateId))
     ) {
@@ -678,6 +692,7 @@ export class RequestsService {
   }
 
   private async deductLeaveBalanceIfNeeded(request: Request): Promise<void> {
+    // Post-approval deduction to avoid consuming leave for requests that are still pending/returned.
     const shouldDeduct = await this.shouldValidateLeaveBalance(
       String(request.code),
       String(request.formTemplateId),

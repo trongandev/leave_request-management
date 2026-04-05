@@ -41,7 +41,11 @@ export class RequestsController {
     return this.requestsService.findAll(selfQuery);
   }
 
-  // Chỉ admin mới được xem tất cả request.
+  // Scope-aware listing:
+  // - ADMIN: all requests
+  // - Department-level permission: requests created by users in same department
+  // - Approver/delegate: requests currently assigned to them in approval steps
+  // - Default: own requests
   @Get()
   @RequirePermissions(Permission.READ_OWN_LEAVE)
   findAll(
@@ -51,7 +55,7 @@ export class RequestsController {
     return this.requestsService.findAllAccessible(queryRequestsDto, user);
   }
 
-  // Chỉ admin được xem chi tiết request theo request id.
+  // Detail endpoint follows the same scope rules as list endpoint.
   @Get(':id')
   @RequirePermissions(Permission.READ_OWN_LEAVE)
   findOne(@Param('id') id: string, @CurrentUser() user: any) {
