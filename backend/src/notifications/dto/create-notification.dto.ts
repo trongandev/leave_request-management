@@ -1,0 +1,41 @@
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+
+export class CreateNotificationDto {
+  @IsString({ message: 'recipientId must be a string' })
+  @IsNotEmpty({ message: 'recipientId is required' })
+  recipientId!: string;
+
+  @IsString({ message: 'senderId must be a string' })
+  @IsNotEmpty({ message: 'senderId is required' })
+  senderId!: string;
+
+  @IsString({ message: 'type must be a string' })
+  @IsNotEmpty({ message: 'type is required' })
+  type!: string;
+
+  @IsString({ message: 'title must be a string' })
+  @IsNotEmpty({ message: 'title is required' })
+  title!: string;
+
+  @IsString({ message: 'content must be a string' })
+  @IsNotEmpty({ message: 'content is required' })
+  content!: string;
+
+  @IsOptional()
+  @IsString({ message: 'link must be a string' })
+  link?: string;
+
+  @IsOptional()
+  @IsBoolean({ message: 'isRead must be a boolean' })
+  isRead?: boolean;
+
+  @IsOptional()
+  @IsObject({ message: 'metadata must be an object' })
+  metadata?: Record<string, unknown>;
+}

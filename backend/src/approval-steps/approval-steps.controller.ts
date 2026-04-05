@@ -37,6 +37,7 @@ export class ApprovalStepsController {
     @CurrentUser() user: any,
     @Query() query: QueryPendingApprovalStepsDto,
   ) {
+    // This endpoint is the canonical inbox for approvers/delegates.
     return this.approvalStepsService.findPendingForApprover(user._id, query);
   }
 
@@ -44,6 +45,7 @@ export class ApprovalStepsController {
   @Get('request/:requestId')
   @RequirePermissions(Permission.READ_ALL_LEAVE)
   async getByRequestId(@Param('requestId') requestId: string) {
+    // Used by detail screen/audit view to explain approval timeline.
     return this.approvalStepsService.findByRequestId(requestId);
   }
 

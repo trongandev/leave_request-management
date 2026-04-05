@@ -33,6 +33,9 @@ type RequestActor = {
 
 @Injectable()
 export class ApprovalStepsService {
+  // This service is the approval-state engine.
+  // Each action (approve/reject/return/delegate) updates both step state and request aggregate state.
+  // Request status should never be manually changed elsewhere without syncing this state machine.
   private readonly UNASSIGNED_STEP_LABEL = 'UNASSIGNED_TIMEOUT_RETURN';
 
   constructor(
@@ -86,6 +89,10 @@ export class ApprovalStepsService {
     approverId: string,
     query?: QueryPendingApprovalStepsDto,
   ): Promise<ApprovalStep[]> {
+    // Approver inbox includes:
+    // - direct assignment (originalApproverId)
+    // - parallel/group assignment (groupId)
+    // - delegated assignment (actualApproverId)
     const delegatedFromUserIds =
       await this.delegationsService.findDelegatorsByDelegatee(
         approverId,
@@ -430,6 +437,10 @@ export class ApprovalStepsService {
   }
 
   private async syncRequestStatus(requestId: string): Promise<void> {
+    // Priority rule:
+    // rejected/returned step => request returned;
+    // no active steps => request approved;
+    // otherwise request pending at the smallest active stepOrder.
     const steps = await this.approvalStepModel
       .find({ requestId })
       .sort({ stepOrder: 1 })
@@ -540,6 +551,7 @@ export class ApprovalStepsService {
   }
 
   private async deductLeaveBalanceIfNeeded(request: Request): Promise<void> {
+    // Deduct after full approval, using final request payload (totalDays/amount).
     if (!(await this.shouldDeductLeaveBalance(request))) {
       return;
     }
@@ -579,6 +591,7 @@ export class ApprovalStepsService {
     step: ApprovalStep,
     actorId: string,
   ): Promise<void> {
+    // For parallel steps with requiredAll = false, one approval can close the whole group.
     const groupMatcher = this.buildParallelGroupMatcher(step);
 
     if (!groupMatcher || step.requiredAll) {
@@ -660,6 +673,11 @@ export class ApprovalStepsService {
     step: ApprovalStep,
     actor: RequestActor,
   ): Promise<boolean> {
+    // Access rule for approval actions:
+    // - ADMIN always allowed
+    // - requester is never allowed to handle their own step
+    // - assigned/group/delegated actors are allowed
+    // - active delegation relationship can also grant permission
     if (!actor?._id) {
       return false;
     }
