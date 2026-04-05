@@ -12,6 +12,20 @@ type GetAllUsersParams = {
     location?: string
 }
 
+export type CreateUserPayload = {
+    phone: string
+    email: string
+    password: string
+    fullName: string
+    birthDate: string
+    gender?: string
+    avatar?: string
+    roleId?: string
+    roleName?: string
+    departmentId?: string
+    positionId?: string
+}
+
 class UserService {
     async getAllUsers({ page = 1, limit = 10, search, departmentCode, roleName, leaveType, location }: GetAllUsersParams) {
         const params = new URLSearchParams()
@@ -35,6 +49,16 @@ class UserService {
 
     async getTeamMembers() {
         const response = await axiosInstance.get<APIResponse<User[]>>(`/users/teams`)
+        return response.data.data
+    }
+
+    async create(payload: CreateUserPayload) {
+        const response = await axiosInstance.post<APIResponse<User>>("/users", payload)
+        return response.data.data
+    }
+
+    async createFakeUsers(count: number) {
+        const response = await axiosInstance.post<APIResponse<User[]>>(`/users/fake?count=${count}`)
         return response.data.data
     }
 
