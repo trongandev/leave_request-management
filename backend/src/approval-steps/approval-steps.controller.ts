@@ -25,7 +25,7 @@ export class ApprovalStepsController {
 
   // Get all approval steps
   @Get()
-  @RequirePermissions(Permission.READ_ALL_LEAVE)
+  @RequirePermissions(Permission.READ_OWN_LEAVE)
   findAll() {
     return this.approvalStepsService.findAll();
   }
