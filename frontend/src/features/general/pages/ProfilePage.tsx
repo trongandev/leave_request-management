@@ -1,29 +1,29 @@
-import CAvatarName from "@/components/etc/CAvatarName"
-import { useTranslation } from "react-i18next"
-import CAvatarProfile from "@/components/etc/CAvatarProfile"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { useAuthStore } from "@/store/useAuthStore"
-import { CalendarDaysIcon, ChevronRight, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react"
-import dayjs from "dayjs"
-import { useQuery } from "@tanstack/react-query"
-import LoadingUI from "@/components/etc/LoadingUI"
-import CTable from "@/components/etc/CTable"
-import { format } from "date-fns"
-import requestService from "@/services/requestService"
+import CAvatarName from "@/components/etc/CAvatarName";
+import { useTranslation } from "react-i18next";
+import CAvatarProfile from "@/components/etc/CAvatarProfile";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useAuthStore } from "@/store/useAuthStore";
+import { CalendarDaysIcon, ChevronRight, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react";
+import dayjs from "dayjs";
+import { useQuery } from "@tanstack/react-query";
+import LoadingUI from "@/components/etc/LoadingUI";
+import CTable from "@/components/etc/CTable";
+import { format } from "date-fns";
+import requestService from "@/services/requestService";
 
 export default function ProfilePage() {
-    const { t } = useTranslation()
-    const { user, lb } = useAuthStore()
+    const { t } = useTranslation();
+    const { user, lb } = useAuthStore();
     const { data, isLoading } = useQuery({
         queryKey: ["request" + user?._id],
         queryFn: () => requestService.getRequestProfile({}),
-    })
+    });
 
     if (isLoading) {
-        return <LoadingUI />
+        return <LoadingUI />;
     }
-    const columns = ["TYPE", "DATE", "DURATION", "STATUS"]
+    const columns = ["TYPE", "DATE", "DURATION", "STATUS"];
 
     return (
         <main className="max-w-7xl mx-auto w-full px-8 py-8 ">
@@ -102,7 +102,7 @@ export default function ProfilePage() {
                             <Card>
                                 <CardContent>
                                     <h4 className="font-bold text-slate-900 dark:text-white mb-3">{t("general.profile.details.lineManager")}</h4>
-                                    {user?.managerId ? <CAvatarName user={user?.managerId} /> : <div className="text-xs text-foreground">No line manager assigned</div>}
+                                    {user?.managerId ? <CAvatarName isLinkActiveAnother user={user?.managerId} /> : <div className="text-xs text-foreground">No line manager assigned</div>}
                                 </CardContent>
                             </Card>
                             <Card>
@@ -137,8 +137,7 @@ export default function ProfilePage() {
                                         <div className="w-full h-2 bg-secondary-foreground/20 rounded-full overflow-hidden relative  ">
                                             <div
                                                 className="absolute bg-primary z-10 w-full h-full rounded-full transition-all duration-500 min-w-0"
-                                                style={{ transform: `translateX(${-(1 - (lb?.remainingDays || 0) / (lb?.totalDays || 12)) * 100}%)` }}
-                                            ></div>
+                                                style={{ transform: `translateX(${-(1 - (lb?.remainingDays || 0) / (lb?.totalDays || 12)) * 100}%)` }}></div>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -168,15 +167,15 @@ export default function ProfilePage() {
                                             )}
 
                                             {(() => {
-                                                const start = dayjs(request?.values?.startDate)
-                                                const end = dayjs(request?.values?.endDate)
-                                                const durationDays = start.isValid() && end.isValid() ? Math.max(end.diff(start, "day") + 1, 0) : 0
+                                                const start = dayjs(request?.values?.startDate);
+                                                const end = dayjs(request?.values?.endDate);
+                                                const durationDays = start.isValid() && end.isValid() ? Math.max(end.diff(start, "day") + 1, 0) : 0;
 
                                                 return (
                                                     <td className="px-4 py-4 text-slate-500">
                                                         {durationDays} {durationDays > 1 ? "days" : "day"}
                                                     </td>
-                                                )
+                                                );
                                             })()}
                                             <td className="px-4 py-4">
                                                 <span className="px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold uppercase">
@@ -191,5 +190,5 @@ export default function ProfilePage() {
                 </Card>
             </div>
         </main>
-    )
+    );
 }
