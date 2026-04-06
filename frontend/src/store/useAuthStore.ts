@@ -24,7 +24,6 @@ export const useAuthStore = create<UserState>((set) => ({
     loadProfile: async () => {
         try {
             const user = await authService.getProfile()
-            console.log(user)
             set({ user: user.user, isAuthenticated: true, isLoading: false, lb: user.lb })
         } catch (error) {
             console.error("Failed to load profile:", error)
