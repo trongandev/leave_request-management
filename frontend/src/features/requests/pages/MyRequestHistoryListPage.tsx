@@ -119,9 +119,11 @@ export default function MyRequestHistoryListPage() {
                                         <Eye />
                                     </Button>
                                 </Link>
-                                <Button variant={"ghost"}>
-                                    <Edit />
-                                </Button>
+                                <Link to={`/employee/view-detail-request/${request._id}/edit`}>
+                                    <Button variant={"ghost"}>
+                                        <Edit />
+                                    </Button>
+                                </Link>
                             </td>
                         </tr>
                     ))}

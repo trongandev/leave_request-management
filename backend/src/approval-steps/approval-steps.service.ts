@@ -319,9 +319,63 @@ export class ApprovalStepsService {
   }
 
   // Get all approval steps by request ID
-  async findByRequestId(requestId: string): Promise<ApprovalStep[]> {
+  async findByRequestId(requestId: string): Promise<ApprovalStep | null> {
     return this.approvalStepModel
-      .find({ requestId })
+      .findOne({ requestId })
+      .populate([
+        {
+          path: 'originalApproverId',
+          select: '_id name email avatar fullName positionId departmentId',
+          populate: [
+            {
+              path: 'positionId',
+              select: '_id name fullName description',
+            },
+            {
+              path: 'departmentId',
+              select: '_id name originName',
+            },
+          ],
+        },
+        {
+          path: 'actualApproverId',
+          select: '_id name email avatar fullName positionId departmentId',
+          populate: [
+            {
+              path: 'positionId',
+              select: '_id name fullName description',
+            },
+            {
+              path: 'departmentId',
+              select: '_id name originName',
+            },
+          ],
+        },
+        {
+          path: 'requestId',
+          select: '_id title code creatorId values formTemplateId',
+          populate: [
+            {
+              path: 'creatorId',
+              select: '_id name email avatar fullName positionId departmentId',
+              populate: [
+                {
+                  path: 'positionId',
+                  select: '_id name fullName description',
+                },
+                {
+                  path: 'departmentId',
+                  select: '_id name originName',
+                },
+              ],
+            },
+            {
+              path: 'formTemplateId',
+              // select: '_id name code values',
+            },
+          ],
+        },
+      ])
       .sort({ stepOrder: 1 })
       .exec();
   }

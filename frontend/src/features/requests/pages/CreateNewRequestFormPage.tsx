@@ -47,6 +47,11 @@ export default function CreateNewRequestFormPage() {
                                     </div>
                                 </Link>
                             ))}
+                        {data?.data?.length == 0 && (
+                            <div className="h-100 col-span-full">
+                                <div className="flex items-center justify-center text-gray-600 h-full">No data available...</div>
+                            </div>
+                        )}
                     </div>
                 </section>
             </div>

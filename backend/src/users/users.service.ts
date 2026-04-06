@@ -410,9 +410,29 @@ export class UsersService {
 
   async getTeamMembers(user: any) {
     let managerId: any;
-
-    if (!user.managerId._id && user.roleId?.name === 'MANAGER') {
-      managerId = user._id;
+    // console.log(
+    //   'userId',
+    //   user._id,
+    //   'managerIdUser',
+    //   user.managerId._id,
+    //   'roleIdUser',
+    //   user.roleId.name,
+    // );
+    if (!user?.managerId?._id && user.roleId.name === 'MANAGER') {
+      const teamMembers = await this.userModel
+        .find({ managerId: user._id })
+        .populate({
+          path: 'positionId',
+          select: 'fullName',
+        })
+        .select('empId fullName email avatar phone positionId')
+        .exec();
+      delete user.roleId.permissions;
+      return [...teamMembers, user];
+    }
+    if (user.managerId._id) {
+      managerId = user.managerId._id;
+      console.log('Manager ID:', managerId);
     } else {
       const findManagerId = await this.userModel
         .findById(user._id)
@@ -420,8 +440,9 @@ export class UsersService {
         .lean()
         .exec();
       managerId = findManagerId?.managerId || null;
+      console.log('find Manager:', managerId);
     }
-
+    console.log(managerId, '>>>>');
     if (!managerId) {
       throw new BadRequestException('User does not have a managerId');
     }
@@ -433,7 +454,7 @@ export class UsersService {
       })
       .select('empId fullName email avatar phone positionId')
       .exec();
-    return teamMembers;
+    return [...teamMembers, user.managerId];
   }
 
   async assignManagerByEmpId(

@@ -32,7 +32,7 @@ export class ApprovalStepsController {
 
   // Get pending approval steps for current user
   @Get('my-pending')
-  @RequirePermissions(Permission.APPROVE_LEAVE)
+  @RequirePermissions(Permission.READ_OWN_LEAVE)
   async getMyPending(
     @CurrentUser() user: any,
     @Query() query: QueryPendingApprovalStepsDto,
@@ -43,7 +43,7 @@ export class ApprovalStepsController {
 
   // Get approval steps by request ID
   @Get('request/:requestId')
-  @RequirePermissions(Permission.READ_ALL_LEAVE)
+  @RequirePermissions(Permission.READ_OWN_LEAVE)
   async getByRequestId(@Param('requestId') requestId: string) {
     // Used by detail screen/audit view to explain approval timeline.
     return this.approvalStepsService.findByRequestId(requestId);
@@ -51,7 +51,7 @@ export class ApprovalStepsController {
 
   // Get single approval step by ID
   @Get(':id')
-  @RequirePermissions(Permission.READ_ALL_LEAVE)
+  @RequirePermissions(Permission.READ_OWN_LEAVE)
   async findOne(@Param('id') id: string) {
     return this.approvalStepsService.findById(id);
   }

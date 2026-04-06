@@ -12,16 +12,30 @@ import { Toaster } from "./components/ui/sonner.tsx"
 import { ThemeProvider } from "./contexts/themeContext.tsx"
 import { FontProvider } from "./contexts/fontContext.tsx"
 
+function getErrorMessage(error: any, fallback: string) {
+    const responseMessage = error?.response?.data?.message
+
+    if (Array.isArray(responseMessage)) {
+        return responseMessage.filter(Boolean).join(", ")
+    }
+
+    if (typeof responseMessage === "string" && responseMessage.trim()) {
+        return responseMessage
+    }
+
+    if (typeof error?.message === "string" && error.message.trim()) {
+        return error.message
+    }
+
+    return fallback
+}
+
 export const queryClient = new QueryClient({
     // Cấu hình bắt lỗi cho Query (Lấy dữ liệu)
     queryCache: new QueryCache({
         onError: (error, query) => {
-            // Chỉ hiện toast nếu query có định nghĩa meta.errorMessage
-            // Tránh việc mọi API lỗi đều bắn toast lung tung
-            console.log(error)
-            if (query.meta?.errorMessage) {
-                toast.error(query.meta.errorMessage as string)
-            }
+            const message = query.meta?.message || getErrorMessage(error, "Tải dữ liệu thất bại!")
+            toast.error(message as string)
         },
     }),
 
@@ -29,10 +43,7 @@ export const queryClient = new QueryClient({
     mutationCache: new MutationCache({
         onError: (error: any, _variables, _context, mutation) => {
             // Tự động lấy message lỗi từ API hoặc dùng message mặc định
-            const message =
-                mutation.meta?.errorMessage ||
-                error?.response?.data?.message || // Lấy message từ API
-                "Thao tác thất bại!"
+            const message = mutation.meta?.message || getErrorMessage(error, "Thao tác thất bại!")
             toast.error(message as string)
         },
     }),

@@ -70,13 +70,9 @@ function formatBirthDateForApi(value: string) {
 export default function EmployeeManagementPage() {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
-    const departmentsData = [
-        { value: "all", label: t("admin.employeeManagement.filters.allDepartments") },
-    ]
+    const departmentsData = [{ value: "all", label: t("admin.employeeManagement.filters.allDepartments") }]
 
-    const roleFilterData = [
-        { value: "all", label: t("admin.employeeManagement.filters.allRoles") },
-    ]
+    const roleFilterData = [{ value: "all", label: t("admin.employeeManagement.filters.allRoles") }]
 
     const [page, setPage] = useState(1)
     const [search, setSearch] = useState("")
@@ -469,13 +465,13 @@ export default function EmployeeManagementPage() {
                         {data?.data.map((item, index) => (
                             <tr key={index} className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
                                 <td className="py-4 px-6">
-                                    <div className="flex items-center justify-left gap-3">
+                                    <Link to={`/profile/${item._id}`} className="flex items-center justify-left gap-3">
                                         <CAvatarProfile user={item} className="h-9 w-9 ring-0" />
                                         <div className="text-left">
                                             <div className="font-medium text-neutral-900 dark:text-white">{item.fullName}</div>
                                             <div className="text-xs text-neutral-500">ID: {item.empId}</div>
                                         </div>
-                                    </div>
+                                    </Link>
                                 </td>
                                 <td className="py-4 px-6 text-center">
                                     <div className="flex justify-center">
@@ -588,9 +584,7 @@ export default function EmployeeManagementPage() {
                                                     {t("admin.employeeManagement.createDialog.placeholders.useDefaultPassword")}
                                                 </button>
                                             </TooltipTrigger>
-                                            <TooltipContent>
-                                                {t("admin.employeeManagement.createDialog.placeholders.useDefaultPasswordTooltip")}
-                                            </TooltipContent>
+                                            <TooltipContent>{t("admin.employeeManagement.createDialog.placeholders.useDefaultPasswordTooltip")}</TooltipContent>
                                         </Tooltip>
                                     </TooltipProvider>
                                 </div>
@@ -621,17 +615,11 @@ export default function EmployeeManagementPage() {
                                     <PopoverTrigger asChild>
                                         <Button
                                             variant="outline"
-                                            className={`${
-                                                errors.birthDate && touched.birthDate ? "border-red-500 animate-shake" : ""
-                                            } w-full h-12 justify-start text-left font-normal`}
+                                            className={`${errors.birthDate && touched.birthDate ? "border-red-500 animate-shake" : ""} w-full h-12 justify-start text-left font-normal`}
                                             onBlur={() => handleBlur("birthDate")}
                                         >
                                             <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {formData.birthDate ? (
-                                                format(new Date(formData.birthDate), "dd/MM/yyyy")
-                                            ) : (
-                                                <span>{t("admin.employeeManagement.createDialog.fields.birthDate")}</span>
-                                            )}
+                                            {formData.birthDate ? format(new Date(formData.birthDate), "dd/MM/yyyy") : <span>{t("admin.employeeManagement.createDialog.fields.birthDate")}</span>}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
