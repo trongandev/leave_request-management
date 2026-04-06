@@ -10,6 +10,9 @@ import {
   collection: 'requests',
 })
 export class Request extends Document {
+  @Prop({ required: true, unique: true, trim: true, immutable: true })
+  reqDisplayId!: string;
+
   @Prop({ type: 'ObjectId', ref: 'User', required: true })
   creatorId!: string;
 
@@ -38,6 +41,7 @@ export class Request extends Document {
 }
 
 export const RequestSchema = SchemaFactory.createForClass(Request);
+RequestSchema.index({ reqDisplayId: 1 }, { unique: true });
 RequestSchema.index({ creatorId: 1, createdAt: -1 });
 RequestSchema.index({ formTemplateId: 1, createdAt: -1 });
 RequestSchema.index({ status: 1, createdAt: -1 });

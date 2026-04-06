@@ -7,6 +7,9 @@ import {
 
 @Schema({ timestamps: true, collection: 'approval_steps' })
 export class ApprovalStep extends Document {
+  @Prop({ required: true, unique: true, trim: true, immutable: true })
+  apsDisplayId!: string;
+
   @Prop({ type: 'ObjectId', ref: 'Request', required: true })
   requestId!: string;
 
@@ -59,6 +62,7 @@ export class ApprovalStep extends Document {
 }
 
 export const ApprovalStepSchema = SchemaFactory.createForClass(ApprovalStep);
+ApprovalStepSchema.index({ apsDisplayId: 1 }, { unique: true });
 
 ApprovalStepSchema.index(
   { requestId: 1, stepOrder: 1, originalApproverId: 1 },

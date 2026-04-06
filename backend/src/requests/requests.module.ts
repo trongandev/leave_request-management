@@ -17,16 +17,20 @@ import {
   ApprovalStep,
   ApprovalStepSchema,
 } from '../approval-steps/approval-steps.schema';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { Counter, CounterSchema } from '../counters/counters.schema';
 
 @Module({
   imports: [
     UsersModule,
     ApprovalStepsModule,
+    NotificationsModule,
     MongooseModule.forFeature([
       { name: 'Request', schema: RequestSchema },
       { name: LeaveBalance.name, schema: LeaveBalanceSchema },
       { name: FormTemplate.name, schema: FormTemplateSchema },
       { name: ApprovalStep.name, schema: ApprovalStepSchema },
+      { name: Counter.name, schema: CounterSchema },
     ]),
   ],
   controllers: [RequestsController],

@@ -15,6 +15,7 @@ import { SystemSettingService } from '../system-setting/system-setting.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { paginate } from '../common/utils/pagination.util';
 import { Counter } from '../counters/counters.schema';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class LeaveBalancesService {
@@ -28,6 +29,7 @@ export class LeaveBalancesService {
     @InjectModel(Counter.name)
     private readonly counterModel: Model<Counter>,
     private readonly systemSettingService: SystemSettingService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   private async getNextLeaveBalanceLogId() {
@@ -141,7 +143,7 @@ export class LeaveBalancesService {
       Number(createLeaveBalanceDto.usedDays ?? 0),
     );
 
-    return this.leaveBalanceModel
+    const saved = await this.leaveBalanceModel
       .findOneAndUpdate(
         {
           userId: createLeaveBalanceDto.userId,
@@ -152,6 +154,17 @@ export class LeaveBalancesService {
       )
       .populate('userId', 'empId fullName email')
       .exec();
+
+    if (saved) {
+      // Notify user when yearly leave balance data gets initialized/updated.
+      await this.notificationsService.notifyLeaveBalanceUpdated({
+        recipientId: createLeaveBalanceDto.userId,
+        leaveBalanceId: String(saved._id),
+        year: Number(saved.year),
+      });
+    }
+
+    return saved;
   }
 
   findAll(paginationDto: PaginationDto, filters: any = {}) {
@@ -249,7 +262,7 @@ export class LeaveBalancesService {
     );
     const remainingDays = this.toNonNegative(totalDays - usedDays);
 
-    return this.leaveBalanceModel
+    const updated = await this.leaveBalanceModel
       .findByIdAndUpdate(
         id,
         {
@@ -262,6 +275,16 @@ export class LeaveBalancesService {
       )
       .populate('userId', 'empId fullName email')
       .exec();
+
+    if (updated) {
+      await this.notificationsService.notifyLeaveBalanceUpdated({
+        recipientId: String(current.userId),
+        leaveBalanceId: String(updated._id),
+        year: Number(updated.year),
+      });
+    }
+
+    return updated;
   }
 
   async adjustWithLog(id: string, dto: AdjustLeaveBalanceDto) {
@@ -303,6 +326,14 @@ export class LeaveBalancesService {
       dto.reason,
       dto.requestId,
     );
+
+    if (updatedLeaveBalance) {
+      await this.notificationsService.notifyLeaveBalanceUpdated({
+        recipientId: String(leaveBalance.userId),
+        leaveBalanceId: String(updatedLeaveBalance._id),
+        year: Number(updatedLeaveBalance.year),
+      });
+    }
 
     return {
       leaveBalance: updatedLeaveBalance,

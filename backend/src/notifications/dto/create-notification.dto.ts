@@ -1,23 +1,29 @@
 import {
+  IsEnum,
   IsBoolean,
   IsNotEmpty,
   IsObject,
   IsOptional,
   IsString,
+  ValidateIf,
 } from 'class-validator';
+import { NotificationType } from '../../enum/notification-type.enum';
 
 export class CreateNotificationDto {
   @IsString({ message: 'recipientId must be a string' })
   @IsNotEmpty({ message: 'recipientId is required' })
   recipientId!: string;
 
-  @IsString({ message: 'senderId must be a string' })
-  @IsNotEmpty({ message: 'senderId is required' })
-  senderId!: string;
+  @IsOptional()
+  @ValidateIf((dto: CreateNotificationDto) => dto.senderId !== null)
+  @IsString({ message: 'senderId must be a string or null' })
+  senderId?: string | null;
 
-  @IsString({ message: 'type must be a string' })
+  @IsEnum(NotificationType, {
+    message: `type must be one of: ${Object.values(NotificationType).join(', ')}`,
+  })
   @IsNotEmpty({ message: 'type is required' })
-  type!: string;
+  type!: NotificationType;
 
   @IsString({ message: 'title must be a string' })
   @IsNotEmpty({ message: 'title is required' })

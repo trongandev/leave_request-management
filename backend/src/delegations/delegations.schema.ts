@@ -3,6 +3,9 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true, collection: 'delegations' })
 export class Delegation extends Document {
+  @Prop({ required: true, unique: true, trim: true, immutable: true })
+  dgtDisplayId!: string;
+
   @Prop({ type: 'ObjectId', ref: 'User', required: true })
   fromUserId!: string;
 
@@ -32,6 +35,7 @@ export class Delegation extends Document {
 }
 
 export const DelegationSchema = SchemaFactory.createForClass(Delegation);
+DelegationSchema.index({ dgtDisplayId: 1 }, { unique: true });
 
 DelegationSchema.index({ fromUserId: 1, startDate: 1, endDate: 1 });
 DelegationSchema.index({ toUserId: 1, isActive: 1, startDate: 1, endDate: 1 });

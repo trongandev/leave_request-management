@@ -11,9 +11,11 @@ import { User, UserSchema } from '../users/users.schema';
 import { SystemSettingModule } from '../system-setting/system-setting.module';
 import { LeaveBalancesCronService } from './leave-balances.cron.service';
 import { Counter, CounterSchema } from '../counters/counters.schema';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
+    NotificationsModule,
     MongooseModule.forFeature([
       { name: LeaveBalance.name, schema: LeaveBalanceSchema },
       { name: LeaveBalanceLog.name, schema: LeaveBalanceLogsSchema },
