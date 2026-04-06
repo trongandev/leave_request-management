@@ -11,6 +11,8 @@ import { Delegation } from './delegations.schema';
 import { QueryDelegationDto } from './dto/query-delegation.dto';
 import { paginate } from '../common/utils/pagination.util';
 import { User } from '../users/users.schema';
+import { NotificationsService } from '../notifications/notifications.service';
+import { Counter } from '../counters/counters.schema';
 
 @Injectable()
 export class DelegationsService {
@@ -21,8 +23,11 @@ export class DelegationsService {
   constructor(
     @InjectModel(Delegation.name)
     private readonly delegationModel: Model<Delegation>,
+    @InjectModel(Counter.name)
+    private readonly counterModel: Model<Counter>,
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(createDelegationDto: CreateDelegationDto) {
@@ -34,6 +39,7 @@ export class DelegationsService {
 
     const createNewDelegation = new this.delegationModel({
       ...createDelegationDto,
+      dgtDisplayId: await this.generateDisplayId(),
       startDate: new Date(createDelegationDto.startDate),
       endDate: new Date(createDelegationDto.endDate),
       specificTypeCode: createDelegationDto.applyToAll
@@ -42,7 +48,16 @@ export class DelegationsService {
       isActive: createDelegationDto.isActive ?? true,
     });
 
-    return createNewDelegation.save();
+    const created = await createNewDelegation.save();
+
+    // Notify delegatee so they know they can approve on behalf of owner.
+    await this.notificationsService.notifyDelegationReceived({
+      recipientId: createDelegationDto.toUserId,
+      delegationId: String(created._id),
+      fromUserId: createDelegationDto.fromUserId,
+    });
+
+    return created;
   }
 
   findAll(queryDelegationDto: QueryDelegationDto) {
@@ -341,5 +356,43 @@ export class DelegationsService {
 
   private normalizeRoleName(roleName: string): string {
     return String(roleName ?? '').toUpperCase();
+  }
+
+  private async generateDisplayId(): Promise<string> {
+    const modulePrefix = 'DGT';
+    const dateSegment = this.getDateSegment(new Date());
+    const counterKey = `${modulePrefix}-${dateSegment}`;
+
+    // Atomic increment by key (module + day) prevents duplicate IDs under concurrency.
+    const counter = await this.counterModel
+      .findOneAndUpdate(
+        { _id: counterKey },
+        { $inc: { seq: 1 } },
+        {
+          new: true,
+          upsert: true,
+          setDefaultsOnInsert: true,
+        },
+      )
+      .lean<{ seq?: number }>()
+      .exec();
+
+    const sequence = Number(counter?.seq ?? 0);
+    if (!sequence || sequence > 9999) {
+      throw new BadRequestException(
+        `Display ID sequence for ${counterKey} is out of supported range`,
+      );
+    }
+
+    return `${modulePrefix}-${dateSegment}-${String(sequence).padStart(4, '0')}`;
+  }
+
+  private getDateSegment(date: Date): string {
+    // ddmmyy
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+
+    return `${day}${month}${year}`;
   }
 }

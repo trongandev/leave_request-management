@@ -20,6 +20,8 @@ import { LeaveBalance } from '../leave-balances/leave-balances.schema';
 import { FormTemplate } from '../form-template/form-template.schema';
 import { ApprovalStep } from '../approval-steps/approval-steps.schema';
 import { ApprovalStepStatus } from '../enum/approval-step-status.enum';
+import { NotificationsService } from '../notifications/notifications.service';
+import { Counter } from '../counters/counters.schema';
 
 type RequestActor = {
   _id?: string;
@@ -38,6 +40,8 @@ export class RequestsService {
   constructor(
     @InjectModel(Request.name)
     private readonly requestModel: Model<Request>,
+    @InjectModel(Counter.name)
+    private readonly counterModel: Model<Counter>,
     @InjectModel(LeaveBalance.name)
     private readonly leaveBalanceModel: Model<LeaveBalance>,
     @InjectModel(FormTemplate.name)
@@ -47,6 +51,7 @@ export class RequestsService {
     private readonly usersService: UsersService,
     private readonly approvalOrchestratorService: ApprovalOrchestratorService,
     private readonly approvalStepsService: ApprovalStepsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(createRequestDto: CreateRequestDto, user: any) {
@@ -57,6 +62,7 @@ export class RequestsService {
 
     const createNewRequest = new this.requestModel({
       ...createRequestDto,
+      reqDisplayId: await this.generateDisplayId(),
       values: normalizedValues,
       creatorId: user?._id,
       status,
@@ -91,6 +97,15 @@ export class RequestsService {
       await this.deductLeaveBalanceIfNeeded(request);
       request.status = RequestStatus.APPROVED;
       await request.save();
+
+      // Auto-approved requests still need a confirmation notification.
+      await this.notificationsService.notifyRequestApproved({
+        recipientId: String(request.creatorId),
+        requestId: String(request._id),
+        requestCode: String(request.code),
+        senderId: null,
+      });
+
       return request;
     }
 
@@ -145,7 +160,16 @@ export class RequestsService {
       await this.deductLeaveBalanceIfNeeded(request);
       request.status = RequestStatus.APPROVED;
       request.currentStepOrder = 1;
-      return request.save();
+      const saved = await request.save();
+
+      await this.notificationsService.notifyRequestApproved({
+        recipientId: String(saved.creatorId),
+        requestId: String(saved._id),
+        requestCode: String(saved.code),
+        senderId: null,
+      });
+
+      return saved;
     }
 
     const persistableSteps =
@@ -731,5 +755,43 @@ export class RequestsService {
     balance.usedDays = currentUsed + requestedDays;
     balance.remainingDays = currentRemaining - requestedDays;
     await balance.save();
+  }
+
+  private async generateDisplayId(): Promise<string> {
+    const modulePrefix = 'REQ';
+    const dateSegment = this.getDateSegment(new Date());
+    const counterKey = `${modulePrefix}-${dateSegment}`;
+
+    // Atomic increment by key (module + day) prevents duplicate IDs under concurrency.
+    const counter = await this.counterModel
+      .findOneAndUpdate(
+        { _id: counterKey },
+        { $inc: { seq: 1 } },
+        {
+          new: true,
+          upsert: true,
+          setDefaultsOnInsert: true,
+        },
+      )
+      .lean<{ seq?: number }>()
+      .exec();
+
+    const sequence = Number(counter?.seq ?? 0);
+    if (!sequence || sequence > 9999) {
+      throw new BadRequestException(
+        `Display ID sequence for ${counterKey} is out of supported range`,
+      );
+    }
+
+    return `${modulePrefix}-${dateSegment}-${String(sequence).padStart(4, '0')}`;
+  }
+
+  private getDateSegment(date: Date): string {
+    // ddmmyy
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+
+    return `${day}${month}${year}`;
   }
 }

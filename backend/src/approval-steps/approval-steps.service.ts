@@ -23,6 +23,8 @@ import { Request } from '../requests/requests.schema';
 import { RequestStatus } from '../enum/request-status.enum';
 import { LeaveBalance } from '../leave-balances/leave-balances.schema';
 import { FormTemplate } from '../form-template/form-template.schema';
+import { NotificationsService } from '../notifications/notifications.service';
+import { Counter } from '../counters/counters.schema';
 
 type RequestActor = {
   _id?: string;
@@ -41,6 +43,8 @@ export class ApprovalStepsService {
   constructor(
     @InjectModel(ApprovalStep.name)
     private readonly approvalStepModel: Model<ApprovalStep>,
+    @InjectModel(Counter.name)
+    private readonly counterModel: Model<Counter>,
     @InjectModel(Request.name)
     private readonly requestModel: Model<Request>,
     @InjectModel(LeaveBalance.name)
@@ -48,6 +52,7 @@ export class ApprovalStepsService {
     @InjectModel(FormTemplate.name)
     private readonly formTemplateModel: Model<FormTemplate>,
     private readonly delegationsService: DelegationsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   // Get all approval steps
@@ -62,6 +67,7 @@ export class ApprovalStepsService {
   ): Promise<ApprovalStep> {
     const newStep = new this.approvalStepModel({
       ...createApprovalStepDto,
+      apsDisplayId: await this.generateDisplayId(),
       status: createApprovalStepDto.status ?? ApprovalStepStatus.PENDING,
       groupId: createApprovalStepDto.groupId ?? [],
       requiredAll: createApprovalStepDto.requiredAll ?? true,
@@ -73,15 +79,69 @@ export class ApprovalStepsService {
 
   // Create multiple approval steps in batch (used during request creation flow)
   async createBatch(stepsDto: ApprovalStepInput[]): Promise<any[]> {
-    const steps = stepsDto.map((dto) => ({
-      ...dto,
-      status: ApprovalStepStatus.PENDING,
-      groupId: dto.groupId ?? [],
-      requiredAll: dto.requiredAll ?? true,
-      isFinalStep: dto.isFinalStep ?? false,
-    }));
+    const steps: Record<string, any>[] = [];
 
-    return this.approvalStepModel.insertMany(steps);
+    for (const dto of stepsDto) {
+      steps.push({
+        ...dto,
+        apsDisplayId: await this.generateDisplayId(),
+        status: ApprovalStepStatus.PENDING,
+        groupId: dto.groupId ?? [],
+        requiredAll: dto.requiredAll ?? true,
+        isFinalStep: dto.isFinalStep ?? false,
+      });
+    }
+
+    const createdSteps = await this.approvalStepModel.insertMany(steps);
+
+    if (createdSteps.length === 0) {
+      return createdSteps;
+    }
+
+    const requestId = String(createdSteps[0].requestId ?? '');
+    const request = requestId
+      ? await this.requestModel
+          .findById(requestId)
+          .select('creatorId code')
+          .lean<{ creatorId?: unknown; code?: string }>()
+          .exec()
+      : null;
+
+    const notifyTasks: Array<Promise<unknown>> = [];
+    const requestCreatorId = this.toIdString(request?.creatorId);
+
+    // Notify each approver/group member when a step is assigned.
+    for (const step of createdSteps) {
+      const groupRecipients = Array.isArray(step.groupId)
+        ? step.groupId
+            .map((memberId: unknown) => this.toIdString(memberId))
+            .filter((id): id is string => Boolean(id))
+        : [];
+
+      const recipients = [
+        this.toIdString(step.originalApproverId),
+        ...groupRecipients,
+        this.toIdString(step.actualApproverId),
+      ].filter((id): id is string => Boolean(id));
+
+      const uniqueRecipients = [...new Set(recipients)];
+
+      for (const recipientId of uniqueRecipients) {
+        notifyTasks.push(
+          this.notificationsService.notifyRequestAssigned({
+            recipientId,
+            senderId: requestCreatorId,
+            requestId: String(step.requestId),
+            requestCode: request?.code,
+            stepOrder: Number(step.stepOrder),
+          }),
+        );
+      }
+    }
+
+    await Promise.all(notifyTasks);
+
+    return createdSteps;
   }
 
   // Get pending approval steps for a specific approver
@@ -185,6 +245,26 @@ export class ApprovalStepsService {
     step.signatureUrl = approveDto.signatureUrl;
 
     const savedStep = await step.save();
+
+    const approvedRequest = await this.requestModel
+      .findById(savedStep.requestId)
+      .select('creatorId code')
+      .lean<{ creatorId?: unknown; code?: string }>()
+      .exec();
+
+    const approvedRequestCreatorId = this.toIdString(
+      approvedRequest?.creatorId,
+    );
+    if (approvedRequestCreatorId) {
+      await this.notificationsService.notifyStepApproved({
+        recipientId: approvedRequestCreatorId,
+        senderId: String(actor._id),
+        requestId: String(savedStep.requestId),
+        requestCode: approvedRequest?.code,
+        stepOrder: Number(savedStep.stepOrder),
+      });
+    }
+
     await this.resolveParallelGroupAfterApprove(savedStep, String(actor._id));
     await this.syncRequestStatus(String(savedStep.requestId));
     return savedStep;
@@ -228,6 +308,26 @@ export class ApprovalStepsService {
     step.signatureUrl = rejectDto.signatureUrl;
 
     const savedStep = await step.save();
+
+    const rejectedRequest = await this.requestModel
+      .findById(savedStep.requestId)
+      .select('creatorId code')
+      .lean<{ creatorId?: unknown; code?: string }>()
+      .exec();
+
+    const rejectedRequestCreatorId = this.toIdString(
+      rejectedRequest?.creatorId,
+    );
+    if (rejectedRequestCreatorId) {
+      await this.notificationsService.notifyRequestRejected({
+        recipientId: rejectedRequestCreatorId,
+        senderId: String(actor._id),
+        requestId: String(savedStep.requestId),
+        requestCode: rejectedRequest?.code,
+        reason: rejectDto.reason,
+      });
+    }
+
     await this.closeActiveStepsAfterReject(savedStep);
     await this.syncRequestStatus(String(savedStep.requestId));
     return savedStep;
@@ -269,6 +369,26 @@ export class ApprovalStepsService {
       : new Date();
 
     const savedStep = await step.save();
+
+    const returnedRequest = await this.requestModel
+      .findById(savedStep.requestId)
+      .select('creatorId code')
+      .lean<{ creatorId?: unknown; code?: string }>()
+      .exec();
+
+    const returnedRequestCreatorId = this.toIdString(
+      returnedRequest?.creatorId,
+    );
+    if (returnedRequestCreatorId) {
+      await this.notificationsService.notifyRequestReturned({
+        recipientId: returnedRequestCreatorId,
+        senderId: String(actor._id),
+        requestId: String(savedStep.requestId),
+        requestCode: returnedRequest?.code,
+        reason: returnDto.reason,
+      });
+    }
+
     await this.syncRequestStatus(String(savedStep.requestId));
     return savedStep;
   }
@@ -488,6 +608,27 @@ export class ApprovalStepsService {
         },
       )
       .exec();
+
+    const requests = await this.requestModel
+      .find({ _id: { $in: requestIds } })
+      .select('_id creatorId code')
+      .lean<Array<{ _id?: unknown; creatorId?: unknown; code?: string }>>()
+      .exec();
+
+    await Promise.all(
+      requests
+        .filter((request) => Boolean(request.creatorId))
+        .map((request) =>
+          this.notificationsService.notifyRequestReturned({
+            recipientId: String(request.creatorId),
+            senderId: null,
+            requestId: String(request._id),
+            requestCode: request.code,
+            reason:
+              'System auto-returned after deadline because no valid approver was found',
+          }),
+        ),
+    );
   }
 
   private async syncRequestStatus(requestId: string): Promise<void> {
@@ -542,6 +683,22 @@ export class ApprovalStepsService {
         status: RequestStatus.APPROVED,
         currentStepOrder: steps[steps.length - 1]?.stepOrder ?? 1,
       });
+
+      if (request?.creatorId) {
+        const latestApprovedStep = [...steps]
+          .reverse()
+          .find((step) => step.status === ApprovalStepStatus.APPROVED);
+
+        await this.notificationsService.notifyRequestApproved({
+          recipientId: String(request.creatorId),
+          senderId: latestApprovedStep?.actualApproverId
+            ? String(latestApprovedStep.actualApproverId)
+            : null,
+          requestId,
+          requestCode: String(request.code ?? ''),
+        });
+      }
+
       return;
     }
 
@@ -781,5 +938,59 @@ export class ApprovalStepsService {
     }
 
     return false;
+  }
+
+  private async generateDisplayId(): Promise<string> {
+    const modulePrefix = 'APS';
+    const dateSegment = this.getDateSegment(new Date());
+    const counterKey = `${modulePrefix}-${dateSegment}`;
+
+    // Atomic increment by key (module + day) prevents duplicate IDs under concurrency.
+    const counter = await this.counterModel
+      .findOneAndUpdate(
+        { _id: counterKey },
+        { $inc: { seq: 1 } },
+        {
+          new: true,
+          upsert: true,
+          setDefaultsOnInsert: true,
+        },
+      )
+      .lean<{ seq?: number }>()
+      .exec();
+
+    const sequence = Number(counter?.seq ?? 0);
+    if (!sequence || sequence > 9999) {
+      throw new BadRequestException(
+        `Display ID sequence for ${counterKey} is out of supported range`,
+      );
+    }
+
+    return `${modulePrefix}-${dateSegment}-${String(sequence).padStart(4, '0')}`;
+  }
+
+  private getDateSegment(date: Date): string {
+    // ddmmyy
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+
+    return `${day}${month}${year}`;
+  }
+
+  private toIdString(value: unknown): string | null {
+    if (typeof value === 'string' || typeof value === 'number') {
+      const normalized = String(value).trim();
+      return normalized.length > 0 ? normalized : null;
+    }
+
+    if (typeof value === 'object' && value !== null && 'toString' in value) {
+      const normalized = (value as { toString: () => string })
+        .toString()
+        .trim();
+      return normalized && normalized !== '[object Object]' ? normalized : null;
+    }
+
+    return null;
   }
 }
