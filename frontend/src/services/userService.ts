@@ -26,6 +26,19 @@ export type CreateUserPayload = {
     positionId?: string
 }
 
+export type UpdateUserPayload = {
+    fullName?: string
+    email?: string
+    phone?: string
+    birthDate?: string
+    gender?: string
+    avatar?: string
+    roleId?: string
+    departmentId?: string
+    positionId?: string
+    status?: boolean
+}
+
 class UserService {
     async getAllUsers({ page = 1, limit = 10, search, departmentCode, roleName, leaveType, location }: GetAllUsersParams) {
         const params = new URLSearchParams()
@@ -70,6 +83,16 @@ class UserService {
     async removeManager(empId: string) {
         const response = await axiosInstance.delete<APIResponse<User>>(`/users/manager`, { data: { empId } })
         return response.data
+    }
+
+    async update(userId: string, payload: UpdateUserPayload) {
+        const response = await axiosInstance.patch<APIResponse<User>>(`/users/${userId}`, payload)
+        return response.data.data
+    }
+
+    async toggleStatus(userId: string, status: boolean) {
+        const response = await axiosInstance.patch<APIResponse<User>>(`/users/${userId}`, { status })
+        return response.data.data
     }
 }
 
