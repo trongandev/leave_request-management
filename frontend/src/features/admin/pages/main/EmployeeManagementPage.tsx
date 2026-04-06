@@ -13,7 +13,7 @@ import roleService from "@/services/roleService"
 import type { User, UserResponse, RoleId } from "@/types/user"
 import type { Department, Position } from "@/types/organization"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import CTable from "@/components/etc/CTable"
 import { Switch } from "@/components/ui/switch"
 import { roleMapColor, deptMapColor, positionMapColor } from "@/config/mapColor"
@@ -198,25 +198,28 @@ export default function EmployeeManagementPage() {
         queryKey: ["roles", "employee-management-options"],
         queryFn: () => roleService.getAll(),
     })
-    const allPositions = positionsOptions?.data ?? []
+    const allPositions = useMemo(() => positionsOptions?.data ?? [], [positionsOptions?.data])
 
-    const getDepartmentFromPosition = (pos: Position) => {
-        const deptField = pos?.departmentId as unknown
-        if (!deptField) return { id: "", name: "" }
-        if (typeof deptField === "string") {
-            const dept = departmentsOptions?.data?.find((d: Department) => d._id === deptField)
-            return { id: deptField, name: dept?.originName ?? "" }
-        }
-        const deptObj = deptField as Department
-        return { id: deptObj._id, name: deptObj.originName }
-    }
+    const getDepartmentFromPosition = useCallback(
+        (pos: Position) => {
+            const deptField = pos?.departmentId as unknown
+            if (!deptField) return { id: "", name: "" }
+            if (typeof deptField === "string") {
+                const dept = departmentsOptions?.data?.find((d: Department) => d._id === deptField)
+                return { id: deptField, name: dept?.originName ?? "" }
+            }
+            const deptObj = deptField as Department
+            return { id: deptObj._id, name: deptObj.originName }
+        },
+        [departmentsOptions?.data],
+    )
 
     const selectedPositionDepartmentName = useMemo(() => {
         if (!formData.positionId) return ""
         const pos = allPositions.find((p: Position) => p._id === formData.positionId)
         if (!pos) return ""
         return getDepartmentFromPosition(pos).name
-    }, [formData.positionId, allPositions, departmentsOptions])
+    }, [formData.positionId, allPositions, getDepartmentFromPosition])
 
     const columns = [
         t("admin.employeeManagement.table.employee"),
@@ -364,7 +367,7 @@ export default function EmployeeManagementPage() {
         toggleUserStatus({ userId: user._id, status: newStatus })
     }
 
-    const editAllPositions = positionsOptions?.data ?? []
+    const editAllPositions = useMemo(() => positionsOptions?.data ?? [], [positionsOptions?.data])
     const editSelectedDepartmentName = useMemo(() => {
         if (!editFormData.positionId) return ""
         const pos = editAllPositions.find((p: Position) => p._id === editFormData.positionId)
@@ -376,7 +379,7 @@ export default function EmployeeManagementPage() {
             return dept?.originName ?? ""
         }
         return (deptField as Department).originName
-    }, [editFormData.positionId, editAllPositions, departmentsOptions])
+    }, [editFormData.positionId, editAllPositions, departmentsOptions?.data])
 
 
     return (
