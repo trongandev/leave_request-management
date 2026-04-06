@@ -21,6 +21,8 @@ import {
     UserIcon,
     Users,
     WalletCardsIcon,
+    NotepadText,
+    MailWarning,
 } from "lucide-react"
 import { createElement, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -33,10 +35,10 @@ export default function GeneralSidebar() {
 
     const [portalName, setPortalName] = useState(t("general.sidebar.portals.employee"))
     const roleName = user?.roleId.name
-    const [newNav, setNewNav] = useState<typeof defaultNav>([])
+    const [newNav, setNewNav] = useState<typeof empNav>([])
 
     // sidebar cho employee
-    const defaultNav = useMemo(
+    const empNav = useMemo(
         () => [
             {
                 name: "main menu",
@@ -60,7 +62,7 @@ export default function GeneralSidebar() {
     )
 
     // sidebar cho HR - Manager
-    const approvalsNav = useMemo(
+    const manNav = useMemo(
         () => [
             {
                 name: t("sidebar.mainMenu"),
@@ -74,6 +76,37 @@ export default function GeneralSidebar() {
             },
             {
                 name: "Manager",
+                items: [
+                    { name: "Team Management", icon: Users, href: "/approvals/team-management" },
+                    { name: "Team Requests", icon: MailWarning, href: "/approvals/team-requests" },
+                    { name: t("sidebar.leaveBalances"), icon: NotepadText, href: "/approvals/leave-balances" },
+                ],
+            },
+            {
+                name: t("sidebar.setting"),
+                items: [
+                    { name: t("sidebar.profile"), icon: UserIcon, href: "/profile" },
+                    { name: t("sidebar.preference"), icon: SettingsIcon, href: "/preferences" },
+                ],
+            },
+        ],
+        [t],
+    )
+
+    const HRNav = useMemo(
+        () => [
+            {
+                name: t("sidebar.mainMenu"),
+                items: [
+                    { name: t("sidebar.home"), icon: HomeIcon, href: "/" },
+                    // { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/approvals" },
+                    { name: t("sidebar.createNewRequest"), icon: BarChartIcon, href: "/employee/create-new-request-form" },
+                    { name: t("sidebar.myRequestHistory"), icon: HistoryIcon, href: "/employee/my-request-history-list" },
+                    { name: t("sidebar.teamCalendar"), icon: CalendarDaysIcon, href: "/approvals/team-calendar" },
+                ],
+            },
+            {
+                name: "HR",
                 items: [
                     { name: t("sidebar.employee"), icon: Users, href: "/admin/employee-management" },
                     { name: t("sidebar.leaveBalances"), icon: Users, href: "/approvals/leave-balances" },
@@ -150,17 +183,20 @@ export default function GeneralSidebar() {
                 setNewNav(adminNav)
                 setPortalName(t("general.sidebar.portals.admin"))
                 break
-            case "HR":
             case "MANAGER":
-                setNewNav(approvalsNav)
+                setNewNav(manNav)
                 setPortalName(t("general.sidebar.portals.approval"))
                 break
+            case "HR":
+                setNewNav(HRNav)
+                setPortalName(t("general.sidebar.portals.humanResources"))
+                break
             default:
-                setNewNav(defaultNav)
+                setNewNav(empNav)
                 setPortalName(t("general.sidebar.portals.employee"))
                 break
         }
-    }, [user, roleName, defaultNav, approvalsNav, adminNav, t])
+    }, [user, roleName, empNav, manNav, adminNav, HRNav, t])
 
     return (
         <>

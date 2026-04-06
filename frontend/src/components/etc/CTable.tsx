@@ -1,16 +1,15 @@
-import { Loader } from "lucide-react";
-import PaginationUI from "./PaginationUI";
+import { Loader } from "lucide-react"
+import PaginationUI from "./PaginationUI"
 
 interface Props {
-    data?: any;
-    columns?: string[];
-    handlePageChange?: (page: number) => void;
-    isLoading?: boolean;
-    children?: React.ReactNode;
+    data?: any
+    columns?: string[]
+    handlePageChange?: (page: number) => void
+    isLoading?: boolean
+    children?: React.ReactNode
 }
 
 export default function CTable({ data, columns, handlePageChange, isLoading, children }: Props) {
-    console.log(data);
     return (
         <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-xs border bg-card  overflow-hidden ">
             <div className="flex-1 overflow-x-auto">
@@ -59,14 +58,14 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                                         ))}
                                     </tr>
                                 ))}
-                                {(data?.length == 0 || data?.data?.length == 0) && (
-                                    <tr>
-                                        <td colSpan={columns?.length || Object.keys(data?.data[0] || {}).length} className="h-125 w-full">
-                                            <div className="flex items-center justify-center text-gray-600 h-full">No data available</div>
-                                        </td>
-                                    </tr>
-                                )}
                             </>
+                        )}
+                        {(data?.length == 0 || data?.data?.length == 0) && (
+                            <tr>
+                                <td colSpan={columns?.length || Object.keys(data?.data[0] || {}).length} className="h-100 w-full">
+                                    <div className="flex items-center justify-center text-gray-600 h-full">No data available...</div>
+                                </td>
+                            </tr>
                         )}
                     </tbody>
                 </table>
@@ -77,5 +76,5 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                 </div>
             )}
         </div>
-    );
+    )
 }

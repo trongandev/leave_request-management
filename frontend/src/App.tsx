@@ -42,6 +42,9 @@ import AdjustLeaveBalance from "./features/approvals/pages/AdjustLeaveBalance"
 import LoginPage from "./features/auth/pages/LoginPage"
 import ViewDetailRequestPage from "./features/requests/pages/ViewDetailRequestPage"
 import ProfileAnotherPage from "./features/general/pages/ProfileAnotherPage"
+import EditDetailRequestPage from "./features/requests/pages/EditDetailRequestPage"
+import TeamRequests from "./features/approvals/pages/TeamRequests"
+import TeamManagement from "./features/approvals/pages/TeamManagement"
 
 function App() {
     return (
@@ -57,6 +60,7 @@ function App() {
                     <Route path="/employee/create-new-request-form" element={<CreateNewRequestFormPage />} />
                     <Route path="/employee/my-request-history-list" element={<MyRequestHistoryListPage />} />
                     <Route path="/employee/view-detail-request/:id" element={<ViewDetailRequestPage />} />
+                    <Route path="/employee/view-detail-request/:id/edit" element={<EditDetailRequestPage />} />
                 </Route>
                 <Route path="/approvals" element={<ApprovalLayout />}>
                     <Route index element={<PendingApprovalsListPage />} />
@@ -69,6 +73,8 @@ function App() {
                     <Route path="/approvals/form-manager/:id" element={<FormTemplateDetailPage />} />
                     <Route path="/approvals/form-manager/:id/edit" element={<EditFormBuilderPage />} />
                     <Route path="/approvals/adjust-leave-balances" element={<AdjustLeaveBalance />} />
+                    <Route path="/approvals/team-requests" element={<TeamRequests />} />
+                    <Route path="/approvals/team-management" element={<TeamManagement />} />
                 </Route>
                 <Route path="/admin" element={<AdminLayout />}>
                     {/* START MAIN GROUP*/}

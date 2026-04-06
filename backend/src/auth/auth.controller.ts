@@ -38,7 +38,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // chỉ dùng HTTPS ở production
       sameSite: 'strict',
-      maxAge: 3600000, // 1 giờ (tính bằng milliseconds)
+      maxAge: 1000 * 3600 * 24, // 1 ngày
       path: '/',
     });
 
