@@ -833,6 +833,21 @@ const resources = {
                         },
                         hint: "Allowed range: 1 to 100 users per creation.",
                     },
+                    editDialog: {
+                        title: "Edit User",
+                        description: "Update the user information below.",
+                    },
+                    statusToggle: {
+                        confirmEnable: "Are you sure you want to enable this account?",
+                        confirmDisable: "Are you sure you want to disable this account?",
+                        enableSuccess: "Account enabled successfully",
+                        disableSuccess: "Account disabled successfully",
+                        error: "Failed to update account status",
+                    },
+                    updateMessages: {
+                        updateSuccess: "User updated successfully",
+                        updateError: "Failed to update user",
+                    },
                 },
                 globalRequests: {
                     title: "Global Requests Management",
@@ -2695,6 +2710,21 @@ const resources = {
                             count: "Số lượng",
                         },
                         hint: "Giới hạn cho phép: từ 1 đến 100 user mỗi lần tạo.",
+                    },
+                    editDialog: {
+                        title: "Chỉnh sửa người dùng",
+                        description: "Cập nhật thông tin người dùng bên dưới.",
+                    },
+                    statusToggle: {
+                        confirmEnable: "Bạn có chắc muốn kích hoạt tài khoản này?",
+                        confirmDisable: "Bạn có chắc muốn vô hiệu hóa tài khoản này?",
+                        enableSuccess: "Đã kích hoạt tài khoản thành công",
+                        disableSuccess: "Đã vô hiệu hóa tài khoản thành công",
+                        error: "Cập nhật trạng thái tài khoản thất bại",
+                    },
+                    updateMessages: {
+                        updateSuccess: "Cập nhật người dùng thành công",
+                        updateError: "Cập nhật người dùng thất bại",
                     },
                 },
                 globalRequests: {
