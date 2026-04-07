@@ -18,7 +18,9 @@ describe('ApprovalStepsFlowLogController', () => {
       ],
     }).compile();
 
-    controller = module.get<ApprovalStepsFlowLogController>(ApprovalStepsFlowLogController);
+    controller = module.get<ApprovalStepsFlowLogController>(
+      ApprovalStepsFlowLogController,
+    );
   });
 
   it('should be defined', () => {

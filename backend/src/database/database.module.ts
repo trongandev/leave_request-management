@@ -21,6 +21,7 @@ import {
   LeaveBalance,
   LeaveBalanceSchema,
 } from 'src/leave-balances/leave-balances.schema';
+import { Counter, CounterSchema } from 'src/counters/counters.schema';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import {
       { name: FormTemplate.name, schema: FormTemplateSchema },
       { name: Request.name, schema: RequestSchema },
       { name: LeaveBalance.name, schema: LeaveBalanceSchema },
+      { name: Counter.name, schema: CounterSchema },
     ]),
   ],
   providers: [DatabaseSeeder],

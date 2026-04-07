@@ -502,8 +502,8 @@ export class ApprovalStepsService {
 
   // Get single approval step by ID
 
-  async findById(id: string) {
-    const appStep = await this.approvalStepModel
+  async findById(id: string): Promise<ApprovalStep | null> {
+    return this.approvalStepModel
       .findById(id)
       .populate([
         {
@@ -522,9 +522,6 @@ export class ApprovalStepsService {
         },
       ])
       .exec();
-    const userId = this.toIdString(appStep?.requestId?.creatorId._id);
-    const lb = await this.leaveBalanceModel.findOne({ userId }).exec();
-    return { appStep, lb };
   }
 
   // Get all approval steps by request ID
