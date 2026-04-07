@@ -14,6 +14,12 @@ export class FormField {
   label: string; // Tên hiển thị (vd: Số tiền, Lý do)
 
   @Prop()
+  name: string;
+
+  @Prop()
+  note: string;
+
+  @Prop()
   placeholder: string;
 
   @Prop({ default: false })

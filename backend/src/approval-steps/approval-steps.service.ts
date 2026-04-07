@@ -25,6 +25,7 @@ import { LeaveBalance } from '../leave-balances/leave-balances.schema';
 import { FormTemplate } from '../form-template/form-template.schema';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Counter } from '../counters/counters.schema';
+import { paginate } from 'src/common/utils/pagination.util';
 
 type RequestActor = {
   _id?: string;
@@ -148,7 +149,7 @@ export class ApprovalStepsService {
   async findPendingForApprover(
     approverId: string,
     query?: QueryPendingApprovalStepsDto,
-  ): Promise<ApprovalStep[]> {
+  ): Promise<any> {
     // Approver inbox includes:
     // - direct assignment (originalApproverId)
     // - parallel/group assignment (groupId)
@@ -185,13 +186,34 @@ export class ApprovalStepsService {
     if (typeof query?.isFinalStep === 'boolean') {
       filter.isFinalStep = query.isFinalStep;
     }
+    const pagination = query ?? new QueryPendingApprovalStepsDto();
 
-    return this.approvalStepModel
-      .find(filter)
-      .sort({ deadlineAt: 1 })
-      .skip(query?.skip || 0)
-      .limit(query?.take || 50)
-      .exec();
+    return paginate(this.approvalStepModel, pagination, filter, {
+      populate: [
+        {
+          path: 'requestId',
+          select: '_id title code creatorId values',
+          populate: [
+            {
+              path: 'creatorId',
+              select: '_id empId name email avatar fullName positionId',
+              populate: {
+                path: 'positionId',
+                select: '_id fullName',
+              },
+            },
+          ],
+        },
+      ],
+      sort: { deadlineAt: 1 },
+    });
+
+    // return this.approvalStepModel
+    //   .find(filter)
+    //   .sort({ deadlineAt: 1 })
+    //   .skip(query?.skip || 0)
+    //   .limit(query?.take || 50)
+    //   .exec();
   }
 
   // Get all pending steps for a request
@@ -434,8 +456,29 @@ export class ApprovalStepsService {
 
   // Get single approval step by ID
 
-  async findById(id: string): Promise<ApprovalStep | null> {
-    return this.approvalStepModel.findById(id).exec();
+  async findById(id: string) {
+    const appStep = await this.approvalStepModel
+      .findById(id)
+      .populate([
+        {
+          path: 'requestId',
+          select: '_id title code creatorId values',
+          populate: [
+            {
+              path: 'creatorId',
+              select: '_id empId name email avatar fullName positionId',
+              populate: {
+                path: 'positionId',
+                select: '_id fullName',
+              },
+            },
+          ],
+        },
+      ])
+      .exec();
+    const userId = this.toIdString(appStep?.requestId?.creatorId._id);
+    const lb = await this.leaveBalanceModel.findOne({ userId }).exec();
+    return { appStep, lb };
   }
 
   // Get all approval steps by request ID

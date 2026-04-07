@@ -409,52 +409,40 @@ export class UsersService {
   }
 
   async getTeamMembers(user: any) {
-    let managerId: any;
-    // console.log(
-    //   'userId',
-    //   user._id,
-    //   'managerIdUser',
-    //   user.managerId._id,
-    //   'roleIdUser',
-    //   user.roleId.name,
-    // );
     if (!user?.managerId?._id && user.roleId.name === 'MANAGER') {
+      console.log(user?.managerId?._id, user.roleId.name);
       const teamMembers = await this.userModel
         .find({ managerId: user._id })
         .populate({
-          path: 'positionId',
-          select: 'fullName',
+          path: 'departmentId',
+          select: 'originName',
         })
-        .select('empId fullName email avatar phone positionId')
+        .select('empId fullName email avatar phone departmentId')
         .exec();
-      delete user.roleId.permissions;
       return [...teamMembers, user];
-    }
-    if (user.managerId._id) {
-      managerId = user.managerId._id;
-      console.log('Manager ID:', managerId);
     } else {
-      const findManagerId = await this.userModel
-        .findById(user._id)
-        .select('managerId')
-        .lean()
-        .exec();
-      managerId = findManagerId?.managerId || null;
-      console.log('find Manager:', managerId);
+      console.log(user?.managerId?._id, user.roleId.name);
+      console.log("User is not a manager or doesn't have a managerId");
+      const [teamMembers, manager] = await Promise.all([
+        this.userModel
+          .find({ managerId: user?.managerId?._id })
+          .populate({
+            path: 'departmentId',
+            select: 'originName',
+          })
+          .select('empId fullName email avatar phone departmentId')
+          .exec(),
+        this.userModel
+          .findById(user?.managerId?._id)
+          .populate({
+            path: 'departmentId',
+            select: 'originName',
+          })
+          .select('empId fullName email avatar phone departmentId')
+          .exec(),
+      ]);
+      return [...teamMembers, manager];
     }
-    console.log(managerId, '>>>>');
-    if (!managerId) {
-      throw new BadRequestException('User does not have a managerId');
-    }
-    const teamMembers = await this.userModel
-      .find({ managerId: managerId })
-      .populate({
-        path: 'positionId',
-        select: 'fullName',
-      })
-      .select('empId fullName email avatar phone positionId')
-      .exec();
-    return [...teamMembers, user.managerId];
   }
 
   async assignManagerByEmpId(

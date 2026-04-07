@@ -1,4 +1,5 @@
 import { IsString, IsOptional, IsDateString, IsBoolean } from 'class-validator';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 export class ApproveApprovalStepDto {
   @IsString()
@@ -53,7 +54,7 @@ export class DelegateApprovalStepDto {
   newDeadlineAt?: string;
 }
 
-export class QueryPendingApprovalStepsDto {
+export class QueryPendingApprovalStepsDto extends PaginationDto {
   @IsString()
   @IsOptional()
   status?: string;
