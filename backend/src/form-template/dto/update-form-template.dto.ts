@@ -1,4 +1,36 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateFormTemplateDto } from './create-form-template.dto';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class UpdateFormTemplateDto extends PartialType(CreateFormTemplateDto) {}
+export class UpdateFormTemplateDto {
+  @IsString()
+  @IsNotEmpty()
+  vieName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  engName: string;
+
+  @IsNotEmpty()
+  fields: any[];
+
+  @IsOptional()
+  @IsString()
+  submitButtonText: string;
+
+  @IsOptional()
+  version?: number;
+
+  @IsOptional()
+  isActive?: boolean;
+
+  @IsOptional()
+  autoApprove?: boolean;
+
+  @IsOptional()
+  maxDays?: number;
+
+  @IsOptional()
+  requireAttachment?: boolean;
+
+  @IsOptional()
+  isReductible?: boolean;
+}

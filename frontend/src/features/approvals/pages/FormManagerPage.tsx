@@ -66,7 +66,7 @@ export default function FormManagerPage() {
                         </td>
 
                         <td className="py-4 px-6 text-right">
-                            <Link to={`/approvals/form-manager/${item._id}`}>
+                            <Link to={`/approvals/form-manager/${item._id}?is_view=true`}>
                                 <Button variant={"ghost"}>
                                     <Eye />
                                 </Button>

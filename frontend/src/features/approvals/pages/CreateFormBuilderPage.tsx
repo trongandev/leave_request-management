@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useFormBuilder } from "@/hooks/useFormBuilder"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import CSelectOptions from "@/components/etc/CSelectOptions"
-import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -23,6 +23,8 @@ import CToolTip from "@/components/etc/CToolTip"
 import CSelectOptionsTable from "@/components/etc/CSelectOptionsTable"
 import { useNavigate } from "react-router-dom"
 import FormPreviewField from "../components/FormPreviewField"
+import formTemplateService from "@/services/formTemplateService"
+import LoadingUI from "@/components/etc/LoadingUI"
 
 interface Step {
     id: string
@@ -35,6 +37,18 @@ interface Step {
 export default function CreateFormBuilderPage() {
     const { fields, setFields, activeFieldId, setActiveFieldId, addField, updateField, removeField, moveField, copyField } = useFormBuilder()
     const navigate = useNavigate()
+    const id = location.pathname.split("/")[3]
+    const { data, isLoading } = useQuery({
+        queryKey: ["form-template-detail" + id],
+        queryFn: () => formTemplateService.getById(id),
+        enabled: !!id,
+    })
+    useEffect(() => {
+        if (id && data?.fields) {
+            setFields(data.fields)
+        }
+    }, [data?.fields, setFields, id])
+
     const [stateData, setStateData] = useState({
         vieName: "Đơn Xin Nghỉ Bệnh",
         engName: "Sick Leave Application Form",
@@ -71,14 +85,21 @@ export default function CreateFormBuilderPage() {
     const createTemplateMutation = useMutation({
         mutationFn: async (data: any) => {
             console.log(data.fields)
-            // const res = await axiosInstance.post("/form-template", data)
-            // console.log(res)
-            // return res.data
+            let res = null
+            console.log(id)
+            if (id) {
+                delete data.code
+                res = await axiosInstance.patch("/form-template/" + location.pathname.split("/")[3], data)
+            } else {
+                res = await axiosInstance.post("/form-template", data)
+            }
+            console.log(res)
+            return res.data
         },
         onSuccess: (res: any) => {
-            // toast.success("Form template created successfully")
-            // setFields([])
-            // navigate("/approvals/form-manager/" + res.data._id)
+            toast.success("Form template created successfully")
+            setFields([])
+            navigate("/approvals/form-manager/" + res.data._id)
         },
         onError: (error: any) => {
             toast.error(error?.response?.data?.message || error?.message || "Failed to create template")
@@ -142,7 +163,9 @@ export default function CreateFormBuilderPage() {
 
     const activeField = fields.find((f) => f.id === activeFieldId)
     const rootFields = fields.filter((f) => !f.parentId).sort((a, b) => (a.order || 0) - (b.order || 0))
-
+    if (isLoading) {
+        return <LoadingUI />
+    }
     if (isPreviewShow) {
         return (
             <div className="max-w-2xl mx-auto">

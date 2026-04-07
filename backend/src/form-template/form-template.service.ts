@@ -48,9 +48,11 @@ export class FormTemplateService {
   }
 
   async update(id: string, updateFormTemplateDto: UpdateFormTemplateDto) {
-    return this.formTemplateModel
-      .findByIdAndUpdate(id, updateFormTemplateDto, { new: true })
+    console.log(updateFormTemplateDto);
+    const result = await this.formTemplateModel
+      .findByIdAndUpdate(id, updateFormTemplateDto)
       .exec();
+    return result;
   }
 
   async remove(id: string) {

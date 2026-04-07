@@ -41,7 +41,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.createDefaultDepartmentsAndPositions();
     await this.seedRoles();
     await this.seedAdminUser();
-    await this.seedKeyLeaders();
+    // await this.seedKeyLeaders();
     await this.seedFormTemplates();
     console.log('--- Seeding hoàn tất ---');
   }

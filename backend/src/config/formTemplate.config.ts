@@ -8,6 +8,7 @@ const annualLeaveFields = [
     required: false,
     readOnly: false,
     order: 0,
+    note: '',
     parentId: null,
     layout: {
       direction: 'row',
@@ -22,6 +23,7 @@ const annualLeaveFields = [
     required: false,
     readOnly: false,
     order: 1,
+    note: '',
     parentId: 'container_rntiiv4u',
   },
   {
@@ -33,6 +35,7 @@ const annualLeaveFields = [
     required: false,
     readOnly: false,
     order: 2,
+    note: '',
     parentId: 'container_rntiiv4u',
   },
   {
@@ -44,6 +47,7 @@ const annualLeaveFields = [
     required: false,
     readOnly: false,
     order: 3,
+    note: '',
     parentId: null,
   },
 ];
@@ -58,6 +62,7 @@ const resignationFields = [
     required: true,
     readOnly: false,
     order: 0,
+    note: '',
     parentId: null,
   },
   {
@@ -75,6 +80,7 @@ const resignationFields = [
       },
     ],
     order: 1,
+    note: '',
     parentId: null,
   },
   {
@@ -86,6 +92,7 @@ const resignationFields = [
     required: false,
     readOnly: false,
     order: 2,
+    note: '',
     parentId: null,
     layout: {
       direction: 'row',
@@ -100,6 +107,7 @@ const resignationFields = [
     required: false,
     readOnly: false,
     order: 3,
+    note: '',
     parentId: null,
   },
   {
@@ -118,6 +126,7 @@ const resignationFields = [
       },
     ],
     order: 4,
+    note: '',
     parentId: null,
   },
   {
@@ -129,6 +138,7 @@ const resignationFields = [
     required: false,
     readOnly: false,
     order: 5,
+    note: '',
     parentId: null,
   },
   {
@@ -140,6 +150,7 @@ const resignationFields = [
     required: true,
     readOnly: false,
     order: 6,
+    note: '',
     parentId: null,
   },
   {
@@ -173,6 +184,7 @@ const resignationFields = [
       },
     ],
     order: 7,
+    note: '',
     parentId: 'container_yip69kmf',
   },
   {
@@ -184,6 +196,7 @@ const resignationFields = [
     required: true,
     readOnly: false,
     order: 8,
+    note: '',
     parentId: 'container_yip69kmf',
   },
 ];
@@ -198,6 +211,7 @@ const unpaidLeaveFields = [
     required: false,
     readOnly: false,
     order: 0,
+    note: '',
     parentId: null,
     layout: {
       direction: 'row',
@@ -212,6 +226,7 @@ const unpaidLeaveFields = [
     required: true,
     readOnly: false,
     order: 1,
+    note: '',
     parentId: 'container_rni9gwze',
   },
   {
@@ -223,6 +238,7 @@ const unpaidLeaveFields = [
     required: true,
     readOnly: false,
     order: 2,
+    note: '',
     parentId: 'container_rni9gwze',
   },
   {
@@ -234,6 +250,7 @@ const unpaidLeaveFields = [
     required: true,
     readOnly: false,
     order: 3,
+    note: '',
     parentId: null,
   },
   {
@@ -253,6 +270,7 @@ const unpaidLeaveFields = [
       },
     ],
     order: 4,
+    note: '',
     parentId: null,
   },
 ];

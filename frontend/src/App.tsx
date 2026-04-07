@@ -37,7 +37,6 @@ import AssignManager from "./features/approvals/pages/AssignManager"
 import CreateFormBuilderPage from "./features/approvals/pages/CreateFormBuilderPage"
 import FormTemplateDetailPage from "./features/approvals/pages/FormTemplateDetailPage"
 import FormManagerPage from "./features/approvals/pages/FormManagerPage"
-import EditFormBuilderPage from "./features/approvals/pages/EditFormBuilderPage"
 import AdjustLeaveBalance from "./features/approvals/pages/AdjustLeaveBalance"
 import LoginPage from "./features/auth/pages/LoginPage"
 import ViewDetailRequestPage from "./features/requests/pages/ViewDetailRequestPage"
@@ -72,7 +71,7 @@ function App() {
                     <Route path="/approvals/form-manager" element={<FormManagerPage />} />
                     <Route path="/approvals/create-form-builder" element={<CreateFormBuilderPage />} />
                     <Route path="/approvals/form-manager/:id" element={<FormTemplateDetailPage />} />
-                    <Route path="/approvals/form-manager/:id/edit" element={<EditFormBuilderPage />} />
+                    <Route path="/approvals/form-manager/:id/edit" element={<CreateFormBuilderPage />} />
                     <Route path="/approvals/adjust-leave-balances" element={<AdjustLeaveBalance />} />
                     <Route path="/approvals/team-requests" element={<TeamRequests />} />
                     <Route path="/approvals/team-requests/:id" element={<TeamRequestDetailPage />} />
