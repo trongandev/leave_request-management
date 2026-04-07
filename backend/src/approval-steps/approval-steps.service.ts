@@ -25,6 +25,7 @@ import { LeaveBalance } from '../leave-balances/leave-balances.schema';
 import { FormTemplate } from '../form-template/form-template.schema';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Counter } from '../counters/counters.schema';
+import { ApprovalStepsFlowLogService } from '../approval-steps-flow-log/approval-steps-flow-log.service';
 
 type RequestActor = {
   _id?: string;
@@ -53,6 +54,7 @@ export class ApprovalStepsService {
     private readonly formTemplateModel: Model<FormTemplate>,
     private readonly delegationsService: DelegationsService,
     private readonly notificationsService: NotificationsService,
+    private readonly approvalStepsFlowLogService: ApprovalStepsFlowLogService,
   ) {}
 
   // Get all approval steps
@@ -265,7 +267,29 @@ export class ApprovalStepsService {
       });
     }
 
-    await this.resolveParallelGroupAfterApprove(savedStep, String(actor._id));
+    const markApproved = this.approvalStepsFlowLogService as unknown as {
+      markApprovedByFlowLogId: (
+        flowLogId: string,
+        performerName?: string,
+      ) => Promise<void>;
+      markApproved: (
+        requestId: string,
+        performerName?: string,
+      ) => Promise<void>;
+    };
+    // Prefer flowLogId linkage for deterministic timeline updates.
+    // Fallback to requestId keeps backward compatibility for historical approval_steps.
+    if (savedStep.flowLogId) {
+      await markApproved.markApprovedByFlowLogId(
+        String(savedStep.flowLogId),
+        this.extractActorName(actor),
+      );
+    } else {
+      await markApproved.markApproved(
+        String(savedStep.requestId),
+        this.extractActorName(actor),
+      );
+    }
     await this.syncRequestStatus(String(savedStep.requestId));
     return savedStep;
   }
@@ -328,7 +352,29 @@ export class ApprovalStepsService {
       });
     }
 
-    await this.closeActiveStepsAfterReject(savedStep);
+    const markRejected = this.approvalStepsFlowLogService as unknown as {
+      markRejectedByFlowLogId: (
+        flowLogId: string,
+        performerName?: string,
+      ) => Promise<void>;
+      markRejected: (
+        requestId: string,
+        performerName?: string,
+      ) => Promise<void>;
+    };
+    // Prefer flowLogId linkage for deterministic timeline updates.
+    // Fallback to requestId keeps backward compatibility for historical approval_steps.
+    if (savedStep.flowLogId) {
+      await markRejected.markRejectedByFlowLogId(
+        String(savedStep.flowLogId),
+        this.extractActorName(actor),
+      );
+    } else {
+      await markRejected.markRejected(
+        String(savedStep.requestId),
+        this.extractActorName(actor),
+      );
+    }
     await this.syncRequestStatus(String(savedStep.requestId));
     return savedStep;
   }
@@ -603,7 +649,7 @@ export class ApprovalStepsService {
         {
           $set: {
             status: RequestStatus.RETURNED,
-            currentStepOrder: 1,
+            currentStepOrder: 0,
           },
         },
       )
@@ -650,8 +696,8 @@ export class ApprovalStepsService {
     );
     if (rejectedStep) {
       await this.requestModel.findByIdAndUpdate(requestId, {
-        status: RequestStatus.RETURNED,
-        currentStepOrder: rejectedStep.stepOrder,
+        status: RequestStatus.REJECTED,
+        currentStepOrder: 0,
       });
       return;
     }
@@ -662,7 +708,7 @@ export class ApprovalStepsService {
     if (returnedStep) {
       await this.requestModel.findByIdAndUpdate(requestId, {
         status: RequestStatus.RETURNED,
-        currentStepOrder: returnedStep.stepOrder,
+        currentStepOrder: 0,
       });
       return;
     }
@@ -681,7 +727,7 @@ export class ApprovalStepsService {
 
       await this.requestModel.findByIdAndUpdate(requestId, {
         status: RequestStatus.APPROVED,
-        currentStepOrder: steps[steps.length - 1]?.stepOrder ?? 1,
+        currentStepOrder: 1,
       });
 
       if (request?.creatorId) {
@@ -704,7 +750,7 @@ export class ApprovalStepsService {
 
     await this.requestModel.findByIdAndUpdate(requestId, {
       status: RequestStatus.PENDING,
-      currentStepOrder: Math.min(...activeSteps.map((step) => step.stepOrder)),
+      currentStepOrder: 0,
     });
   }
 
@@ -798,86 +844,15 @@ export class ApprovalStepsService {
     await balance.save();
   }
 
-  private async resolveParallelGroupAfterApprove(
-    step: ApprovalStep,
-    actorId: string,
-  ): Promise<void> {
-    // For parallel steps with requiredAll = false, one approval can close the whole group.
-    const groupMatcher = this.buildParallelGroupMatcher(step);
-
-    if (!groupMatcher || step.requiredAll) {
-      return;
+  private extractActorName(actor: RequestActor): string | undefined {
+    if (typeof actor === 'object' && actor !== null && 'fullName' in actor) {
+      const fullName = (actor as { fullName?: unknown }).fullName;
+      return typeof fullName === 'string' && fullName.trim().length > 0
+        ? fullName
+        : undefined;
     }
 
-    await this.approvalStepModel
-      .updateMany(
-        {
-          ...groupMatcher,
-          _id: { $ne: step._id },
-          status: {
-            $in: [ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED],
-          },
-        },
-        {
-          $set: {
-            status: ApprovalStepStatus.APPROVED,
-            comment:
-              step.comment ??
-              `Auto-approved by parallel rule after approver ${actorId} signed`,
-            signedAt: step.signedAt ?? new Date(),
-            actualApproverId: step.actualApproverId ?? actorId,
-            signatureUrl: step.signatureUrl,
-          },
-        },
-      )
-      .exec();
-  }
-
-  private async closeActiveStepsAfterReject(
-    rejectedStep: ApprovalStep,
-  ): Promise<void> {
-    await this.approvalStepModel
-      .updateMany(
-        {
-          requestId: rejectedStep.requestId,
-          _id: { $ne: rejectedStep._id },
-          status: {
-            $in: [ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED],
-          },
-        },
-        {
-          $set: {
-            status: ApprovalStepStatus.RETURNED,
-            comment:
-              rejectedStep.comment ??
-              'Auto-returned after another approval step rejected this request',
-            signedAt: rejectedStep.signedAt ?? new Date(),
-          },
-        },
-      )
-      .exec();
-  }
-
-  private buildParallelGroupMatcher(
-    step: ApprovalStep,
-  ): Record<string, any> | null {
-    const members = [...new Set((step.groupId ?? []).map(String))].filter(
-      Boolean,
-    );
-
-    if (members.length < 2) {
-      return null;
-    }
-
-    return {
-      requestId: step.requestId,
-      stepOrder: step.stepOrder,
-      requiredAll: step.requiredAll,
-      groupId: {
-        $all: members,
-        $size: members.length,
-      },
-    };
+    return undefined;
   }
 
   private async canActorHandleStep(

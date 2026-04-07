@@ -37,6 +37,6 @@ export class CreateRequestDto {
 
   @IsOptional()
   @IsInt({ message: 'currentStepOrder phải là số nguyên' })
-  @Min(1, { message: 'currentStepOrder phải lớn hơn hoặc bằng 1' })
+  @Min(0, { message: 'currentStepOrder phải lớn hơn hoặc bằng 0' })
   currentStepOrder?: number;
 }

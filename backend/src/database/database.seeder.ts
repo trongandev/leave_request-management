@@ -6,6 +6,7 @@ import { PermissionDoc } from '../permission/permission.schema';
 import { Role } from '../roles/roles.schema';
 import { User } from '../users/users.schema';
 import * as bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker/locale/vi';
 import { Department } from 'src/departments/departments.schema';
 import { orgStructure } from 'src/config/orgStructure.config';
 import { Position } from 'src/positions/positions.schema';
@@ -40,8 +41,197 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.createDefaultDepartmentsAndPositions();
     await this.seedRoles();
     await this.seedAdminUser();
+    await this.seedKeyLeaders();
     await this.seedFormTemplates();
     console.log('--- Seeding hoàn tất ---');
+  }
+
+  private async seedKeyLeaders() {
+    await this.ensureStrategicPositions();
+
+    const [managerRole, hrRole] = await Promise.all([
+      this.roleModel.findOne({ name: 'MANAGER' }).select('_id').lean(),
+      this.roleModel.findOne({ name: 'HR' }).select('_id').lean(),
+    ]);
+
+    if (!managerRole?._id || !hrRole?._id) {
+      this.logger.warn('Thiếu role MANAGER/HR, bỏ qua seed key leaders');
+      return;
+    }
+
+    const keyLeaderConfigs = [
+      {
+        code: 'CTO',
+        departmentCode: 'TECH',
+        positionName: 'CTO',
+        role: 'MANAGER',
+      },
+      {
+        code: 'CFO',
+        departmentCode: 'SYS',
+        positionName: 'CFO',
+        role: 'MANAGER',
+      },
+      {
+        code: 'FM',
+        departmentCode: 'PROD',
+        positionName: 'FM',
+        role: 'MANAGER',
+      },
+      { code: 'HRD', departmentCode: 'HR', positionName: 'HRD', role: 'HR' },
+      {
+        code: 'RDM',
+        departmentCode: 'RND',
+        positionName: 'RDM',
+        role: 'MANAGER',
+      },
+      {
+        code: 'DLM',
+        departmentCode: 'LOG',
+        positionName: 'LM',
+        role: 'MANAGER',
+      },
+      {
+        code: 'QAD',
+        departmentCode: 'QA',
+        positionName: 'QAM',
+        role: 'MANAGER',
+      },
+      {
+        code: 'SM',
+        departmentCode: 'SYS',
+        positionName: 'SM',
+        role: 'MANAGER',
+      },
+    ] as const;
+
+    for (const config of keyLeaderConfigs) {
+      const [department, position] = await Promise.all([
+        this.departmentModel
+          .findOne({ code: config.departmentCode })
+          .select('_id')
+          .lean(),
+        this.positionModel
+          .findOne({ name: config.positionName })
+          .select('_id departmentId')
+          .lean(),
+      ]);
+
+      if (!department?._id || !position?._id) {
+        this.logger.warn(
+          `Không tìm thấy department/position cho key leader ${config.code}`,
+        );
+        continue;
+      }
+
+      const roleId =
+        config.role === 'HR' ? String(hrRole._id) : String(managerRole._id);
+      const email = `${config.code.toLowerCase()}@lrm.com`;
+
+      const existing = await this.userModel.findOne({ email }).exec();
+      if (existing) {
+        await this.userModel.updateOne(
+          { _id: existing._id },
+          {
+            $set: {
+              roleId,
+              departmentId: String(department._id),
+              positionId: String(position._id),
+              managerId: null,
+            },
+          },
+        );
+        continue;
+      }
+
+      const hashedPassword = await bcrypt.hash('Leader@123', 10);
+      const birthDate = faker.date.birthdate({
+        min: 1975,
+        max: 1992,
+        mode: 'year',
+      });
+
+      const createdLeader = await this.userModel.create({
+        empId: `LD${faker.string.numeric(6)}`,
+        fullName: faker.person.fullName(),
+        email,
+        phone: faker.helpers.fromRegExp(/0[35789][0-9]{8}/),
+        password: hashedPassword,
+        roleId,
+        departmentId: String(department._id),
+        positionId: String(position._id),
+        avatar: faker.image.avatar(),
+        gender: faker.person.sex(),
+        birthDate,
+        status: true,
+      });
+
+      const currentYear = new Date().getFullYear();
+      const baseDays = 12;
+      const seniorityDays = 0;
+      const adjustedDays = 0;
+      const totalDays = baseDays + seniorityDays + adjustedDays;
+
+      await this.leaveBalanceModel.updateOne(
+        { userId: String(createdLeader._id), year: currentYear },
+        {
+          $set: {
+            userId: String(createdLeader._id),
+            year: currentYear,
+            baseDays,
+            seniorityDays,
+            adjustedDays,
+            totalDays,
+            usedDays: 0,
+            remainingDays: totalDays,
+          },
+        },
+        { upsert: true },
+      );
+    }
+  }
+
+  private async ensureStrategicPositions(): Promise<void> {
+    const hrDepartment = await this.departmentModel
+      .findOne({ code: 'HR' })
+      .select('_id')
+      .lean();
+    const sysDepartment = await this.departmentModel
+      .findOne({ code: 'SYS' })
+      .select('_id')
+      .lean();
+
+    if (hrDepartment?._id) {
+      await this.positionModel.updateOne(
+        { name: 'HRD', departmentId: String(hrDepartment._id) },
+        {
+          $set: {
+            name: 'HRD',
+            fullName: 'Human Resources Director',
+            description: 'Giám đốc nhân sự',
+            level: 7,
+            departmentId: String(hrDepartment._id),
+          },
+        },
+        { upsert: true },
+      );
+    }
+
+    if (sysDepartment?._id) {
+      await this.positionModel.updateOne(
+        { name: 'CFO', departmentId: String(sysDepartment._id) },
+        {
+          $set: {
+            name: 'CFO',
+            fullName: 'Chief Financial Officer',
+            description: 'Giám đốc tài chính',
+            level: 8,
+            departmentId: String(sysDepartment._id),
+          },
+        },
+        { upsert: true },
+      );
+    }
   }
 
   private async seedFormTemplates() {

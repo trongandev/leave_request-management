@@ -6,12 +6,13 @@ jest.mock('../users/users.service', () => ({
 import { RequestsService } from './requests.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { UsersService } from '../users/users.service';
-import { ApprovalOrchestratorService } from '../approval-steps/policies/approval-orchestrator.service';
 import { ApprovalStepsService } from '../approval-steps/approval-steps.service';
 import { Request } from './requests.schema';
 import { LeaveBalance } from '../leave-balances/leave-balances.schema';
 import { FormTemplate } from '../form-template/form-template.schema';
 import { ApprovalStep } from '../approval-steps/approval-steps.schema';
+import { Counter } from '../counters/counters.schema';
+import { ApprovalStepsFlowLogService } from '../approval-steps-flow-log/approval-steps-flow-log.service';
 
 describe('RequestsService', () => {
   let service: RequestsService;
@@ -28,6 +29,12 @@ describe('RequestsService', () => {
           provide: getModelToken(LeaveBalance.name),
           useValue: {
             findOne: jest.fn(),
+          },
+        },
+        {
+          provide: getModelToken(Counter.name),
+          useValue: {
+            findOneAndUpdate: jest.fn(),
           },
         },
         {
@@ -50,17 +57,18 @@ describe('RequestsService', () => {
           },
         },
         {
-          provide: ApprovalOrchestratorService,
-          useValue: {
-            planApprovalSteps: jest.fn(),
-            transformToPersistableSteps: jest.fn(),
-          },
-        },
-        {
           provide: ApprovalStepsService,
           useValue: {
             createBatch: jest.fn(),
             deleteByRequestId: jest.fn(),
+            returnByRequestId: jest.fn(),
+          },
+        },
+        {
+          provide: ApprovalStepsFlowLogService,
+          useValue: {
+            createOrResetForRequest: jest.fn(),
+            markCancelled: jest.fn(),
           },
         },
       ],
