@@ -26,11 +26,23 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                                 </>
                             ) : (
                                 <>
-                                    {Object.keys(data?.data[0] || {}).map((column) => (
-                                        <th key={column} className="py-5 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-center">
-                                            {column}
-                                        </th>
-                                    ))}
+                                    {data ? (
+                                        <>
+                                            {Object.keys(data[0] || {}).map((column) => (
+                                                <th key={column} className="py-5 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-center">
+                                                    {column}
+                                                </th>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {Object.keys(data?.data[0] || {}).map((column) => (
+                                                <th key={column} className="py-5 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-center">
+                                                    {column}
+                                                </th>
+                                            ))}
+                                        </>
+                                    )}
                                 </>
                             )}
                         </tr>
@@ -38,7 +50,7 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                     <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700 text-sm max-h-185 overflow-y-auto">
                         {isLoading && (
                             <tr>
-                                <td colSpan={columns?.length || Object.keys(data?.data[0] || {}).length} className="h-125 w-full">
+                                <td colSpan={columns?.length || Object.keys(data || data?.data[0] || {}).length} className="h-125 w-full">
                                     <div className="flex items-center justify-center text-gray-600 h-full">
                                         <Loader className="animate-spin" />
                                     </div>
@@ -49,20 +61,36 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                             children
                         ) : (
                             <>
-                                {data?.data.map((item: any, index: number) => (
-                                    <tr key={index}>
-                                        {Object.keys(item).map((column) => (
-                                            <td key={column} className="py-4 px-6 text-sm text-neutral-500">
-                                                {typeof item[column] === "object" ? "[Object]" : item[column]}
-                                            </td>
+                                {data ? (
+                                    <>
+                                        {data?.map((item: any, index: number) => (
+                                            <tr key={index}>
+                                                {Object.keys(item).map((column) => (
+                                                    <td key={column} className="py-4 px-6 text-sm text-neutral-500">
+                                                        {typeof item[column] === "object" ? "[Object]" : item[column]}
+                                                    </td>
+                                                ))}
+                                            </tr>
                                         ))}
-                                    </tr>
-                                ))}
+                                    </>
+                                ) : (
+                                    <>
+                                        {data?.data.map((item: any, index: number) => (
+                                            <tr key={index}>
+                                                {Object.keys(item).map((column) => (
+                                                    <td key={column} className="py-4 px-6 text-sm text-neutral-500">
+                                                        {typeof item[column] === "object" ? "[Object]" : item[column]}
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </>
+                                )}
                             </>
                         )}
                         {(data?.length == 0 || data?.data?.length == 0) && (
                             <tr>
-                                <td colSpan={columns?.length || Object.keys(data?.data[0] || {}).length} className="h-100 w-full">
+                                <td colSpan={columns?.length || Object.keys(data || data?.data[0] || {}).length} className="h-100 w-full">
                                     <div className="flex items-center justify-center text-gray-600 h-full">No data available...</div>
                                 </td>
                             </tr>

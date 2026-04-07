@@ -56,10 +56,10 @@ export function SortableContainer({ container, fields, isActive, onClick, onRemo
             </div>
 
             {isActive && (
-                <div className="absolute -right-14 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-2 z-10">
+                <div className="absolute cursor-grab top-0 right-0 flex items-center justify-center gap-3">
                     <Button
-                        variant="outline"
-                        size="icon"
+                        variant="destructive"
+                        size="icon-sm"
                         onClick={(e) => {
                             e.stopPropagation()
                             onRemove()
@@ -70,7 +70,7 @@ export function SortableContainer({ container, fields, isActive, onClick, onRemo
                     {onCopy && (
                         <Button
                             variant="outline"
-                            size="icon"
+                            size="icon-sm"
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onCopy()

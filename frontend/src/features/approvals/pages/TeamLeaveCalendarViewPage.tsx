@@ -107,7 +107,7 @@ export default function TeamLeaveCalendarViewPage() {
                                         </div>
                                         <div className="flex-1">
                                             <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200 group-hover:text-primary transition-colors">{member.fullName}</p>
-                                            <p className="text-xs text-neutral-400">{member.departmentId?.originName}</p>
+                                            <p className="text-xs text-neutral-400">{member.departmentId.originName}</p>
                                         </div>
                                     </label>
                                 ))}

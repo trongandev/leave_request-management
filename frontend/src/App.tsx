@@ -45,6 +45,7 @@ import ProfileAnotherPage from "./features/general/pages/ProfileAnotherPage"
 import EditDetailRequestPage from "./features/requests/pages/EditDetailRequestPage"
 import TeamRequests from "./features/approvals/pages/TeamRequests"
 import TeamManagement from "./features/approvals/pages/TeamManagement"
+import TeamRequestDetailPage from "./features/approvals/pages/TeamRequestDetailPage"
 
 function App() {
     return (
@@ -74,6 +75,7 @@ function App() {
                     <Route path="/approvals/form-manager/:id/edit" element={<EditFormBuilderPage />} />
                     <Route path="/approvals/adjust-leave-balances" element={<AdjustLeaveBalance />} />
                     <Route path="/approvals/team-requests" element={<TeamRequests />} />
+                    <Route path="/approvals/team-requests/:id" element={<TeamRequestDetailPage />} />
                     <Route path="/approvals/team-management" element={<TeamManagement />} />
                 </Route>
                 <Route path="/admin" element={<AdminLayout />}>

@@ -1,5 +1,5 @@
 import type { Request } from "./request"
-import type { User } from "./user"
+import type { LeaveBalance, User } from "./user"
 
 export interface ApprovalStep {
     _id: string
@@ -14,4 +14,9 @@ export interface ApprovalStep {
     deadlineAt: string
     createdAt: string
     updatedAt: string
+}
+
+export interface ApprovalStepDetail {
+    appStep: ApprovalStep
+    lb: LeaveBalance
 }

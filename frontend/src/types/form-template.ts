@@ -27,6 +27,8 @@ export interface Field {
     id: string
     type: string
     label: string
+    name: string
+    note: string
     placeholder: string
     required: boolean
     readOnly: boolean

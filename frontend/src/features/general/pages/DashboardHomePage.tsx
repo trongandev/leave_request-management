@@ -25,7 +25,6 @@ import {
 } from "lucide-react"
 import { createElement, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-
 export default function DashboardHomePage() {
     const { t } = useTranslation()
     const { user, lb } = useAuthStore()

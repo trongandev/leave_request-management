@@ -185,7 +185,7 @@ export default function GeneralSidebar() {
                 break
             case "MANAGER":
                 setNewNav(manNav)
-                setPortalName(t("general.sidebar.portals.approval"))
+                setPortalName("Manager Portal")
                 break
             case "HR":
                 setNewNav(HRNav)

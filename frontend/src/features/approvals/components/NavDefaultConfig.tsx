@@ -1,4 +1,17 @@
-import { BinaryIcon, CalendarRangeIcon, CaseSensitiveIcon, CircleChevronDownIcon, CircleDotIcon, Container, FileUpIcon, SquareCheckIcon, TextInitialIcon } from "lucide-react"
+import {
+    BinaryIcon,
+    CalendarRangeIcon,
+    CaseSensitiveIcon,
+    CircleChevronDownIcon,
+    CircleDotIcon,
+    Container,
+    FileUpIcon,
+    NotebookPen,
+    SignatureIcon,
+    SquareCheckBigIcon,
+    SquareCheckIcon,
+    TextInitialIcon,
+} from "lucide-react"
 
 export const navDefault = [
     {
@@ -11,11 +24,11 @@ export const navDefault = [
         ],
     },
     {
-        name: "SELECT",
+        name: "SELECT OPTIONS",
         child: [
-            { id: 5, name: "Dropdown", type: "select", icon: CircleChevronDownIcon },
-            { id: 6, name: "Radio", type: "radio", icon: CircleDotIcon },
-            { id: 7, name: "Checkbox", type: "checkbox", icon: SquareCheckIcon },
+            { id: 5, name: "Dropdown Option", type: "select", icon: CircleChevronDownIcon },
+            { id: 6, name: "Radio Option", type: "radio", icon: CircleDotIcon },
+            { id: 7, name: "Checkbox Option", type: "checkbox", icon: SquareCheckIcon },
         ],
     },
     {
@@ -23,6 +36,9 @@ export const navDefault = [
         child: [
             { id: 8, name: "File Upload", type: "file", icon: FileUpIcon },
             { id: 9, name: "Layout", type: "container", icon: Container },
+            { id: 10, name: "Confirm", type: "confirm", icon: SquareCheckBigIcon },
+            { id: 11, name: "Signature", type: "signature", icon: SignatureIcon },
+            { id: 12, name: "Note", type: "label", icon: NotebookPen },
         ],
     },
 ]

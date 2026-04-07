@@ -23,7 +23,6 @@ export default function FormTemplateDetailPage() {
         queryKey: ["form-template-detail" + location.pathname.split("/")[3]],
         queryFn: () => formTemplateService.getById(location.pathname.split("/")[3]),
     })
-
     const mutation = useMutation({
         mutationFn: (data: any) => requestService.create(data),
         onSuccess: () => {
@@ -36,10 +35,10 @@ export default function FormTemplateDetailPage() {
         },
     })
 
-    const handleChangeValue = (fieldId: string, value: any) => {
+    const handleChangeValue = (fieldName: string, value: any) => {
         setStateValueData((prev) => ({
             ...prev,
-            [fieldId]: value,
+            [fieldName]: value,
         }))
     }
 
@@ -47,7 +46,7 @@ export default function FormTemplateDetailPage() {
 
     const handleSubmit = async () => {
         const submitData = Object.entries(stateValueData).reduce((acc, [key, value]) => {
-            const field = data?.fields.find((f) => f.id === key)
+            const field = data?.fields.find((f) => f.name === key)
             if (field?.type === "file" && value instanceof File) {
                 return {
                     ...acc,
@@ -65,7 +64,8 @@ export default function FormTemplateDetailPage() {
             values: submitData,
             code: data?.code || "",
         }
-        mutation.mutate(newFormData)
+        // mutation.mutate(newFormData)
+        console.log(newFormData)
     }
     if (isLoading) {
         return <LoadingUI />
@@ -81,12 +81,12 @@ export default function FormTemplateDetailPage() {
                             {rootFields &&
                                 rootFields.map((field) => {
                                     if (field.type === "container") {
-                                        const childFields = data?.fields.filter((f) => f.parentId === field.id).sort((a, b) => (a.order || 0) - (b.order || 0))
+                                        const childFields = data?.fields.filter((f) => f.parentId === field.name).sort((a, b) => (a.order || 0) - (b.order || 0))
                                         return (
-                                            <div key={field.id} className={`flex gap-4 ${field.layout?.direction === "row" ? "flex-row" : "flex-col"}`}>
+                                            <div key={field.name} className={`flex gap-4 ${field.layout?.direction === "row" ? "flex-row" : "flex-col"}`}>
                                                 {childFields &&
                                                     childFields.map((child) => (
-                                                        <div key={child.id} className={field.layout?.direction === "row" ? "flex-1" : ""}>
+                                                        <div key={child.name} className={field.layout?.direction === "row" ? "flex-1" : ""}>
                                                             <div className="space-y-1 mb-4">
                                                                 <Label>
                                                                     {child.label} {child.required && <span className="text-red-500">*</span>}
@@ -95,8 +95,8 @@ export default function FormTemplateDetailPage() {
                                                                     <Input
                                                                         placeholder={child.placeholder}
                                                                         readOnly={child.readOnly}
-                                                                        value={stateValueData[child.id]}
-                                                                        onChange={(e) => handleChangeValue(child.id, e.target.value)}
+                                                                        value={stateValueData[child.name]}
+                                                                        onChange={(e) => handleChangeValue(child.name, e.target.value)}
                                                                     />
                                                                 )}
                                                                 {child.type === "number" && (
@@ -104,16 +104,16 @@ export default function FormTemplateDetailPage() {
                                                                         type="number"
                                                                         placeholder={child.placeholder}
                                                                         readOnly={child.readOnly}
-                                                                        value={stateValueData[child.id]}
-                                                                        onChange={(e) => handleChangeValue(child.id, e.target.value)}
+                                                                        value={stateValueData[child.name]}
+                                                                        onChange={(e) => handleChangeValue(child.name, e.target.value)}
                                                                     />
                                                                 )}
                                                                 {child.type === "textarea" && (
                                                                     <Textarea
                                                                         placeholder={child.placeholder}
                                                                         readOnly={child.readOnly}
-                                                                        value={stateValueData[child.id]}
-                                                                        onChange={(e) => handleChangeValue(child.id, e.target.value)}
+                                                                        value={stateValueData[child.name]}
+                                                                        onChange={(e) => handleChangeValue(child.name, e.target.value)}
                                                                     />
                                                                 )}
                                                                 {child.type === "select" && (
@@ -122,14 +122,14 @@ export default function FormTemplateDetailPage() {
                                                                         placeholder={child.placeholder}
                                                                         valueKey="value"
                                                                         readOnly={child.readOnly}
-                                                                        value={stateValueData[child.id]}
-                                                                        onChange={(value) => handleChangeValue(child.id, value)}
+                                                                        value={stateValueData[child.name]}
+                                                                        onChange={(value) => handleChangeValue(child.name, value)}
                                                                     />
                                                                 )}
-                                                                {child.type === "date" && <DatePicker className="" onChangeValue={(value) => handleChangeValue(child.id, value?.toISOString())} />}
+                                                                {child.type === "date" && <DatePicker className="" onChangeValue={(value) => handleChangeValue(child.name, value?.toISOString())} />}
                                                                 {child.type === "file" && (
                                                                     <div className="border-2 border-dashed hover:text-primary text-gray-400 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 cursor-pointer h-24 text-center text-sm rounded-md bg-card flex items-center justify-center gap-2">
-                                                                        <input type="file" onChange={(e) => handleChangeValue(child.id, e.target.files?.[0])} hidden />
+                                                                        <input type="file" onChange={(e) => handleChangeValue(child.name, e.target.files?.[0])} hidden />
                                                                         <FileUpIcon />
                                                                         <p className="text-sm font-medium">File upload area</p>
                                                                     </div>
@@ -140,24 +140,24 @@ export default function FormTemplateDetailPage() {
                                                                             <div key={i} className="flex items-center gap-2">
                                                                                 <input
                                                                                     type="checkbox"
-                                                                                    id={`${child.id}_opt_${i}`}
-                                                                                    name={child.id}
+                                                                                    id={`${child.name}_opt_${i}`}
+                                                                                    name={child.name}
                                                                                     value={opt.value}
                                                                                     disabled={child.readOnly}
-                                                                                    checked={stateValueData[child.id]?.includes(opt.value)}
+                                                                                    checked={stateValueData[child.name]?.includes(opt.value)}
                                                                                     onChange={(e) => {
-                                                                                        const values = stateValueData[child.id] || []
+                                                                                        const values = stateValueData[child.name] || []
                                                                                         if (e.target.checked) {
-                                                                                            handleChangeValue(child.id, [...values, opt.value])
+                                                                                            handleChangeValue(child.name, [...values, opt.value])
                                                                                         } else {
                                                                                             handleChangeValue(
-                                                                                                child.id,
+                                                                                                child.name,
                                                                                                 values.filter((v: any) => v !== opt.value),
                                                                                             )
                                                                                         }
                                                                                     }}
                                                                                 />
-                                                                                <label htmlFor={`${child.id}_opt_${i}`} className="text-sm text-neutral-500">
+                                                                                <label htmlFor={`${child.name}_opt_${i}`} className="text-sm text-neutral-500">
                                                                                     {opt.label}
                                                                                 </label>
                                                                             </div>
@@ -170,18 +170,18 @@ export default function FormTemplateDetailPage() {
                                                                             <div key={i} className="flex items-center gap-2">
                                                                                 <input
                                                                                     type="radio"
-                                                                                    id={`${child.id}_opt_${i}`}
-                                                                                    name={child.id}
+                                                                                    id={`${child.name}_opt_${i}`}
+                                                                                    name={child.name}
                                                                                     value={opt.value}
                                                                                     disabled={child.readOnly}
-                                                                                    checked={stateValueData[child.id] === opt.value}
+                                                                                    checked={stateValueData[child.name] === opt.value}
                                                                                     onChange={(e) => {
                                                                                         if (e.target.checked) {
-                                                                                            handleChangeValue(child.id, opt.value)
+                                                                                            handleChangeValue(child.name, opt.value)
                                                                                         }
                                                                                     }}
                                                                                 />
-                                                                                <label htmlFor={`${child.id}_opt_${i}`} className="text-sm text-neutral-500">
+                                                                                <label htmlFor={`${child.name}_opt_${i}`} className="text-sm text-neutral-500">
                                                                                     {opt.label}
                                                                                 </label>
                                                                             </div>
@@ -196,13 +196,15 @@ export default function FormTemplateDetailPage() {
                                     }
 
                                     return (
-                                        <div key={field.id} className="space-y-1">
+                                        <div key={field.name} className="space-y-1">
                                             <Label>
                                                 {field.label} {field.required && <span className="text-red-500">*</span>}
                                             </Label>
-                                            {field.type === "text" && <Input placeholder={field.placeholder} readOnly={field.readOnly} onChange={(e) => handleChangeValue(field.id, e.target.value)} />}
+                                            {field.type === "text" && (
+                                                <Input placeholder={field.placeholder} readOnly={field.readOnly} onChange={(e) => handleChangeValue(field.name, e.target.value)} />
+                                            )}
                                             {field.type === "number" && (
-                                                <Input type="number" placeholder={field.placeholder} readOnly={field.readOnly} onChange={(e) => handleChangeValue(field.id, e.target.value)} />
+                                                <Input type="number" placeholder={field.placeholder} readOnly={field.readOnly} onChange={(e) => handleChangeValue(field.name, e.target.value)} />
                                             )}
                                             {field.type === "select" && (
                                                 <CSelectOptions
@@ -210,7 +212,7 @@ export default function FormTemplateDetailPage() {
                                                     placeholder={field.placeholder}
                                                     valueKey="value"
                                                     readOnly={field.readOnly}
-                                                    onChange={(value: any) => handleChangeValue(field.id, value)}
+                                                    onChange={(value: any) => handleChangeValue(field.name, value)}
                                                 />
                                             )}
                                             {field.type === "radio" && (
@@ -219,18 +221,18 @@ export default function FormTemplateDetailPage() {
                                                         <div key={i} className="flex items-center gap-2">
                                                             <input
                                                                 type="radio"
-                                                                id={`${field.id}_opt_${i}`}
-                                                                name={field.id}
+                                                                id={`${field.name}_opt_${i}`}
+                                                                name={field.name}
                                                                 value={opt.value}
                                                                 disabled={field.readOnly}
-                                                                checked={stateValueData[field.id] === opt.value}
+                                                                checked={stateValueData[field.name] === opt.value}
                                                                 onChange={(e) => {
                                                                     if (e.target.checked) {
-                                                                        handleChangeValue(field.id, opt.value)
+                                                                        handleChangeValue(field.name, opt.value)
                                                                     }
                                                                 }}
                                                             />
-                                                            <label htmlFor={`${field.id}_opt_${i}`} className="text-sm text-neutral-500">
+                                                            <label htmlFor={`${field.name}_opt_${i}`} className="text-sm text-neutral-500">
                                                                 {opt.label}
                                                             </label>
                                                         </div>
@@ -243,41 +245,41 @@ export default function FormTemplateDetailPage() {
                                                         <div key={i} className="flex items-center gap-2">
                                                             <input
                                                                 type="checkbox"
-                                                                id={`${field.id}_opt_${i}`}
-                                                                name={field.id}
+                                                                id={`${field.name}_opt_${i}`}
+                                                                name={field.name}
                                                                 value={opt.value}
                                                                 disabled={field.readOnly}
-                                                                checked={stateValueData[field.id]?.includes(opt.value)}
+                                                                checked={stateValueData[field.name]?.includes(opt.value)}
                                                                 onChange={(e) => {
                                                                     if (e.target.checked) {
-                                                                        handleChangeValue(field.id, [...(stateValueData[field.id] || []), opt.value])
+                                                                        handleChangeValue(field.name, [...(stateValueData[field.name] || []), opt.value])
                                                                     } else {
                                                                         handleChangeValue(
-                                                                            field.id,
-                                                                            (stateValueData[field.id] || []).filter((v: any) => v !== opt.value),
+                                                                            field.name,
+                                                                            (stateValueData[field.name] || []).filter((v: any) => v !== opt.value),
                                                                         )
                                                                     }
                                                                 }}
                                                             />
-                                                            <label htmlFor={`${field.id}_opt_${i}`} className="text-sm text-neutral-500">
+                                                            <label htmlFor={`${field.name}_opt_${i}`} className="text-sm text-neutral-500">
                                                                 {opt.label}
                                                             </label>
                                                         </div>
                                                     ))}
                                                 </div>
                                             )}
-                                            {field.type === "date" && <DatePicker className="" onChangeValue={(value) => handleChangeValue(field.id, value?.toISOString())} />}
+                                            {field.type === "date" && <DatePicker className="" onChangeValue={(value) => handleChangeValue(field.name, value?.toISOString())} />}
                                             {field.type === "textarea" && (
-                                                <Textarea className="h-32" placeholder={field.placeholder} readOnly={field.readOnly} onChange={(e) => handleChangeValue(field.id, e.target.value)} />
+                                                <Textarea className="h-32" placeholder={field.placeholder} readOnly={field.readOnly} onChange={(e) => handleChangeValue(field.name, e.target.value)} />
                                             )}
                                             {field.type === "file" && (
                                                 <label
-                                                    htmlFor={`${field.id}_file`}
+                                                    htmlFor={`${field.name}_file`}
                                                     className="border-2 border-dashed hover:text-primary text-gray-400 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 cursor-pointer h-24 text-center text-sm rounded-md bg-card flex items-center justify-center gap-2"
                                                 >
-                                                    <input id={`${field.id}_file`} type="file" onChange={(e) => handleChangeValue(field.id, e.target.files?.[0])} hidden />
+                                                    <input id={`${field.name}_file`} type="file" onChange={(e) => handleChangeValue(field.name, e.target.files?.[0])} hidden />
                                                     <FileUpIcon />
-                                                    <p className="text-sm font-medium">{stateValueData[field.id]?.name || "No file chosen"}</p>
+                                                    <p className="text-sm font-medium">{stateValueData[field.name]?.name || "No file chosen"}</p>
                                                 </label>
                                             )}
                                         </div>

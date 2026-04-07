@@ -11,7 +11,9 @@ export const useFormBuilder = () => {
                 id: `${type}_${Math.random().toString(36).substr(2, 8)}`,
                 type,
                 label: `New ${type}`,
+                name: `${type}_${Math.random().toString(36).substr(2, 8)}`,
                 placeholder: "",
+                note: "",
                 required: false,
                 readOnly: false,
                 options: type === "select" || type === "radio" ? [{ label: "Option 1", value: "opt_1" }] : undefined,
@@ -47,6 +49,15 @@ export const useFormBuilder = () => {
         setActiveFieldId((prev) => (prev === fieldId ? null : prev))
     }, [])
 
+    const copyField = useCallback(
+        (fieldId: string) => {
+            const fieldToCopy = fields.find((f) => f.id === fieldId)
+            if (!fieldToCopy) return
+            addField(fieldToCopy.type, { parentId: fieldToCopy.parentId, index: undefined })
+        },
+        [addField, fields],
+    )
+
     const moveField = useCallback((activeId: string, overId: string, parentId: string | null = null, newIndex?: number) => {
         setFields((prev) => {
             const oldIndex = prev.findIndex((f) => f.id === activeId)
@@ -80,5 +91,6 @@ export const useFormBuilder = () => {
         updateField,
         removeField,
         moveField,
+        copyField,
     }
 }
