@@ -1,12 +1,12 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker/locale/vi';
 import { PERMISSIONS_METADATA } from '../enum/permission.enum';
 import { PermissionDoc } from '../permission/permission.schema';
 import { Role } from '../roles/roles.schema';
 import { User } from '../users/users.schema';
-import * as bcrypt from 'bcrypt';
-import { faker } from '@faker-js/faker/locale/vi';
 import { Department } from 'src/departments/departments.schema';
 import { orgStructure } from 'src/config/orgStructure.config';
 import { Position } from 'src/positions/positions.schema';
@@ -14,6 +14,8 @@ import { FormTemplate } from '../form-template/form-template.schema';
 import { formTemplateSeed } from 'src/config/formTemplate.config';
 import { Request } from 'src/requests/requests.schema';
 import { LeaveBalance } from 'src/leave-balances/leave-balances.schema';
+import { Counter } from 'src/counters/counters.schema';
+
 @Injectable()
 export class DatabaseSeeder implements OnApplicationBootstrap {
   private readonly logger = new Logger(DatabaseSeeder.name);
@@ -23,6 +25,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     private readonly permissionModel: Model<PermissionDoc>,
     @InjectModel(Role.name) private readonly roleModel: Model<Role>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(Counter.name) private readonly counterModel: Model<Counter>,
     @InjectModel(Position.name) private readonly positionModel: Model<Position>,
     @InjectModel(Department.name)
     private readonly departmentModel: Model<Department>,
@@ -41,14 +44,12 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     await this.createDefaultDepartmentsAndPositions();
     await this.seedRoles();
     await this.seedAdminUser();
-    // await this.seedKeyLeaders();
+    await this.seedKeyLeaders();
     await this.seedFormTemplates();
     console.log('--- Seeding hoàn tất ---');
   }
 
   private async seedKeyLeaders() {
-    await this.ensureStrategicPositions();
-
     const [managerRole, hrRole] = await Promise.all([
       this.roleModel.findOne({ name: 'MANAGER' }).select('_id').lean(),
       this.roleModel.findOne({ name: 'HR' }).select('_id').lean(),
@@ -59,53 +60,24 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       return;
     }
 
-    const keyLeaderConfigs = [
-      {
-        code: 'CTO',
-        departmentCode: 'TECH',
-        positionName: 'CTO',
-        role: 'MANAGER',
-      },
-      {
-        code: 'CFO',
-        departmentCode: 'SYS',
-        positionName: 'CFO',
-        role: 'MANAGER',
-      },
-      {
-        code: 'FM',
-        departmentCode: 'PROD',
-        positionName: 'FM',
-        role: 'MANAGER',
-      },
-      { code: 'HRD', departmentCode: 'HR', positionName: 'HRD', role: 'HR' },
-      {
-        code: 'RDM',
-        departmentCode: 'RND',
-        positionName: 'RDM',
-        role: 'MANAGER',
-      },
-      {
-        code: 'DLM',
-        departmentCode: 'LOG',
-        positionName: 'LM',
-        role: 'MANAGER',
-      },
-      {
-        code: 'QAD',
-        departmentCode: 'QA',
-        positionName: 'QAM',
-        role: 'MANAGER',
-      },
-      {
-        code: 'SM',
-        departmentCode: 'SYS',
-        positionName: 'SM',
-        role: 'MANAGER',
-      },
-    ] as const;
+    const level8LeaderConfigs = orgStructure
+      .flatMap((department) =>
+        department.positions
+          .filter((position) => position.level === 8)
+          .map((position) => ({
+            code: position.name,
+            departmentCode: department.code,
+            positionName: position.name,
+            role: department.code === 'HR' ? 'HR' : 'MANAGER',
+          })),
+      )
+      .sort((a, b) =>
+        `${a.departmentCode}-${a.positionName}`.localeCompare(
+          `${b.departmentCode}-${b.positionName}`,
+        ),
+      );
 
-    for (const config of keyLeaderConfigs) {
+    for (const config of level8LeaderConfigs) {
       const [department, position] = await Promise.all([
         this.departmentModel
           .findOne({ code: config.departmentCode })
@@ -113,7 +85,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
           .lean(),
         this.positionModel
           .findOne({ name: config.positionName })
-          .select('_id departmentId')
+          .select('_id')
           .lean(),
       ]);
 
@@ -130,17 +102,24 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
 
       const existing = await this.userModel.findOne({ email }).exec();
       if (existing) {
+        const updatedFields: Record<string, unknown> = {
+          roleId,
+          departmentId: String(department._id),
+          positionId: String(position._id),
+          managerId: null,
+        };
+
+        if (!this.isValidEmployeeId(existing.empId)) {
+          updatedFields.empId = await this.generateEmployeeId();
+        }
+
         await this.userModel.updateOne(
           { _id: existing._id },
           {
-            $set: {
-              roleId,
-              departmentId: String(department._id),
-              positionId: String(position._id),
-              managerId: null,
-            },
+            $set: updatedFields,
           },
         );
+
         continue;
       }
 
@@ -152,7 +131,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       });
 
       const createdLeader = await this.userModel.create({
-        empId: `LD${faker.string.numeric(6)}`,
+        empId: await this.generateEmployeeId(),
         fullName: faker.person.fullName(),
         email,
         phone: faker.helpers.fromRegExp(/0[35789][0-9]{8}/),
@@ -191,47 +170,22 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     }
   }
 
-  private async ensureStrategicPositions(): Promise<void> {
-    const hrDepartment = await this.departmentModel
-      .findOne({ code: 'HR' })
-      .select('_id')
-      .lean();
-    const sysDepartment = await this.departmentModel
-      .findOne({ code: 'SYS' })
-      .select('_id')
-      .lean();
+  private isValidEmployeeId(empId?: string): boolean {
+    return !!empId && /^\d{8}$/.test(empId);
+  }
 
-    if (hrDepartment?._id) {
-      await this.positionModel.updateOne(
-        { name: 'HRD', departmentId: String(hrDepartment._id) },
-        {
-          $set: {
-            name: 'HRD',
-            fullName: 'Human Resources Director',
-            description: 'Giám đốc nhân sự',
-            level: 7,
-            departmentId: String(hrDepartment._id),
-          },
-        },
-        { upsert: true },
-      );
-    }
+  private async generateEmployeeId(): Promise<string> {
+    const currentYear = new Date().getFullYear().toString().slice(-2);
+    const prefix = `${currentYear}${currentYear}`;
 
-    if (sysDepartment?._id) {
-      await this.positionModel.updateOne(
-        { name: 'CFO', departmentId: String(sysDepartment._id) },
-        {
-          $set: {
-            name: 'CFO',
-            fullName: 'Chief Financial Officer',
-            description: 'Giám đốc tài chính',
-            level: 8,
-            departmentId: String(sysDepartment._id),
-          },
-        },
-        { upsert: true },
-      );
-    }
+    const counter = await this.counterModel.findOneAndUpdate(
+      { _id: prefix },
+      { $inc: { seq: 1 } },
+      { upsert: true, new: true },
+    );
+
+    const sequence = counter.seq.toString().padStart(4, '0');
+    return `${prefix}${sequence}`;
   }
 
   private async seedFormTemplates() {
@@ -273,14 +227,12 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
   private async seedRoles() {
     const allPermissions = await this.permissionModel.find();
 
-    // 1. Role ADMIN: Có tất cả mọi quyền
     await this.roleModel.updateOne(
       { name: 'ADMIN' },
       { permissions: allPermissions.map((p) => p._id) },
       { upsert: true },
     );
 
-    // 2. Role MANAGER: Quyền của nhân viên + Quyền phê duyệt
     const managerPerms = allPermissions.filter(
       (p) =>
         p.code.includes('OWN') ||
@@ -296,7 +248,6 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       { upsert: true },
     );
 
-    // 3. Role HR: Quyền của nhân viên + Quyền xem báo cáo + Quản lý loại nghỉ
     const hrPerms = allPermissions.filter(
       (p) =>
         p.code.includes('OWN') ||
@@ -304,7 +255,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         p.code === 'VIEW_REPORT' ||
         p.code === 'READ_ALL_LEAVE' ||
         p.code === 'MANAGE_LEAVE_TYPES' ||
-        p.code === 'ASSIGN_MANAGER', // Quyền mới cho HR
+        p.code === 'ASSIGN_MANAGER',
     );
     await this.roleModel.updateOne(
       { name: 'HR' },
@@ -312,7 +263,6 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       { upsert: true },
     );
 
-    // 4. Role EMPLOYEE: Chỉ có quyền cá nhân
     const employeePerms = allPermissions.filter(
       (p) => p.code.includes('OWN') || p.code === 'CREATE_LEAVE',
     );
@@ -338,6 +288,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       this.logger.warn('Khong tim thay department SYS, bo qua seed admin user');
       return;
     }
+
     const currentHighestPosition = await this.positionModel
       .findOne({}, { level: 1 })
       .sort({ level: -1 })
@@ -361,6 +312,7 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     const existingAdmin = await this.userModel.findOne({
       email: adminEmail,
     });
+
     if (!existingAdmin) {
       const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
@@ -408,20 +360,17 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
     }
   }
 
-  // tạo danh sách phòng ban mới
   async createDefaultDepartmentsAndPositions() {
     for (const item of orgStructure) {
-      // A. Upsert Department
       const dept = await this.departmentModel.findOneAndUpdate(
         { code: item.code },
         { name: item.name, originName: item.originName, code: item.code },
         { upsert: true, returnDocument: 'after' },
       );
 
-      // B. Upsert Positions cho Department đó
       for (const pos of item.positions) {
         await this.positionModel.updateOne(
-          { name: pos.name, departmentId: dept._id.toString() }, // Đảm bảo vị trí thuộc đúng phòng
+          { name: pos.name },
           { $set: { ...pos, departmentId: dept._id.toString() } },
           { upsert: true },
         );

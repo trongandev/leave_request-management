@@ -21,7 +21,9 @@ describe('ApprovalStepsFlowLogService', () => {
       ],
     }).compile();
 
-    service = module.get<ApprovalStepsFlowLogService>(ApprovalStepsFlowLogService);
+    service = module.get<ApprovalStepsFlowLogService>(
+      ApprovalStepsFlowLogService,
+    );
   });
 
   it('should be defined', () => {

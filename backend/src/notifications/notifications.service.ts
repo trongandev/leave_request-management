@@ -107,8 +107,15 @@ export class NotificationsService {
         id,
         {
           ...updateNotificationDto,
-          ...(Object.prototype.hasOwnProperty.call(updateNotificationDto, 'senderId')
-            ? { senderId: this.normalizeSenderId(updateNotificationDto.senderId) }
+          ...(Object.prototype.hasOwnProperty.call(
+            updateNotificationDto,
+            'senderId',
+          )
+            ? {
+                senderId: this.normalizeSenderId(
+                  updateNotificationDto.senderId,
+                ),
+              }
             : {}),
         },
         { new: true },
