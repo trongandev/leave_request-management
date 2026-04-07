@@ -31,6 +31,7 @@ export interface RequestContext {
 
 export interface ApprovalStepInput {
   requestId: string;
+  flowLogId?: string;
   originalApproverId: string;
   actualApproverId?: string;
   delegationId?: string;
