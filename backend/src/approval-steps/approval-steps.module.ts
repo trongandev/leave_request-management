@@ -3,8 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ApprovalStepsService } from './approval-steps.service';
 import { ApprovalStepsController } from './approval-steps.controller';
 import { ApprovalStep, ApprovalStepSchema } from './approval-steps.schema';
-import { ApproverResolutionPolicy } from './policies/approver-resolution.policy';
-import { ApprovalOrchestratorService } from './policies/approval-orchestrator.service';
 import { DelegationsModule } from '../delegations/delegations.module';
 import { Request, RequestSchema } from '../requests/requests.schema';
 import {
@@ -17,11 +15,13 @@ import {
 } from '../form-template/form-template.schema';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { Counter, CounterSchema } from '../counters/counters.schema';
+import { ApprovalStepsFlowLogModule } from '../approval-steps-flow-log/approval-steps-flow-log.module';
 
 @Module({
   imports: [
     DelegationsModule,
     NotificationsModule,
+    ApprovalStepsFlowLogModule,
     MongooseModule.forFeature([
       { name: ApprovalStep.name, schema: ApprovalStepSchema },
       { name: Request.name, schema: RequestSchema },
@@ -31,16 +31,7 @@ import { Counter, CounterSchema } from '../counters/counters.schema';
     ]),
   ],
   controllers: [ApprovalStepsController],
-  providers: [
-    ApprovalStepsService,
-    ApproverResolutionPolicy,
-    ApprovalOrchestratorService,
-  ],
-  exports: [
-    ApprovalStepsService,
-    ApproverResolutionPolicy,
-    ApprovalOrchestratorService,
-    MongooseModule,
-  ],
+  providers: [ApprovalStepsService],
+  exports: [ApprovalStepsService, MongooseModule],
 })
 export class ApprovalStepsModule {}

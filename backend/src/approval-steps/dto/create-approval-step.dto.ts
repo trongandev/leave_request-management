@@ -15,6 +15,10 @@ export class CreateApprovalStepDto {
   requestId!: string;
 
   @IsString()
+  @IsOptional()
+  flowLogId?: string;
+
+  @IsString()
   originalApproverId!: string;
 
   @IsString()

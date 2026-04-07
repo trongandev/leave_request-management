@@ -1,7 +1,6 @@
 import {
   Injectable,
   ForbiddenException,
-  NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { CreateRequestDto } from './dto/create-request.dto';
@@ -13,15 +12,13 @@ import { paginate } from 'src/common/utils/pagination.util';
 import { QueryRequestsDto } from './dto/query-requests.dto';
 import { RequestStatus } from 'src/enum/request-status.enum';
 import { UsersService } from '../users/users.service';
-import { ApprovalOrchestratorService } from '../approval-steps/policies/approval-orchestrator.service';
 import { ApprovalStepsService } from '../approval-steps/approval-steps.service';
-import { UserProfile } from '../approval-steps/policies/types';
 import { LeaveBalance } from '../leave-balances/leave-balances.schema';
 import { FormTemplate } from '../form-template/form-template.schema';
 import { ApprovalStep } from '../approval-steps/approval-steps.schema';
 import { ApprovalStepStatus } from '../enum/approval-step-status.enum';
-import { NotificationsService } from '../notifications/notifications.service';
 import { Counter } from '../counters/counters.schema';
+import { ApprovalStepsFlowLogService } from '../approval-steps-flow-log/approval-steps-flow-log.service';
 
 type RequestActor = {
   _id?: string;
@@ -34,7 +31,7 @@ type RequestActor = {
 export class RequestsService {
   // Responsibilities:
   // 1) Validate/normalize payload when requester submits a request.
-  // 2) Resolve approval routing plan and create approval steps.
+  // 2) Resolve direct manager approver and create approval step.
   // 3) Enforce access scope for list/detail (admin, department, approver-assigned, self).
   // 4) Guard leave-balance rules before submit and deduct only when request is actually approved.
   constructor(
@@ -49,9 +46,8 @@ export class RequestsService {
     @InjectModel(ApprovalStep.name)
     private readonly approvalStepModel: Model<ApprovalStep>,
     private readonly usersService: UsersService,
-    private readonly approvalOrchestratorService: ApprovalOrchestratorService,
     private readonly approvalStepsService: ApprovalStepsService,
-    private readonly notificationsService: NotificationsService,
+    private readonly approvalStepsFlowLogService: ApprovalStepsFlowLogService,
   ) {}
 
   async create(createRequestDto: CreateRequestDto, user: any) {
@@ -69,7 +65,7 @@ export class RequestsService {
       currentStepOrder:
         status === RequestStatus.DRAFT
           ? 0
-          : (createRequestDto.currentStepOrder ?? 1),
+          : (createRequestDto.currentStepOrder ?? 0),
     });
 
     const request = await createNewRequest.save();
@@ -85,39 +81,30 @@ export class RequestsService {
       normalizedValues,
     );
 
-    const approvalAmount = this.extractApprovalAmount(normalizedValues);
-
-    const resolution = await this.planApprovalResolution(
+    const requesterAndManager = await this.resolveRequesterManagerContext(
       String(user?._id),
-      String(createRequestDto.code),
-      approvalAmount,
     );
 
-    if (resolution.autoApprove) {
-      await this.deductLeaveBalanceIfNeeded(request);
-      request.status = RequestStatus.APPROVED;
-      await request.save();
-
-      // Auto-approved requests still need a confirmation notification.
-      await this.notificationsService.notifyRequestApproved({
-        recipientId: String(request.creatorId),
+    // Create flow-log first so each approval step can persist a stable flowLogId reference.
+    const flowLog =
+      await this.approvalStepsFlowLogService.createOrResetForRequest({
         requestId: String(request._id),
-        requestCode: String(request.code),
-        senderId: null,
+        requesterName: requesterAndManager.requesterName,
+        managerName: requesterAndManager.managerName,
       });
 
-      return request;
-    }
-
-    const persistableSteps =
-      this.approvalOrchestratorService.transformToPersistableSteps(
-        resolution,
-        String(request._id),
-      );
-
-    if (persistableSteps.length > 0) {
-      await this.approvalStepsService.createBatch(persistableSteps);
-    }
+    await this.approvalStepsService.createBatch([
+      {
+        requestId: String(request._id),
+        flowLogId: String(flowLog._id),
+        originalApproverId: requesterAndManager.managerId,
+        stepOrder: 1,
+        stepLabel: 'Dept Manager Approval',
+        groupId: [],
+        isFinalStep: true,
+        requiredAll: true,
+      },
+    ]);
 
     return request;
   }
@@ -150,44 +137,33 @@ export class RequestsService {
       request.values,
     );
 
-    const resolution = await this.planApprovalResolution(
+    const requesterAndManager = await this.resolveRequesterManagerContext(
       String(request.creatorId),
-      String(request.code),
-      this.extractApprovalAmount(request.values),
     );
 
-    if (resolution.autoApprove) {
-      await this.deductLeaveBalanceIfNeeded(request);
-      request.status = RequestStatus.APPROVED;
-      request.currentStepOrder = 1;
-      const saved = await request.save();
-
-      await this.notificationsService.notifyRequestApproved({
-        recipientId: String(saved.creatorId),
-        requestId: String(saved._id),
-        requestCode: String(saved.code),
-        senderId: null,
+    // Resubmission resets timeline state and rewires the new approval step to the new/updated flow-log.
+    const flowLog =
+      await this.approvalStepsFlowLogService.createOrResetForRequest({
+        requestId: String(request._id),
+        requesterName: requesterAndManager.requesterName,
+        managerName: requesterAndManager.managerName,
       });
 
-      return saved;
-    }
-
-    const persistableSteps =
-      this.approvalOrchestratorService.transformToPersistableSteps(
-        resolution,
-        String(request._id),
-      );
-
-    if (persistableSteps.length > 0) {
-      await this.approvalStepsService.createBatch(persistableSteps);
-      request.currentStepOrder = Math.min(
-        ...persistableSteps.map((step) => step.stepOrder),
-      );
-    } else {
-      request.currentStepOrder = 1;
-    }
+    await this.approvalStepsService.createBatch([
+      {
+        requestId: String(request._id),
+        flowLogId: String(flowLog._id),
+        originalApproverId: requesterAndManager.managerId,
+        stepOrder: 1,
+        stepLabel: 'Dept Manager Approval',
+        groupId: [],
+        isFinalStep: true,
+        requiredAll: true,
+      },
+    ]);
 
     request.status = RequestStatus.PENDING;
+    request.currentStepOrder = 0;
     return request.save();
   }
 
@@ -418,7 +394,9 @@ export class RequestsService {
     );
 
     request.status = RequestStatus.CANCELLED;
-    request.currentStepOrder = request.currentStepOrder ?? 1;
+    request.currentStepOrder = request.currentStepOrder ?? 0;
+
+    await this.approvalStepsFlowLogService.markCancelled(String(request._id));
 
     return request.save();
   }
@@ -459,94 +437,57 @@ export class RequestsService {
     }
   }
 
-  private toUserProfile(userDoc: any): UserProfile | null {
-    if (!userDoc?._id || !userDoc?.roleId || !userDoc?.positionId) {
-      return null;
+  private async resolveRequesterManagerContext(requesterId: string): Promise<{
+    requesterName: string;
+    managerId: string;
+    managerName: string;
+  }> {
+    const requesterResult = await this.usersService.findOne(requesterId);
+    const requesterRaw =
+      requesterResult &&
+      typeof requesterResult === 'object' &&
+      'user' in requesterResult
+        ? (requesterResult as { user?: unknown }).user
+        : requesterResult;
+
+    if (!requesterRaw || typeof requesterRaw !== 'object') {
+      throw new BadRequestException('Không tìm thấy thông tin người gửi đơn');
     }
 
-    const roleId =
-      typeof userDoc.roleId === 'string'
-        ? { _id: userDoc.roleId, name: '' }
-        : userDoc.roleId;
-
-    const positionId =
-      typeof userDoc.positionId === 'string' ? null : userDoc.positionId;
-
-    if (!positionId?.level) {
-      return null;
-    }
-
-    return {
-      _id: String(userDoc._id),
-      empId: String(userDoc.empId ?? ''),
-      fullName: String(userDoc.fullName ?? ''),
-      positionId: {
-        _id: String(positionId._id),
-        level: Number(positionId.level),
-        name: String(positionId.name ?? ''),
-        departmentId: String(
-          positionId.departmentId ?? userDoc.departmentId ?? '',
-        ),
-      },
-      departmentId: String(
-        userDoc.departmentId?._id ?? userDoc.departmentId ?? '',
-      ),
-      managerId: userDoc.managerId
-        ? String(userDoc.managerId._id ?? userDoc.managerId)
-        : undefined,
-      roleId: {
-        _id: String(roleId._id ?? ''),
-        name: String(roleId.name ?? '').toUpperCase(),
-      },
+    const requester = requesterRaw as {
+      fullName?: unknown;
+      managerId?: unknown;
     };
-  }
 
-  private async planApprovalResolution(
-    requesterId: string,
-    requestTypeCode: string,
-    amount?: number,
-  ) {
-    const requesterDoc = await this.usersService.findOne(requesterId);
-    const requesterSource =
-      requesterDoc && typeof requesterDoc === 'object' && 'user' in requesterDoc
-        ? (requesterDoc as { user?: unknown }).user
-        : requesterDoc;
+    const managerRaw = requester.managerId as
+      | {
+          _id?: unknown;
+          fullName?: unknown;
+        }
+      | string
+      | undefined;
 
-    if (!requesterSource) {
-      throw new NotFoundException('Requester not found');
-    }
+    const managerId =
+      typeof managerRaw === 'string'
+        ? managerRaw
+        : this.toSafeString(managerRaw?._id);
 
-    const requester = this.toUserProfile(requesterSource);
-    if (!requester) {
+    if (!managerId) {
       throw new BadRequestException(
-        'Requester profile is incomplete: cần roleId, departmentId và positionId.level',
+        'Nhân viên chưa có quản lý trực tiếp, không thể gửi đơn',
       );
     }
 
-    const allUsersResult = await this.usersService.findAll({
-      page: 1,
-      limit: 1000,
-    } as any);
+    const managerName =
+      typeof managerRaw === 'string'
+        ? 'Direct Manager'
+        : this.toSafeText(managerRaw?.fullName, 'Direct Manager');
 
-    const rawUsers =
-      allUsersResult && typeof allUsersResult === 'object'
-        ? (allUsersResult as { data?: unknown[] }).data
-        : undefined;
-
-    const allUsers = Array.isArray(rawUsers)
-      ? rawUsers
-          .map((item) => this.toUserProfile(item))
-          .filter((item): item is UserProfile => Boolean(item))
-      : [];
-
-    return this.approvalOrchestratorService.planApprovalSteps(
-      requester,
-      allUsers,
-      {
-        formType: requestTypeCode,
-        amount,
-      },
-    );
+    return {
+      requesterName: this.toSafeText(requester.fullName, 'Requester'),
+      managerId,
+      managerName,
+    };
   }
 
   private extractApprovalAmount(
@@ -793,5 +734,24 @@ export class RequestsService {
     const year = String(date.getFullYear()).slice(-2);
 
     return `${day}${month}${year}`;
+  }
+
+  private toSafeString(value: unknown): string {
+    if (typeof value === 'string' || typeof value === 'number') {
+      return String(value);
+    }
+
+    if (typeof value === 'object' && value !== null && 'toString' in value) {
+      const normalized = (value as { toString: () => string }).toString();
+      return normalized === '[object Object]' ? '' : normalized;
+    }
+
+    return '';
+  }
+
+  private toSafeText(value: unknown, fallback: string): string {
+    return typeof value === 'string' && value.trim().length > 0
+      ? value
+      : fallback;
   }
 }

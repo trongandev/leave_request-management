@@ -13,6 +13,10 @@ export class ApprovalStep extends Document {
   @Prop({ type: 'ObjectId', ref: 'Request', required: true })
   requestId!: string;
 
+  // Stable link to timeline aggregate document used by UI workflow rendering.
+  @Prop({ type: 'ObjectId', ref: 'ApprovalStepsFlowLog' })
+  flowLogId?: string;
+
   @Prop({ type: 'ObjectId', ref: 'User', required: true })
   originalApproverId!: string;
 
@@ -71,3 +75,4 @@ ApprovalStepSchema.index(
 ApprovalStepSchema.index({ status: 1, deadlineAt: 1 });
 ApprovalStepSchema.index({ originalApproverId: 1 });
 ApprovalStepSchema.index({ groupId: 1 });
+ApprovalStepSchema.index({ flowLogId: 1 });
