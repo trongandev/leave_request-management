@@ -57,7 +57,7 @@ export default function FormPreviewFieldWithValue({
                         readOnly={child.readOnly}
                         value={stateValueData[child.name]}
                         onChange={(e) => handleChangeValue && handleChangeValue(child.name, e.target.value)}
-                        className={`${field?.type === "container" ? "" : "h-28"}`}
+                        className={`${field?.type === "container" ? "h-12" : "h-28"}`}
                     />
                 )}
                 {child.type === "select" && (

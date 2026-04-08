@@ -92,6 +92,7 @@ export default function CreateFormBuilderPage() {
 
     const createTemplateMutation = useMutation({
         mutationFn: async (data: any) => {
+            console.log(data)
             let res = null
             if (id) {
                 delete data.code
@@ -204,19 +205,31 @@ export default function CreateFormBuilderPage() {
     }
 
     const dataFieldName = [
+        // date
         { label: "Ngày bắt đầu nghỉ", value: "startDate", desc: "Ngày bắt đầu nghỉ", fieldType: "date" },
         { label: "Ngày kết thúc nghỉ", value: "endDate", desc: "Ngày kết thúc nghỉ", fieldType: "date" },
-        { label: "Tệp đính kèm", value: "attachment", desc: "Tệp đính kèm", fieldType: "file" },
-        { label: "Lý do xin nghỉ", value: "reason", desc: "Lý do xin nghỉ", fieldType: "textarea" },
-        { label: "Tổng số giờ", value: "totalHours", desc: "Áp dụng cho form đăng ký làm thêm theo giờ hoặc đăng ký chấm công ngoài văn phòng theo giờ", fieldType: "number" },
+
+        //text
         { label: "Vị trí", value: "location", desc: "Áp dụng cho form đăng ký làm việc tại nhà hoặc đăng ký chấm công ngoài văn phòng", fieldType: "text" },
         { label: "Địa điểm đến", value: "destination", desc: "Áp dụng cho form đăng ký công tác, đi công tác cần điền địa điểm đến", fieldType: "text" },
         { label: "Người được phân công làm thay", value: "replacementId", desc: "Người được phân công làm thay trong thời gian đi nghỉ phép", fieldType: "text" },
-        { label: "Ca làm việc", value: "shiftId", desc: "Ca làm việc (sáng, chiều, tối) - áp dụng cho form xin nghỉ phép theo ca hoặc đăng ký làm thêm theo ca", fieldType: "text" },
-        { label: "Thông tin bàn giao", value: "handoverDetail", desc: "Thông tin bàn giao công việc khi đi nghỉ phép", fieldType: "textarea" },
-        { label: "Chi phí dự kiến", value: "estimatedCost", desc: "Chi phí dự kiến cho form đăng ký công tác", fieldType: "number" },
         { label: "Đơn vị tiền tệ", value: "currency", desc: "Đơn vị tiền tệ cho chi phí dự kiến", fieldType: "text" },
+        { label: "Ca làm việc", value: "shiftId", desc: "Ca làm việc (sáng, chiều, tối) - áp dụng cho form xin nghỉ phép theo ca hoặc đăng ký làm thêm theo ca", fieldType: "text" },
+
+        // textarea
+        { label: "Lý do xin nghỉ", value: "reason", desc: "Lý do xin nghỉ", fieldType: "textarea" },
+        { label: "Chi tiết lý do", value: "detailReason", desc: "Chi tiết lý do xin nghỉ", fieldType: "textarea" },
+        { label: "Thông tin bàn giao", value: "handoverDetail", desc: "Thông tin bàn giao công việc khi đi nghỉ phép", fieldType: "textarea" },
+
+        // number
+        { label: "Chi phí dự kiến", value: "estimatedCost", desc: "Chi phí dự kiến cho form đăng ký công tác", fieldType: "number" },
+        { label: "Tổng số giờ", value: "totalHours", desc: "Áp dụng cho form đăng ký làm thêm theo giờ hoặc đăng ký chấm công ngoài văn phòng theo giờ", fieldType: "number" },
+
+        // combobox
+        { label: "Phân loại lý do", value: "reasonCategory", desc: "Phân loại lý do xin nghỉ", fieldType: "select" },
         { label: "Nghỉ phép năm còn lại", value: "remainingAnnualLeave", desc: "Số ngày nghỉ phép năm còn lại của nhân viên", fieldType: "checkbox" },
+        { label: "Đồng ý điều khoản", value: "termsAccepted", desc: "Đồng ý với các điều khoản và điều kiện", fieldType: "confirm" },
+        { label: "Tệp đính kèm", value: "attachment", desc: "Tệp đính kèm", fieldType: "file" },
     ]
 
     const handleChangeValueOption = (value: string) => {
@@ -246,6 +259,18 @@ export default function CreateFormBuilderPage() {
                 name: "attachment",
                 label: "Đính kèm file",
                 required: true,
+            })
+        } else if (value === "reasonCategory" && activeField?.type !== "comboboxOption") {
+            updateField(activeFieldId!, {
+                name: "reasonCategory",
+                label: "Lý do xin nghỉ",
+                placeholder: "Chọn lý do xin nghỉ",
+                required: true,
+                options: [
+                    { label: "Ốm đau", value: "sick" },
+                    { label: "Việc riêng", value: "personal" },
+                    { label: "Khác", value: "other" },
+                ],
             })
         } else {
             const selectedOption = dataFieldName.find((opt) => opt.value === value)
@@ -309,7 +334,7 @@ export default function CreateFormBuilderPage() {
                         </div>
                     </aside>
 
-                    <main className="flex-1 bg-card rounded-xl shadow-xl p-5 overflow-hidden flex flex-col items-center">
+                    <main className="flex-1 bg-card rounded-xl shadow-xl p-5 overflow-auto flex flex-col items-center">
                         <div className="w-full max-w-4xl space-y-8">
                             <div className="space-y-4">
                                 <div className="flex gap-5">
@@ -381,7 +406,7 @@ export default function CreateFormBuilderPage() {
                         </div>
                     </main>
 
-                    <aside className="w-96 bg-card flex flex-col shadow-xl rounded-md transition-all duration-300">
+                    <aside className="w-96 bg-card flex flex-col shadow-xl rounded-md transition-all duration-300 overflow-y-auto">
                         <div className="border-b flex items-center">
                             <div
                                 className={`p-5 flex gap-2 items-center h-full w-full text-center cursor-pointer text-sm flex-1 ${tab === "properties" ? " border-b-2 border-primary text-primary font-medium " : "hover:bg-muted"}`}
