@@ -524,36 +524,6 @@ export class ApprovalStepsService {
       .exec();
   }
 
-  async findDetailById(id: string): Promise<{
-    appStep: ApprovalStep | null;
-    lb: LeaveBalance | null;
-  }> {
-    const appStep = await this.findById(id);
-
-    if (!appStep) {
-      return { appStep: null, lb: null };
-    }
-
-    const populatedStep = appStep as ApprovalStep & {
-      requestId?: {
-        creatorId?: unknown;
-        values?: Record<string, unknown>;
-      };
-    };
-
-    const creatorId = this.toIdString(populatedStep.requestId?.creatorId);
-    if (!creatorId) {
-      return { appStep, lb: null };
-    }
-
-    const year = this.resolveLeaveBalanceYear(populatedStep.requestId?.values);
-    const lb = await this.leaveBalanceModel
-      .findOne({ userId: creatorId, year })
-      .exec();
-
-    return { appStep, lb };
-  }
-
   // Get all approval steps by request ID
   async findByRequestId(requestId: string): Promise<ApprovalStep | null> {
     return this.approvalStepModel
