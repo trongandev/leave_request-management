@@ -75,6 +75,8 @@ export class QueryPendingApprovalStepsDto extends PaginationDto {
   @IsOptional()
   isFinalStep?: boolean;
 
+  @IsOptional()
   take?: number;
+  @IsOptional()
   skip?: number;
 }
