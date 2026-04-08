@@ -20,7 +20,7 @@ import { ApprovalStepStatus } from '../enum/approval-step-status.enum';
 import { Counter } from '../counters/counters.schema';
 import { ApprovalStepsFlowLogService } from '../approval-steps-flow-log/approval-steps-flow-log.service';
 import { User } from '../users/users.schema';
-import { Position } from '../positions/positions.schema';
+import { Position } from 'src/positions/positions.schema';
 
 type RequestActor = {
   _id?: string;
@@ -867,6 +867,40 @@ export class RequestsService {
 
     return undefined;
   }
+  // Validate and normalize totalDays/amount field for leave balance check.
+  // This is a fallback in case form template doesn't enforce correct input, or client doesn't calculate totalDays correctly.
+  private validateRequestDatesAndDays(values: Record<string, unknown>): void {
+    const startRaw = values.startDate;
+    const endRaw = values.endDate;
+    const totalDaysRaw = values.totalDays;
+
+    const startDate = this.parseDateInput(startRaw);
+    const endDate = this.parseDateInput(endRaw);
+
+    if (!startDate || !endDate) {
+      throw new BadRequestException(
+        'Ngày bắt đầu/kết thúc không hợp lệ (phải là date hợp lệ)',
+      );
+    }
+
+    if (endDate.getTime() < startDate.getTime()) {
+      throw new BadRequestException('Ngày kết thúc phải >= ngày bắt đầu');
+    }
+
+    const diff = endDate.getTime() - startDate.getTime();
+    const computedDays = Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+
+    if (typeof totalDaysRaw === 'number') {
+      if (Math.abs(totalDaysRaw - computedDays) > 0.01) {
+        throw new BadRequestException(
+          'totalDays không khớp. Tính toán: ' +
+            computedDays.toFixed(1) +
+            ' ngày, gửi: ' +
+            totalDaysRaw,
+        );
+      }
+    }
+  }
 
   private normalizeRequestValues(
     values?: Record<string, unknown>,
@@ -960,15 +994,41 @@ export class RequestsService {
     values?: Record<string, unknown>,
   ): Promise<void> {
     // Pre-submit balance validation only. Actual deduction happens after request is fully approved.
-    if (
-      !(await this.shouldValidateLeaveBalance(requestTypeCode, formTemplateId))
-    ) {
+    const template = await this.formTemplateModel
+      .findById(formTemplateId)
+      .select('isReductible maxDays')
+      .lean<{ isReductible?: boolean; maxDays?: number }>()
+      .exec();
+
+    const shouldValidateLeaveBalance = template
+      ? template.isReductible
+      : await this.shouldValidateLeaveBalance(requestTypeCode, formTemplateId);
+
+    if (!shouldValidateLeaveBalance) {
       return;
     }
 
-    const requestedDays = this.extractApprovalAmount(values);
+    this.validateRequestDatesAndDays(values as Record<string, unknown>);
+
+    let requestedDays = this.extractApprovalAmount(values);
+    if (!requestedDays || requestedDays <= 0) {
+      // Fallback to compute from dates if no explicit amount
+      const startRaw = values?.startDate;
+      const endRaw = values?.endDate;
+      const startDate = this.parseDateInput(startRaw);
+      const endDate = this.parseDateInput(endRaw);
+      if (startDate && endDate && endDate > startDate) {
+        const diff = endDate.getTime() - startDate.getTime();
+        requestedDays = Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+      }
+    }
     if (!requestedDays || requestedDays <= 0) {
       return;
+    }
+
+    const maxDays = Number(template?.maxDays ?? 0);
+    if (maxDays > 0 && requestedDays > maxDays) {
+      throw new BadRequestException('Số ngày nghỉ vượt quá số dư cho phép');
     }
 
     const year = this.resolveLeaveBalanceYear(values);
@@ -986,9 +1046,7 @@ export class RequestsService {
     }
 
     if (Number(balance.remainingDays ?? 0) < requestedDays) {
-      throw new BadRequestException(
-        `Số dư nghỉ phép không đủ. Còn lại ${balance.remainingDays} ngày, yêu cầu ${requestedDays} ngày`,
-      );
+      throw new BadRequestException('Số ngày nghỉ vượt quá số dư cho phép');
     }
   }
 

@@ -84,15 +84,6 @@ export class ApprovalStepsFlowLogService {
     return this.flowLogModel.findById(flowLogId).exec();
   }
 
-  async markApproved(requestId: string, performerName?: string): Promise<void> {
-    const flowLog = await this.flowLogModel.findOne({ requestId }).exec();
-    if (!flowLog) {
-      return;
-    }
-
-    await this.markApprovedFlow(flowLog, performerName);
-  }
-
   async markApprovedByFlowLogId(
     flowLogId: string,
     performerName?: string,
@@ -103,15 +94,6 @@ export class ApprovalStepsFlowLogService {
     }
 
     await this.markApprovedFlow(flowLog, performerName);
-  }
-
-  async markRejected(requestId: string, performerName?: string): Promise<void> {
-    const flowLog = await this.flowLogModel.findOne({ requestId }).exec();
-    if (!flowLog) {
-      return;
-    }
-
-    await this.markRejectedFlow(flowLog, performerName);
   }
 
   async markRejectedByFlowLogId(

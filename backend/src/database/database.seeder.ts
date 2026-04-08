@@ -48,6 +48,12 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
 
   // Hàm này tự động chạy khi ứng dụng khởi chạy xong
   async onApplicationBootstrap() {
+    // PATCH: Skip seeder in production to prevent exposing default passwords/data
+    if (process.env.NODE_ENV === 'production') {
+      this.logger.log('Seeder skipped in production');
+      return;
+    }
+
     console.log('--- Bắt đầu Seeding dữ liệu ---');
     await this.seedPermissions();
     await this.createDefaultDepartmentsAndPositions();

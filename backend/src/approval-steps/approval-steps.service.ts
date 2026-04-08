@@ -269,9 +269,18 @@ export class ApprovalStepsService {
     step.signatureUrl = approveDto.signatureUrl;
 
     const savedStep = await step.save();
+    const requestId =
+      this.toIdString(savedStep.requestId) ||
+      this.toIdString(
+        (savedStep as { requestId?: { _id?: unknown } }).requestId?._id,
+      );
+
+    if (!requestId) {
+      throw new BadRequestException('Approval step is missing requestId');
+    }
 
     const approvedRequest = await this.requestModel
-      .findById(savedStep.requestId)
+      .findById(requestId)
       .select('creatorId code')
       .lean<{ creatorId?: unknown; code?: string }>()
       .exec();
@@ -283,36 +292,22 @@ export class ApprovalStepsService {
       await this.notificationsService.notifyStepApproved({
         recipientId: approvedRequestCreatorId,
         senderId: String(actor._id),
-        requestId: String(savedStep.requestId),
+        requestId,
         requestCode: approvedRequest?.code,
         stepOrder: Number(savedStep.stepOrder),
       });
     }
 
-    const markApproved = this.approvalStepsFlowLogService as unknown as {
-      markApprovedByFlowLogId: (
-        flowLogId: string,
-        performerName?: string,
-      ) => Promise<void>;
-      markApproved: (
-        requestId: string,
-        performerName?: string,
-      ) => Promise<void>;
-    };
-    // Prefer flowLogId linkage for deterministic timeline updates.
-    // Fallback to requestId keeps backward compatibility for historical approval_steps.
-    if (savedStep.flowLogId) {
-      await markApproved.markApprovedByFlowLogId(
-        String(savedStep.flowLogId),
-        this.extractActorName(actor),
-      );
-    } else {
-      await markApproved.markApproved(
-        String(savedStep.requestId),
-        this.extractActorName(actor),
-      );
+    if (!savedStep.flowLogId) {
+      throw new BadRequestException('Approval step is missing flowLogId');
     }
-    await this.syncRequestStatus(String(savedStep.requestId));
+
+    await this.approvalStepsFlowLogService.markApprovedByFlowLogId(
+      String(savedStep.flowLogId),
+      this.extractActorName(actor),
+    );
+
+    await this.syncRequestStatus(requestId);
     return savedStep;
   }
 
@@ -354,9 +349,18 @@ export class ApprovalStepsService {
     step.signatureUrl = rejectDto.signatureUrl;
 
     const savedStep = await step.save();
+    const requestId =
+      this.toIdString(savedStep.requestId) ||
+      this.toIdString(
+        (savedStep as { requestId?: { _id?: unknown } }).requestId?._id,
+      );
+
+    if (!requestId) {
+      throw new BadRequestException('Approval step is missing requestId');
+    }
 
     const rejectedRequest = await this.requestModel
-      .findById(savedStep.requestId)
+      .findById(requestId)
       .select('creatorId code')
       .lean<{ creatorId?: unknown; code?: string }>()
       .exec();
@@ -368,36 +372,22 @@ export class ApprovalStepsService {
       await this.notificationsService.notifyRequestReturned({
         recipientId: rejectedRequestCreatorId,
         senderId: String(actor._id),
-        requestId: String(savedStep.requestId),
+        requestId,
         requestCode: rejectedRequest?.code,
         reason: rejectDto.reason,
       });
     }
 
-    const markRejected = this.approvalStepsFlowLogService as unknown as {
-      markRejectedByFlowLogId: (
-        flowLogId: string,
-        performerName?: string,
-      ) => Promise<void>;
-      markRejected: (
-        requestId: string,
-        performerName?: string,
-      ) => Promise<void>;
-    };
-    // Prefer flowLogId linkage for deterministic timeline updates.
-    // Fallback to requestId keeps backward compatibility for historical approval_steps.
-    if (savedStep.flowLogId) {
-      await markRejected.markRejectedByFlowLogId(
-        String(savedStep.flowLogId),
-        this.extractActorName(actor),
-      );
-    } else {
-      await markRejected.markRejected(
-        String(savedStep.requestId),
-        this.extractActorName(actor),
-      );
+    if (!savedStep.flowLogId) {
+      throw new BadRequestException('Approval step is missing flowLogId');
     }
-    await this.syncRequestStatus(String(savedStep.requestId));
+
+    await this.approvalStepsFlowLogService.markRejectedByFlowLogId(
+      String(savedStep.flowLogId),
+      this.extractActorName(actor),
+    );
+
+    await this.syncRequestStatus(requestId);
     return savedStep;
   }
 
@@ -437,9 +427,18 @@ export class ApprovalStepsService {
       : new Date();
 
     const savedStep = await step.save();
+    const requestId =
+      this.toIdString(savedStep.requestId) ||
+      this.toIdString(
+        (savedStep as { requestId?: { _id?: unknown } }).requestId?._id,
+      );
+
+    if (!requestId) {
+      throw new BadRequestException('Approval step is missing requestId');
+    }
 
     const returnedRequest = await this.requestModel
-      .findById(savedStep.requestId)
+      .findById(requestId)
       .select('creatorId code')
       .lean<{ creatorId?: unknown; code?: string }>()
       .exec();
@@ -451,13 +450,13 @@ export class ApprovalStepsService {
       await this.notificationsService.notifyRequestReturned({
         recipientId: returnedRequestCreatorId,
         senderId: String(actor._id),
-        requestId: String(savedStep.requestId),
+        requestId,
         requestCode: returnedRequest?.code,
         reason: returnDto.reason,
       });
     }
 
-    await this.syncRequestStatus(String(savedStep.requestId));
+    await this.syncRequestStatus(requestId);
     return savedStep;
   }
 
@@ -496,7 +495,17 @@ export class ApprovalStepsService {
     }
 
     const savedStep = await step.save();
-    await this.syncRequestStatus(String(savedStep.requestId));
+    const requestId =
+      this.toIdString(savedStep.requestId) ||
+      this.toIdString(
+        (savedStep as { requestId?: { _id?: unknown } }).requestId?._id,
+      );
+
+    if (!requestId) {
+      throw new BadRequestException('Approval step is missing requestId');
+    }
+
+    await this.syncRequestStatus(requestId);
     return savedStep;
   }
 
@@ -994,16 +1003,60 @@ export class ApprovalStepsService {
   }
 
   private toIdString(value: unknown): string | null {
-    if (typeof value === 'string' || typeof value === 'number') {
-      const normalized = String(value).trim();
-      return normalized.length > 0 ? normalized : null;
-    }
+    const seen = new Set<unknown>();
+    let current: unknown = value;
 
-    if (typeof value === 'object' && value !== null && 'toString' in value) {
-      const normalized = (value as { toString: () => string })
-        .toString()
-        .trim();
-      return normalized && normalized !== '[object Object]' ? normalized : null;
+    for (let depth = 0; depth < 4; depth += 1) {
+      if (current == null) {
+        return null;
+      }
+
+      if (typeof current === 'string' || typeof current === 'number') {
+        const normalized = String(current).trim();
+        return normalized.length > 0 ? normalized : null;
+      }
+
+      if (typeof current !== 'object') {
+        return null;
+      }
+
+      if (seen.has(current)) {
+        return null;
+      }
+      seen.add(current);
+
+      const candidate = current as {
+        _id?: unknown;
+        id?: unknown;
+        toHexString?: () => string;
+        toString?: () => string;
+      };
+
+      if (typeof candidate.toHexString === 'function') {
+        const hex = candidate.toHexString().trim();
+        if (hex.length > 0) {
+          return hex;
+        }
+      }
+
+      if ('_id' in candidate && candidate._id && candidate._id !== current) {
+        current = candidate._id;
+        continue;
+      }
+
+      if ('id' in candidate && candidate.id && candidate.id !== current) {
+        current = candidate.id;
+        continue;
+      }
+
+      if (typeof candidate.toString === 'function') {
+        const normalized = candidate.toString().trim();
+        return normalized && normalized !== '[object Object]'
+          ? normalized
+          : null;
+      }
+
+      return null;
     }
 
     return null;
