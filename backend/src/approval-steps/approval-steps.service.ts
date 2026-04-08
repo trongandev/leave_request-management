@@ -268,10 +268,10 @@ export class ApprovalStepsService {
       : new Date();
     step.signatureUrl = approveDto.signatureUrl;
 
-    const savedStep = await step.save();
+    const savedStep: any = await step.save();
     console.log(savedStep, 'savedStep<<<');
 
-    const approvedRequest = await this.requestModel
+    const approvedRequest: any = await this.requestModel
       .findById(savedStep.requestId)
       .select('creatorId code')
       .lean<{ creatorId?: unknown; code?: string }>()
@@ -322,7 +322,7 @@ export class ApprovalStepsService {
     rejectDto: RejectApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step = await this.findById(stepId);
+    const step: any = await this.findById(stepId);
 
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
@@ -353,7 +353,7 @@ export class ApprovalStepsService {
       : new Date();
     step.signatureUrl = rejectDto.signatureUrl;
 
-    const savedStep = await step.save();
+    const savedStep: any = await step.save();
 
     const rejectedRequest = await this.requestModel
       .findById(savedStep.requestId)
@@ -406,7 +406,7 @@ export class ApprovalStepsService {
     returnDto: ReturnApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step = await this.findById(stepId);
+    const step: any = await this.findById(stepId);
 
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
@@ -467,7 +467,7 @@ export class ApprovalStepsService {
     delegateDto: DelegateApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step = await this.findById(stepId);
+    const step: any = await this.findById(stepId);
 
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
@@ -495,7 +495,7 @@ export class ApprovalStepsService {
       step.deadlineAt = new Date(delegateDto.newDeadlineAt);
     }
 
-    const savedStep = await step.save();
+    const savedStep: any = await step.save();
     await this.syncRequestStatus(String(savedStep.requestId));
     return savedStep;
   }
@@ -503,7 +503,7 @@ export class ApprovalStepsService {
   // Get single approval step by ID
 
   async findById(id: string) {
-    const appStep = await this.approvalStepModel
+    const appStep: any = await this.approvalStepModel
       .findById(id)
       .populate('originalApproverId', '_id fullName')
       .populate([
@@ -523,7 +523,7 @@ export class ApprovalStepsService {
         },
       ])
       .exec();
-    const userId = this.toIdString(appStep?.requestId?.creatorId._id);
+    const userId = appStep?.requestId?.creatorId._id;
     const lb = await this.leaveBalanceModel
       .findOne({ userId })
       .select('totalDays remainingDays')

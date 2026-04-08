@@ -520,8 +520,8 @@ export class RequestsService {
 
     const normalized = { ...values };
 
-    const startRaw = normalized.startDate;
-    const endRaw = normalized.endDate;
+    const startRaw: any = normalized.startDate;
+    const endRaw: any = normalized.endDate;
 
     if (!startRaw || !endRaw) {
       return normalized;
