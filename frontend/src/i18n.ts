@@ -155,10 +155,15 @@ const resources = {
                         lineManager: "Line Manager",
                         officeLocation: "Office Location",
                         floorInfo: "Floor 4, Wing B",
+                        birthDate: "Birth Date",
+                        yearsOld: "Years Old",
+                        noManager: "No Manager",
+                        na: "N/A",
                     },
                     timeOff: {
                         title: "Time Off Balance",
                         request: "Request Time Off",
+                        remainingLabel: "Remaining Leave",
                         daysLeft: "{{days}} Days Left",
                         types: {
                             vacation: "Vacation",
@@ -1777,10 +1782,15 @@ const resources = {
                         lineManager: "Quản lý trực tiếp",
                         officeLocation: "Địa điểm làm việc",
                         floorInfo: "Tầng 4, Khu B",
+                        birthDate: "Ngày sinh",
+                        yearsOld: "Tuổi",
+                        noManager: "Không có",
+                        na: "N/A",
                     },
                     timeOff: {
                         title: "Số dư nghỉ phép",
                         request: "Đăng ký nghỉ phép",
+                        remainingLabel: "Số phép còn lại",
                         daysLeft: "Còn {{days}} ngày",
                         types: {
                             vacation: "Nghỉ phép năm",

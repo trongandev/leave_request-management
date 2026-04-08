@@ -68,7 +68,7 @@ function formatBirthDateForApi(value: string) {
 }
 
 export default function EmployeeManagementPage() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const queryClient = useQueryClient()
     const departmentsData = [{ value: "all", label: t("admin.employeeManagement.filters.allDepartments") }]
 
@@ -202,10 +202,10 @@ export default function EmployeeManagementPage() {
             if (!deptField) return { id: "", name: "" }
             if (typeof deptField === "string") {
                 const dept = departmentsOptions?.data?.find((d: Department) => d._id === deptField)
-                return { id: deptField, name: dept?.originName ?? "" }
+                return { id: deptField, name: i18n.language === 'en' ? (dept?.originName || dept?.name) : (dept?.name || dept?.originName) ?? "" }
             }
             const deptObj = deptField as Department
-            return { id: deptObj._id, name: deptObj.originName }
+            return { id: deptObj._id, name: i18n.language === 'en' ? (deptObj.originName || deptObj.name) : (deptObj.name || deptObj.originName) ?? "" }
         },
         [departmentsOptions?.data],
     )
@@ -356,9 +356,10 @@ export default function EmployeeManagementPage() {
         if (!deptField) return ""
         if (typeof deptField === "string") {
             const dept = departmentsOptions?.data?.find((d: Department) => d._id === deptField)
-            return dept?.originName ?? ""
+            return i18n.language === 'en' ? (dept?.originName || dept?.name) : (dept?.name || dept?.originName) ?? ""
         }
-        return (deptField as Department).originName
+        const deptObj = deptField as Department
+        return i18n.language === 'en' ? (deptObj.originName || deptObj.name) : (deptObj.name || deptObj.originName) ?? ""
     }, [editFormData.positionId, editAllPositions, departmentsOptions?.data])
 
     return (
@@ -410,7 +411,7 @@ export default function EmployeeManagementPage() {
                                             ...departmentsData,
                                             ...(departmentsOptions?.data ?? []).map((department: Department) => ({
                                                 value: department.code,
-                                                label: department.originName,
+                                                label: i18n.language === 'en' ? (department.originName || department.name) : (department.name || department.originName),
                                             })),
                                         ]}
                                         valueKey="value"
@@ -461,16 +462,16 @@ export default function EmployeeManagementPage() {
                                         <span
                                             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${deptMapColor(item?.departmentId?.originName || "")} tracking-wide`}
                                         >
-                                            {item?.departmentId?.originName || t("admin.employeeManagement.common.system")}
+                                            {i18n.language === 'en' ? (item?.departmentId?.originName || item?.departmentId?.name) : (item?.departmentId?.name || item?.departmentId?.originName) || t("admin.employeeManagement.common.system")}
                                         </span>
                                     </div>
                                 </td>
                                 <td className="py-4 px-6 text-center">
                                     <div className="flex justify-center">
                                         <span
-                                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${positionMapColor(item?.positionId?.fullName || "")} tracking-wide`}
+                                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${positionMapColor(item?.positionId?.fullName || item?.positionId?.name || "")} tracking-wide`}
                                         >
-                                            {item?.positionId?.fullName || t("admin.employeeManagement.common.empty")}
+                                            {i18n.language === 'en' ? (item?.positionId?.originName || item?.positionId?.name) : (item?.positionId?.name || item?.positionId?.originName) || t("admin.employeeManagement.common.empty")}
                                         </span>
                                     </div>
                                 </td>

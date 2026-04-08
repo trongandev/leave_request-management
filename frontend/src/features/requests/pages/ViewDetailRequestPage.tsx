@@ -10,8 +10,10 @@ import { useQuery } from "@tanstack/react-query"
 import { format, formatDistance } from "date-fns"
 import { Calendar, CircleCheck, Download, FileSpreadsheet, FileText, Headset, Loader2Icon, PhoneCall } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 export default function ViewDetailRequestPage() {
+    const { i18n } = useTranslation()
     const location = useLocation()
     const id = location.pathname.split("/")[3]
     const { data, isLoading } = useQuery({
@@ -99,7 +101,7 @@ export default function ViewDetailRequestPage() {
                                         />
                                         <span className="text-sm font-medium ">
                                             {creatorId.fullName} /{" "}
-                                            <span className="text-[10px] bg-surface-container px-1.5 py-0.5 rounded ">{creatorId.positionId?.fullName || "Position not specified"}</span>
+                                            <span className="text-[10px] bg-surface-container px-1.5 py-0.5 rounded ">{i18n.language === 'en' ? (creatorId.positionId?.originName || creatorId.positionId?.name) : (creatorId.positionId?.name || creatorId.positionId?.originName) || "Position not specified"}</span>
                                         </span>
                                     </div>
                                     <div className="mt-3 bg-surface-container-low px-4 py-2 rounded-lg inline-block border border-outline/20">
@@ -115,7 +117,7 @@ export default function ViewDetailRequestPage() {
                                 </div>
                                 <div className="pb-10 pt-1">
                                     <p className="text-[11px] font-bold text-neutral-500 uppercase  mb-1">In Progress</p>
-                                    <h4 className="text-lg font-bold  mb-1">Dept {originalApprover?.departmentId?.originName || "Department not specified"}</h4>
+                                    <h4 className="text-lg font-bold  mb-1">Dept {i18n.language === 'en' ? (originalApprover?.departmentId?.originName || originalApprover?.departmentId?.name) : (originalApprover?.departmentId?.name || originalApprover?.departmentId?.originName) || "Department not specified"}</h4>
                                     <div className="flex items-center gap-2">
                                         <img
                                             alt="Manager"
@@ -125,7 +127,7 @@ export default function ViewDetailRequestPage() {
                                         />
                                         <Link to={`/profile/${originalApprover._id}`} className="text-sm font-medium hover:underline">
                                             {originalApprover?.fullName || "Manager"} /{" "}
-                                            <span className="text-[10px] bg-surface-container px-1.5 py-0.5 rounded ">{originalApprover?.positionId?.fullName || "Position not specified"}</span>
+                                            <span className="text-[10px] bg-surface-container px-1.5 py-0.5 rounded ">{i18n.language === 'en' ? (originalApprover?.positionId?.originName || originalApprover?.positionId?.name) : (originalApprover?.positionId?.name || originalApprover?.positionId?.originName) || "Position not specified"}</span>
                                         </Link>
                                     </div>
                                 </div>
