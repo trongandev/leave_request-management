@@ -39,7 +39,7 @@ export default function AdjustLeaveBalance() {
         const map = new Map<string, any>()
         if (balancesData?.data) {
             balancesData.data.forEach((b: any) => {
-                const uid: string = typeof b.userId === 'string' ? b.userId : b.userId?._id
+                const uid: string = typeof b.userId === "string" ? b.userId : b.userId?._id
                 if (uid) map.set(uid, b)
             })
         }
@@ -47,8 +47,8 @@ export default function AdjustLeaveBalance() {
     }, [balancesData])
 
     const userMap = useMemo(() => {
-        const map: Record<string, { name: string, avatar: string, empId: string }> = {}
-        usersData?.data.forEach(u => {
+        const map: Record<string, { name: string; avatar: string; empId: string }> = {}
+        usersData?.data.forEach((u) => {
             map[u._id] = { name: u.fullName, avatar: u.avatar, empId: u.empId }
         })
         return map
@@ -76,15 +76,9 @@ export default function AdjustLeaveBalance() {
             setUsedDays("0")
             setYear("2026")
         },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || t("approvals.assignLeaveBalance.error", "Failed to assign leave balance"))
-        }
     })
 
-    const filteredUsers = usersData?.data.filter(user =>
-        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.empId.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || []
+    const filteredUsers = usersData?.data.filter((user) => user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || user.empId.toLowerCase().includes(searchTerm.toLowerCase())) || []
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -97,7 +91,7 @@ export default function AdjustLeaveBalance() {
             userId: selectedUser._id,
             year: year ? parseInt(year) : 2026,
             adjustedDays: adjustedDays ? parseFloat(adjustedDays) : 0,
-            usedDays: usedDays ? parseFloat(usedDays) : 0
+            usedDays: usedDays ? parseFloat(usedDays) : 0,
         })
     }
 
@@ -128,12 +122,7 @@ export default function AdjustLeaveBalance() {
                     <CardContent className="space-y-4">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                            <Input
-                                placeholder={t("common.search", "Search...")}
-                                className="pl-10"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                            <Input placeholder={t("common.search", "Search...")} className="pl-10" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                         </div>
                         <div className="max-h-[400px] overflow-y-auto border rounded-md divide-y custom-scrollbar">
                             {filteredUsers.length > 0 ? (
@@ -142,7 +131,7 @@ export default function AdjustLeaveBalance() {
                                     return (
                                         <div
                                             key={user._id}
-                                            className={`flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-neutral-50 dark:hover:bg-neutral-800/50 border-b border-neutral-100 dark:border-neutral-800/50 last:border-0 ${selectedUser?._id === user._id ? 'bg-primary/5 border-l-4 border-l-primary' : ''}`}
+                                            className={`flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-neutral-50 dark:hover:bg-neutral-800/50 border-b border-neutral-100 dark:border-neutral-800/50 last:border-0 ${selectedUser?._id === user._id ? "bg-primary/5 border-l-4 border-l-primary" : ""}`}
                                             onClick={() => handleSelectUser(user)}
                                         >
                                             <CAvatarProfile user={{ ...(user as any), avatar: userMap[user?._id]?.avatar || user?.avatar }} className="w-9 h-9" />
@@ -172,9 +161,7 @@ export default function AdjustLeaveBalance() {
                                     )
                                 })
                             ) : (
-                                <div className="p-8 text-center text-muted-foreground">
-                                    {t("common.noResults", "No users found")}
-                                </div>
+                                <div className="p-8 text-center text-muted-foreground">{t("common.noResults", "No users found")}</div>
                             )}
                         </div>
                     </CardContent>
@@ -200,47 +187,26 @@ export default function AdjustLeaveBalance() {
                                 <div className="space-y-4">
                                     <div className="grid gap-2">
                                         <Label htmlFor="year">{t("common.year", "Year")}</Label>
-                                        <Input
-                                            id="year"
-                                            type="number"
-                                            value={year}
-                                            onChange={(e) => setYear(e.target.value)}
-                                            min={2000}
-                                        />
+                                        <Input id="year" type="number" value={year} onChange={(e) => setYear(e.target.value)} min={2000} />
                                     </div>
 
                                     <div className="grid gap-2">
                                         <Label htmlFor="adjustedDays">{t("approvals.assignLeaveBalance.adjustedDays", "Adjusted Days")}</Label>
-                                        <Input
-                                            id="adjustedDays"
-                                            type="number"
-                                            step="0.5"
-                                            value={adjustedDays}
-                                            onChange={(e) => setAdjustedDays(e.target.value)}
-                                        />
+                                        <Input id="adjustedDays" type="number" step="0.5" value={adjustedDays} onChange={(e) => setAdjustedDays(e.target.value)} />
                                         <p className="text-xs text-muted-foreground italic">{t("approvals.assignLeaveBalance.adjustedHint", "Positive for adding, negative for deducting")}</p>
                                     </div>
 
                                     <div className="grid gap-2">
                                         <Label htmlFor="usedDays">{t("approvals.assignLeaveBalance.usedDays", "Used Days")}</Label>
-                                        <Input
-                                            id="usedDays"
-                                            type="number"
-                                            step="0.5"
-                                            value={usedDays}
-                                            onChange={(e) => setUsedDays(e.target.value)}
-                                            min={0}
-                                        />
+                                        <Input id="usedDays" type="number" step="0.5" value={usedDays} onChange={(e) => setUsedDays(e.target.value)} min={0} />
                                     </div>
                                 </div>
 
-                                <Button
-                                    className="w-full mt-6 h-12 text-lg font-bold shadow-lg shadow-primary/20"
-                                    type="submit"
-                                    disabled={adjustMutation.isPending}
-                                >
+                                <Button className="w-full mt-6 h-12 text-lg font-bold shadow-lg shadow-primary/20" type="submit" disabled={adjustMutation.isPending}>
                                     {adjustMutation.isPending ? (
-                                        <><Loader2 className="mr-2 animate-spin" /> {t("common.saving", "Saving...")}</>
+                                        <>
+                                            <Loader2 className="mr-2 animate-spin" /> {t("common.saving", "Saving...")}
+                                        </>
                                     ) : (
                                         t("approvals.assignLeaveBalance.submit", "Initialize Balance")
                                     )}

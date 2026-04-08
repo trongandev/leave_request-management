@@ -15,7 +15,7 @@ export const convertBase64 = (file: File): Promise<string> =>
     })
 
 export const handleDistanceDate = (start: string, end: string) => {
-    const startDate = new Date(start)
-    const endDate = new Date(end)
+    const startDate = new Date(start || new Date())
+    const endDate = new Date(end || new Date())
     return formatDistance(startDate, endDate)
 }

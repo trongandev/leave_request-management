@@ -189,7 +189,7 @@ export default function GeneralSidebar() {
                 break
             case "HR":
                 setNewNav(HRNav)
-                setPortalName(t("general.sidebar.portals.humanResources"))
+                setPortalName("HR")
                 break
             default:
                 setNewNav(empNav)

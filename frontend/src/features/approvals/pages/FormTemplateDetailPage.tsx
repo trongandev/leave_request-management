@@ -30,10 +30,6 @@ export default function FormTemplateDetailPage() {
             toast.success("Request submitted successfully!")
             navigate("/employee/my-request-history-list")
         },
-        onError: (error) => {
-            console.error("Failed to submit request:", error)
-            toast.error("Failed to submit request. Please try again.")
-        },
     })
 
     const handleChangeValue = (fieldName: string, value: any) => {

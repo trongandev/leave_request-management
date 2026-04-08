@@ -68,3 +68,16 @@ export const positionMapColor = (value: string) => {
     const colorClass = colorKey ? colorMap[colorKey] : "bg-neutral-50 text-neutral-600 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-700"
     return colorClass
 }
+
+export const handleRenderStatus = (status: string) => {
+    switch (status) {
+        case "pending":
+            return "bg-yellow-50 text-yellow-600 border border-yellow-200"
+        case "approved":
+            return "bg-green-50 text-green-600 border border-green-200"
+        case "rejected":
+            return "bg-red-50 text-red-600 border border-red-200"
+        case "returned":
+            return "bg-rose-50 text-rose-600 border border-rose-200"
+    }
+}

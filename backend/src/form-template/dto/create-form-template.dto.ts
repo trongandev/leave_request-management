@@ -16,6 +16,9 @@ export class CreateFormTemplateDto {
   @IsNotEmpty()
   fields: any[];
 
+  @IsNotEmpty()
+  ruleWorkflowSequences: any[];
+
   @IsOptional()
   @IsString()
   submitButtonText: string;

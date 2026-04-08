@@ -17,6 +17,16 @@ class ApprovalService {
         const response = await axiosInstance.get<APIResponse<ApprovalStepDetail>>(`/approval-steps/${id}`)
         return response.data.data
     }
+
+    async approve(id: string, data: { comment: string }) {
+        const response = await axiosInstance.patch(`/approval-steps/${id}/approve`, data)
+        return response.data
+    }
+
+    async reject(id: string, data: { comment: string }) {
+        const response = await axiosInstance.patch(`/approval-steps/${id}/reject`, data)
+        return response.data
+    }
 }
 
 export default new ApprovalService()

@@ -9,6 +9,7 @@ import { useState } from "react"
 import { useAuthStore } from "@/store/useAuthStore"
 import { format } from "date-fns"
 import { Link } from "react-router-dom"
+import CRenderStatus from "@/components/etc/CRenderStatus"
 
 export default function MyRequestHistoryListPage() {
     const { t } = useTranslation()
@@ -57,17 +58,6 @@ export default function MyRequestHistoryListPage() {
         }
     }
 
-    const handleRenderStatus = (status: string) => {
-        switch (status) {
-            case "pending":
-                return "bg-yellow-50 text-yellow-600 border border-yellow-200"
-            case "approved":
-                return "bg-green-50 text-green-600 border border-green-200"
-            case "rejected":
-                return "bg-red-50 text-red-600 border border-red-200"
-        }
-    }
-
     const columns = ["Request ID", "Name Request", "Type request", "Step order", "Status", "create at", "Action"]
 
     return (
@@ -95,7 +85,7 @@ export default function MyRequestHistoryListPage() {
                         >
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <a className="text-sm font-medium text-primary hover:text-primary-hover hover:underline" href="#">
-                                    {request._id}
+                                    {request.reqDisplayId}
                                 </a>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-neutral-400 hidden sm:table-cell uppercase">{request.title}</td>
@@ -108,7 +98,7 @@ export default function MyRequestHistoryListPage() {
                             {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-neutral-400 hidden sm:table-cell">{request.submitted}</td> */}
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-neutral-400 hidden lg:table-cell">{request.currentStepOrder}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                {<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full uppercase ${handleRenderStatus(request.status)}`}>{request.status}</span>}
+                                <CRenderStatus status={request.status} />
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100 hidden md:table-cell">
                                 {format(new Date(request.createdAt), "HH:mm MMM dd, yyyy")}

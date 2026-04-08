@@ -3,6 +3,7 @@ import type { LeaveBalance, User } from "./user"
 
 export interface ApprovalStep {
     _id: string
+    apsDisplayId: string
     requestId: Request
     originalApproverId: User
     stepOrder: number
@@ -12,6 +13,7 @@ export interface ApprovalStep {
     isFinalStep: boolean
     requiredAll: boolean
     deadlineAt: string
+    signedAt?: string
     createdAt: string
     updatedAt: string
 }

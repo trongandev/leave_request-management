@@ -79,9 +79,6 @@ export default function DepartmentManagementPage() {
             toast.success(t(editingDepartment ? "admin.organization.departments.messages.updated" : "admin.organization.departments.messages.created"))
             closeForm()
         },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || t("admin.organization.departments.messages.saveError"))
-        },
     })
 
     const { mutate: deleteDepartment, isPending: isDeleting } = useMutation({
@@ -89,9 +86,6 @@ export default function DepartmentManagementPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["departments"] })
             toast.success(t("admin.organization.departments.messages.deleted"))
-        },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || t("admin.organization.departments.messages.deleteError"))
         },
     })
 

@@ -4,23 +4,45 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { handleDistanceDate } from "@/lib/utils"
 import approvalService from "@/services/approvalService"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { Calendar1, Check, Download, FileSpreadsheet, Gavel, Info, Loader2, Printer, Share2, X } from "lucide-react"
+import { Calendar1, Check, Download, FileSpreadsheet, Gavel, Info, Loader2, Printer, Share2, Verified, X } from "lucide-react"
+import { useState } from "react"
 import { useLocation } from "react-router-dom"
+import { toast } from "sonner"
 
 export default function TeamRequestDetailPage() {
     const location = useLocation()
     const id = location.pathname.split("/").slice(-1)[0]
+    const queryClient = useQueryClient()
     const { data, isLoading } = useQuery({
         queryKey: ["approval-steps/pending-detail", id],
         queryFn: () => approvalService.getDetailPending(id),
     })
-    console.log(data)
+    const [comment, setComment] = useState("")
     const approvalStep = data?.appStep
     const lb = data?.lb
     const creatorId = approvalStep?.requestId?.creatorId
     const requestId = approvalStep?.requestId
+
+    const mutation = useMutation({
+        mutationFn: (variables: { comment: string; type: "approve" | "reject" }) => {
+            if (variables.type === "approve") {
+                return approvalService.approve(id, { comment: variables.comment })
+            } else {
+                return approvalService.reject(id, { comment: variables.comment })
+            }
+            // reload data after mutation
+            // This can be done by invalidating the query or refetching it
+        },
+        onSuccess: async (_, variables) => {
+            await queryClient.invalidateQueries({
+                queryKey: ["approval-steps/pending-detail", id],
+            })
+            toast.success(variables.type === "approve" ? "Request approved successfully!" : "Request rejected successfully!")
+        },
+    })
+
     const timeline = [
         {
             title: "Request Submitted",
@@ -29,10 +51,10 @@ export default function TeamRequestDetailPage() {
             datetime: approvalStep?.createdAt || "",
         },
         {
-            title: "Review Started",
-            status: "pending",
-            description: "System Auto-Assign",
-            datetime: "waiting",
+            title: approvalStep?.status === "approved" ? "Review Completed" : "Review Started",
+            status: approvalStep?.status,
+            description: approvalStep?.status === "approved" ? `Approved by ${approvalStep?.originalApproverId?.fullName}` : "In Progress",
+            datetime: approvalStep?.status === "approved" ? approvalStep?.signedAt : "waiting",
         },
     ]
     const colors: any = {
@@ -44,14 +66,19 @@ export default function TeamRequestDetailPage() {
     if (isLoading) {
         return <LoadingUI />
     }
+
+    const handleApprovalOrReject = (type: "approve" | "reject") => {
+        mutation.mutate({ comment, type })
+    }
+
     return (
         <main className="">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <div className="flex items-center gap-3 mb-1">
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Team Request Details</h1>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 border border-amber-200 dark:border-amber-800">
-                            Pending Approval
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 border border-amber-200 dark:border-amber-800 uppercase tracking-wide">
+                            {approvalStep?.status}
                         </span>
                     </div>
                     <p className="text-sm text-slate-500 dark:text-slate-400">Submitted on {approvalStep?.createdAt ? format(approvalStep.createdAt, "MMM dd, yyyy 'at' h:mm a") : "N/A"}</p>
@@ -154,7 +181,14 @@ export default function TeamRequestDetailPage() {
                     </Card>
                 </div>
                 <div className="lg:col-span-1 space-y-6">
-                    <Card>
+                    <Card className="relative overflow-hidden">
+                        {approvalStep?.status === "approved" && (
+                            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center flex-col gap-3">
+                                <Verified size={100} className="text-primary rotate-6" />
+                                <h2 className="text-2xl font-bold text-primary">Review Completed by {approvalStep?.originalApproverId?.fullName}</h2>
+                            </div>
+                        )}
+
                         <CardContent>
                             <div className="pb-5 px-1 border-b">
                                 <h3 className="font-semibold  flex items-center gap-2">
@@ -168,15 +202,17 @@ export default function TeamRequestDetailPage() {
                                         Manager's Comments <span className="text-slate-400 font-normal">(Optional)</span>
                                     </label>
                                     <div className="relative">
-                                        <Textarea placeholder="Add a note explaining your decision..." className="h-32" />
-                                        <div className="absolute bottom-2 right-2 text-xs text-slate-400">0/500</div>
+                                        <Textarea placeholder="Add a note explaining your decision..." className="h-32" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} />
+                                        <div className={`absolute bottom-2 right-2 text-xs transition-colors duration-300 ${comment.length > 450 ? "text-red-500" : "text-slate-400"}`}>
+                                            {comment.length}/500
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <Button variant="destructive" className="w-full">
+                                    <Button variant="destructive" className="w-full" onClick={() => handleApprovalOrReject("reject")}>
                                         <X /> Reject
                                     </Button>
-                                    <Button className="w-full">
+                                    <Button className="w-full" onClick={() => handleApprovalOrReject("approve")}>
                                         <Check /> Approve
                                     </Button>
                                 </div>
@@ -191,8 +227,8 @@ export default function TeamRequestDetailPage() {
                                     {index !== timeline.length - 1 && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200 dark:bg-slate-700"></span>}
 
                                     <div className="relative flex space-x-3">
-                                        <div className={`h-10 w-10 rounded-full ${colors[item.status]} flex items-center justify-center `}>
-                                            {item.status === "submitted" ? <Check /> : <Loader2 className="animate-spin" />}
+                                        <div className={`h-10 w-10 rounded-full ${colors[item.status || ""]} flex items-center justify-center `}>
+                                            {item.status === "approved" || item.status === "submitted" ? <Check /> : <Loader2 className="animate-spin" />}
                                         </div>
                                         <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                                             <div>
@@ -200,7 +236,7 @@ export default function TeamRequestDetailPage() {
                                                 <p className="text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
                                             </div>
                                             <div className="whitespace-nowrap text-right text-xs text-slate-500 dark:text-slate-400">
-                                                <time dateTime={item.datetime}>{item.datetime !== "waiting" ? format(item.datetime, "MMM dd") : "Waiting"}</time>
+                                                <time dateTime={item.datetime}>{item.datetime !== "waiting" ? format(item.datetime || "", "MMM dd") : "Waiting"}</time>
                                             </div>
                                         </div>
                                     </div>

@@ -239,9 +239,6 @@ export default function EmployeeManagementPage() {
             setIsCreateOpen(false)
             resetCreateForm()
         },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || t("admin.employeeManagement.messages.createError"))
-        },
     })
 
     const { mutate: createFakeUsers, isPending: isCreatingFakeUsers } = useMutation({
@@ -251,9 +248,6 @@ export default function EmployeeManagementPage() {
             toast.success(t("admin.employeeManagement.messages.fakeCreateSuccess", { count: users?.length || Number(fakeCount) }))
             setIsFakeOpen(false)
             setFakeCount("1")
-        },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || t("admin.employeeManagement.messages.fakeCreateError"))
         },
     })
 
@@ -302,23 +296,13 @@ export default function EmployeeManagementPage() {
             setIsEditOpen(false)
             setEditingUser(null)
         },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || t("admin.employeeManagement.updateMessages.updateError"))
-        },
     })
 
     const { mutate: toggleUserStatus } = useMutation({
         mutationFn: ({ userId, status }: { userId: string; status: boolean }) => userService.toggleStatus(userId, status),
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ["employees"] })
-            toast.success(
-                variables.status
-                    ? t("admin.employeeManagement.statusToggle.enableSuccess")
-                    : t("admin.employeeManagement.statusToggle.disableSuccess"),
-            )
-        },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || t("admin.employeeManagement.statusToggle.error"))
+            toast.success(variables.status ? t("admin.employeeManagement.statusToggle.enableSuccess") : t("admin.employeeManagement.statusToggle.disableSuccess"))
         },
     })
 
@@ -376,7 +360,6 @@ export default function EmployeeManagementPage() {
         }
         return (deptField as Department).originName
     }, [editFormData.positionId, editAllPositions, departmentsOptions?.data])
-
 
     return (
         <div className="flex-1 flex relative overflow-hidden">
@@ -475,14 +458,18 @@ export default function EmployeeManagementPage() {
                                 </td>
                                 <td className="py-4 px-6 text-center">
                                     <div className="flex justify-center">
-                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${deptMapColor(item?.departmentId?.originName || "")} tracking-wide`}>
+                                        <span
+                                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${deptMapColor(item?.departmentId?.originName || "")} tracking-wide`}
+                                        >
                                             {item?.departmentId?.originName || t("admin.employeeManagement.common.system")}
                                         </span>
                                     </div>
                                 </td>
                                 <td className="py-4 px-6 text-center">
                                     <div className="flex justify-center">
-                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${positionMapColor(item?.positionId?.fullName || "")} tracking-wide`}>
+                                        <span
+                                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${positionMapColor(item?.positionId?.fullName || "")} tracking-wide`}
+                                        >
                                             {item?.positionId?.fullName || t("admin.employeeManagement.common.empty")}
                                         </span>
                                     </div>
@@ -514,7 +501,6 @@ export default function EmployeeManagementPage() {
                     </CTable>
                 </div>
             </main>
-
 
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogContent className="sm:max-w-2xl dark:border-white/10 dark:bg-[#10151d]">
@@ -785,12 +771,7 @@ export default function EmployeeManagementPage() {
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-email">{t("admin.employeeManagement.createDialog.fields.email")}</Label>
-                                <Input
-                                    id="edit-email"
-                                    type="email"
-                                    value={editFormData.email}
-                                    onChange={(event) => setEditFormData((current) => ({ ...current, email: event.target.value }))}
-                                />
+                                <Input id="edit-email" type="email" value={editFormData.email} onChange={(event) => setEditFormData((current) => ({ ...current, email: event.target.value }))} />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-phone">{t("admin.employeeManagement.createDialog.fields.phone")}</Label>
@@ -814,7 +795,11 @@ export default function EmployeeManagementPage() {
                                     <PopoverTrigger asChild>
                                         <Button variant="outline" className="w-full h-12 justify-start text-left font-normal">
                                             <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {editFormData.birthDate ? format(new Date(editFormData.birthDate), "dd/MM/yyyy") : <span>{t("admin.employeeManagement.createDialog.fields.birthDate")}</span>}
+                                            {editFormData.birthDate ? (
+                                                format(new Date(editFormData.birthDate), "dd/MM/yyyy")
+                                            ) : (
+                                                <span>{t("admin.employeeManagement.createDialog.fields.birthDate")}</span>
+                                            )}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
@@ -901,7 +886,13 @@ export default function EmployeeManagementPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant={"outline"} onClick={() => { setIsEditOpen(false); setEditingUser(null) }}>
+                        <Button
+                            variant={"outline"}
+                            onClick={() => {
+                                setIsEditOpen(false)
+                                setEditingUser(null)
+                            }}
+                        >
                             {t("admin.employeeManagement.common.cancel")}
                         </Button>
                         <Button isLoading={isUpdatingUser} onClick={handleUpdateUser}>
@@ -910,7 +901,6 @@ export default function EmployeeManagementPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-
         </div>
     )
 }

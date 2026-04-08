@@ -96,9 +96,6 @@ export default function PositionManagementPage() {
             toast.success(t(editingPosition ? "admin.organization.positions.messages.updated" : "admin.organization.positions.messages.created"))
             closeForm()
         },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || t("admin.organization.positions.messages.saveError"))
-        },
     })
 
     const { mutate: deletePosition, isPending: isDeleting } = useMutation({
@@ -106,9 +103,6 @@ export default function PositionManagementPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["positions"] })
             toast.success(t("admin.organization.positions.messages.deleted"))
-        },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || t("admin.organization.positions.messages.deleteError"))
         },
     })
 

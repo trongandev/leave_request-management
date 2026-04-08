@@ -67,7 +67,7 @@ const resignationFields = [
   },
   {
     id: 'checkbox_b49dxu4i',
-    type: 'checkbox',
+    type: 'confirm',
     label: 'Nghỉ hết phép năm còn lại',
     name: 'checkbox_6rcbni50',
     placeholder: '',
@@ -112,7 +112,7 @@ const resignationFields = [
   },
   {
     id: 'checkbox_mgazzunb',
-    type: 'checkbox',
+    type: 'confirm',
     label:
       'Tôi cam kết hoàn thành việc bàn giao tài liệu và tài sản công ty trước ngày nghỉ việc.',
     name: 'checkbox_rawytlw6',
@@ -142,10 +142,10 @@ const resignationFields = [
     parentId: null,
   },
   {
-    id: 'file_h2kahvmd',
-    type: 'file',
+    id: 'signature_h2kahvmd',
+    type: 'signature',
     label: 'Chữ ký',
-    name: 'attachment',
+    name: 'signature',
     placeholder: 'Vui lòng upload chữ ký tay',
     required: true,
     readOnly: false,
@@ -255,7 +255,7 @@ const unpaidLeaveFields = [
   },
   {
     id: 'checkbox_tategriz',
-    type: 'checkbox',
+    type: 'confirm',
     label:
       'Tôi đã hiểu các quy định về việc đóng BHXH trong thời gian nghỉ không lương.',
     name: 'checkbox_k664zy9m',

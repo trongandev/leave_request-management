@@ -3,6 +3,7 @@ import type { User } from "./user"
 
 export interface Request {
     _id: string
+    reqDisplayId: string
     creatorId: User
     formTemplateId: FormTemplate
     code: string

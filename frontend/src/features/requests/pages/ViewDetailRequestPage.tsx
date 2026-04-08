@@ -41,7 +41,7 @@ export default function ViewDetailRequestPage() {
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-[10px] font-bold uppercase    px-2 py-1 rounded">REQUEST ID</span>
-                                <h2 className="text-lg font-bold text-primary tracking-tight">#{data?._id}</h2>
+                                <h2 className="text-lg font-bold text-primary tracking-tight">#{data?.apsDisplayId}</h2>
                             </div>
                             <h1 className="text-3xl font-bold  mb-2">{formTemplate?.engName}</h1>
                             <p className=" text-sm font-medium flex items-center gap-2">
@@ -54,10 +54,14 @@ export default function ViewDetailRequestPage() {
                             <div className="text-right">
                                 <p className="text-[10px] font-bold uppercase  ">CURRENT STATUS</p>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="w-2 h-2 rounded-full bg-primary  relative">
-                                        <span className="absolute inset-0 rounded-full animate-ping bg-primary/50"></span>
+                                    <span className={`w-2 h-2 rounded-full ${data?.status === "approved" ? "bg-green-500" : data?.status === "rejected" ? "bg-red-500" : "bg-yellow-500"}  relative`}>
+                                        <span
+                                            className={`absolute inset-0 rounded-full animate-ping ${data?.status === "approved" ? "bg-green-500" : data?.status === "rejected" ? "bg-red-500" : "bg-yellow-500"}`}
+                                        ></span>
                                     </span>
-                                    <span className="font-bold text-primary">Processing</span>
+                                    <span className={`font-bold ${data?.status === "approved" ? "text-green-500" : data?.status === "rejected" ? "text-red-500" : "text-yellow-500"} uppercase`}>
+                                        {data?.status}
+                                    </span>
                                 </div>
                             </div>
                             <Button variant={"outline-primary"} className="h-12">

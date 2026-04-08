@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { FormField } from './field.schema';
+import { RuleWorkflowSequence } from './ruleWorkflowSequence.schema';
 
 @Schema({
   timestamps: true,
@@ -21,6 +22,9 @@ export class FormTemplate extends Document {
 
   @Prop({ type: [FormField] }) // Mảng các trường đã kéo thả
   fields!: FormField[];
+
+  @Prop({ type: [RuleWorkflowSequence] }) // mảng các bước duyệt, sắp xếp theo thứ tự idx tăng dần, tối thiểu 1 bước duyệt, tối đa 4 bước duyệt
+  ruleWorkflowSequences!: RuleWorkflowSequence[];
 
   @Prop({ default: 1 })
   version!: number;

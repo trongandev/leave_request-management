@@ -221,7 +221,7 @@ export class UsersService {
 
   private async generateEmployeeId(): Promise<string> {
     const currentYear = new Date().getFullYear().toString().slice(-2);
-    const birthYear = new Date().getFullYear().toString().slice(-2); // có thể thay bằng user's birth year nếu cần
+    const birthYear = new Date().getFullYear().toString().slice(-2);
     const prefix = `${currentYear}${birthYear}`;
 
     const counter = await this.counterModel.findOneAndUpdate(
@@ -413,11 +413,19 @@ export class UsersService {
       console.log(user?.managerId?._id, user.roleId.name);
       const teamMembers = await this.userModel
         .find({ managerId: user._id })
-        .populate({
-          path: 'departmentId',
-          select: 'originName',
-        })
-        .select('empId fullName email avatar phone departmentId')
+        .select(
+          'empId fullName email avatar phone departmentId positionId status',
+        )
+        .populate([
+          {
+            path: 'departmentId',
+            select: 'originName',
+          },
+          {
+            path: 'positionId',
+            select: 'fullName',
+          },
+        ])
         .exec();
       return [...teamMembers, user];
     } else {
@@ -426,19 +434,35 @@ export class UsersService {
       const [teamMembers, manager] = await Promise.all([
         this.userModel
           .find({ managerId: user?.managerId?._id })
-          .populate({
-            path: 'departmentId',
-            select: 'originName',
-          })
-          .select('empId fullName email avatar phone departmentId')
+          .select(
+            'empId fullName email avatar phone departmentId positionId status',
+          )
+          .populate([
+            {
+              path: 'departmentId',
+              select: 'originName',
+            },
+            {
+              path: 'positionId',
+              select: 'fullName',
+            },
+          ])
           .exec(),
         this.userModel
           .findById(user?.managerId?._id)
-          .populate({
-            path: 'departmentId',
-            select: 'originName',
-          })
-          .select('empId fullName email avatar phone departmentId')
+          .select(
+            'empId fullName email avatar phone departmentId positionId status',
+          )
+          .populate([
+            {
+              path: 'departmentId',
+              select: 'originName',
+            },
+            {
+              path: 'positionId',
+              select: 'fullName',
+            },
+          ])
           .exec(),
       ]);
       return [...teamMembers, manager];

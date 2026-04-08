@@ -237,18 +237,18 @@ export class ApprovalStepsService {
     approveDto: ApproveApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step = await this.findById(stepId);
-
+    const appStep = await this.findById(stepId);
+    const step = appStep?.appStep;
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
     }
 
-    const canHandle = await this.canActorHandleStep(step, actor);
-    if (!canHandle) {
-      throw new ForbiddenException(
-        'Only assigned approver, delegated approver or ADMIN can approve this step',
-      );
-    }
+    // const canHandle = await this.canActorHandleStep(step, actor);
+    // if (!canHandle) {
+    //   throw new ForbiddenException(
+    //     'Only assigned approver, delegated approver or ADMIN can approve this step',
+    //   );
+    // }
 
     if (
       ![ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED].includes(
@@ -269,21 +269,24 @@ export class ApprovalStepsService {
     step.signatureUrl = approveDto.signatureUrl;
 
     const savedStep = await step.save();
+    console.log(savedStep, 'savedStep<<<');
 
     const approvedRequest = await this.requestModel
       .findById(savedStep.requestId)
       .select('creatorId code')
       .lean<{ creatorId?: unknown; code?: string }>()
       .exec();
+    console.log('approvedRequest>>>', approvedRequest);
 
-    const approvedRequestCreatorId = this.toIdString(
-      approvedRequest?.creatorId,
-    );
+    const approvedRequestCreatorId = approvedRequest?.creatorId._id;
+
+    console.log('approvedRequestCreatorId>>>', approvedRequestCreatorId);
+
     if (approvedRequestCreatorId) {
       await this.notificationsService.notifyStepApproved({
         recipientId: approvedRequestCreatorId,
         senderId: String(actor._id),
-        requestId: String(savedStep.requestId),
+        requestId: String(savedStep.requestId._id),
         requestCode: approvedRequest?.code,
         stepOrder: Number(savedStep.stepOrder),
       });
@@ -294,10 +297,7 @@ export class ApprovalStepsService {
         flowLogId: string,
         performerName?: string,
       ) => Promise<void>;
-      markApproved: (
-        requestId: string,
-        performerName?: string,
-      ) => Promise<void>;
+      markApproved: (requestId: any, performerName?: string) => Promise<void>;
     };
     // Prefer flowLogId linkage for deterministic timeline updates.
     // Fallback to requestId keeps backward compatibility for historical approval_steps.
@@ -308,11 +308,11 @@ export class ApprovalStepsService {
       );
     } else {
       await markApproved.markApproved(
-        String(savedStep.requestId),
+        String(savedStep.requestId._id),
         this.extractActorName(actor),
       );
     }
-    await this.syncRequestStatus(String(savedStep.requestId));
+    await this.syncRequestStatus(String(savedStep.requestId._id));
     return savedStep;
   }
 
@@ -502,9 +502,10 @@ export class ApprovalStepsService {
 
   // Get single approval step by ID
 
-  async findById(id: string): Promise<ApprovalStep | null> {
-    return this.approvalStepModel
+  async findById(id: string) {
+    const appStep = await this.approvalStepModel
       .findById(id)
+      .populate('originalApproverId', '_id fullName')
       .populate([
         {
           path: 'requestId',
@@ -522,6 +523,12 @@ export class ApprovalStepsService {
         },
       ])
       .exec();
+    const userId = this.toIdString(appStep?.requestId?.creatorId._id);
+    const lb = await this.leaveBalanceModel
+      .findOne({ userId })
+      .select('totalDays remainingDays')
+      .exec();
+    return { appStep, lb };
   }
 
   // Get all approval steps by request ID

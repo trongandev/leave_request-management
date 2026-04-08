@@ -520,27 +520,28 @@ export class RequestsService {
 
     const normalized = { ...values };
 
-    const startRaw = normalized.startDate ?? normalized.fromDate;
-    const endRaw = normalized.endDate ?? normalized.toDate;
+    const startRaw = normalized.startDate;
+    const endRaw = normalized.endDate;
 
     if (!startRaw || !endRaw) {
       return normalized;
     }
 
-    const startDate = this.parseDateInput(startRaw);
-    const endDate = this.parseDateInput(endRaw);
-
-    if (!startDate || !endDate) {
+    const startDate = new Date(startRaw);
+    const endDate = new Date(endRaw);
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
       throw new BadRequestException(
         'Ngày bắt đầu/kết thúc không hợp lệ để tính totalDays',
       );
     }
 
-    if (endDate < startDate) {
+    if (endDate.getTime() < startDate.getTime()) {
       throw new BadRequestException(
         'Ngày bắt đầu/kết thúc không hợp lệ để tính totalDays',
       );
     }
+
+    const diff = endDate.getTime() - startDate.getTime();
 
     const existingAmount = this.extractApprovalAmount(normalized);
 
@@ -548,21 +549,11 @@ export class RequestsService {
       return normalized;
     }
 
-    const MS_PER_DAY = 24 * 60 * 60 * 1000;
-    const utcStart = Date.UTC(
-      startDate.getUTCFullYear(),
-      startDate.getUTCMonth(),
-      startDate.getUTCDate(),
-    );
-    const utcEnd = Date.UTC(
-      endDate.getUTCFullYear(),
-      endDate.getUTCMonth(),
-      endDate.getUTCDate(),
-    );
+    const totalDays = Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1; // Cộng 1 để tính cả ngày bắt đầu
 
-    // Inclusive range: from startDate through endDate.
-    const totalDays = Math.floor((utcEnd - utcStart) / MS_PER_DAY) + 1;
-    normalized.totalDays = totalDays;
+    if (totalDays > 0) {
+      normalized.totalDays = totalDays;
+    }
 
     return normalized;
   }

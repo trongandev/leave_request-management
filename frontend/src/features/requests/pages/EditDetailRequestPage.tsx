@@ -43,10 +43,6 @@ export default function EditDetailRequestPage() {
         onSuccess: () => {
             toast.success("Request updated successfully!")
         },
-        onError: (error) => {
-            console.error("Failed to update request:", error)
-            toast.error("Failed to update request. Please try again.")
-        },
     })
 
     const rootFields = data?.formTemplateId.fields.filter((f) => !f.parentId).sort((a, b) => (a.order || 0) - (b.order || 0))

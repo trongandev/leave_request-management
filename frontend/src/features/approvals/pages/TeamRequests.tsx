@@ -1,5 +1,4 @@
 import CAvatarProfile from "@/components/etc/CAvatarProfile"
-import { CBadge } from "@/components/etc/CBadgeColor"
 import CTable from "@/components/etc/CTable"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"

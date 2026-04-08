@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useFormBuilder } from "@/hooks/useFormBuilder"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import CSelectOptions from "@/components/etc/CSelectOptions"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
@@ -18,19 +17,21 @@ import { SidebarItem } from "../components/SidebarItem"
 import DroppableArea from "../components/DroppableAreaFormBuilder"
 import { SortableField } from "../components/SortableField"
 import { SortableContainer } from "../components/SortableContainer"
-import { GripVerticalIcon, PlusIcon, SlidersHorizontalIcon, XIcon, ChevronLeft, Eye, Save, Send, RotateCcw, Workflow, Plus, Clock, Trash2 } from "lucide-react"
+import { GripVerticalIcon, PlusIcon, SlidersHorizontalIcon, XIcon, ChevronLeft, Eye, Save, Send, Workflow, Plus, Clock, Trash2 } from "lucide-react"
 import CToolTip from "@/components/etc/CToolTip"
 import CSelectOptionsTable from "@/components/etc/CSelectOptionsTable"
 import { useNavigate } from "react-router-dom"
 import FormPreviewField from "../components/FormPreviewField"
 import formTemplateService from "@/services/formTemplateService"
 import LoadingUI from "@/components/etc/LoadingUI"
+import CSelectSpecificUser from "@/components/etc/CSelectSpecificUser"
 
 interface Step {
     id: string
     idx: number
     label: string
     name: string
+    specificUserId?: string
     timeExpected: string
 }
 
@@ -65,7 +66,14 @@ export default function CreateFormBuilderPage() {
     const [isPreviewShow, setIsPreviewShow] = useState(false)
     const [isShowAddStep, setIsShowAddStep] = useState(false)
     const [tab, setTab] = useState<"properties" | "workflow">("properties")
-    const [steps, setSteps] = useState<Step[]>([])
+
+    const defaultWorkflow = [
+        { id: `step_1`, idx: 1, label: "Quản lí trực tiếp", name: "Line Manager", specificUserId: "", timeExpected: "Within 24 hours" },
+        { id: `step_2`, idx: 2, label: "Sếp của quản lí trực tiếp", name: "Upper Manager", specificUserId: "", timeExpected: "Within 24 hours" },
+        { id: `step_3`, idx: 3, label: "Trưởng phòng", name: "Department Head", specificUserId: "", timeExpected: "Within 32 hours" },
+        { id: `step_4`, idx: 4, label: "Chọn đích danh người cố định", name: "Specific Person", specificUserId: "", timeExpected: "Within 48 hours" },
+    ]
+    const [steps, setSteps] = useState<Step[]>([defaultWorkflow[0]])
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }))
 
@@ -84,25 +92,19 @@ export default function CreateFormBuilderPage() {
 
     const createTemplateMutation = useMutation({
         mutationFn: async (data: any) => {
-            console.log(data.fields)
             let res = null
-            console.log(id)
             if (id) {
                 delete data.code
                 res = await axiosInstance.patch("/form-template/" + location.pathname.split("/")[3], data)
             } else {
                 res = await axiosInstance.post("/form-template", data)
             }
-            console.log(res)
             return res.data
         },
         onSuccess: (res: any) => {
             toast.success("Form template created successfully")
             setFields([])
             navigate("/approvals/form-manager/" + res.data._id)
-        },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || error?.message || "Failed to create template")
         },
     })
 
@@ -115,6 +117,7 @@ export default function CreateFormBuilderPage() {
         createTemplateMutation.mutate({
             fields: [...fields].sort((a, b) => (a.order || 0) - (b.order || 0)),
             ...stateData,
+            ruleWorkflowSequences: steps,
         })
     }
 
@@ -262,25 +265,27 @@ export default function CreateFormBuilderPage() {
     }
 
     const handleAddStep = (step: any) => {
-        if (step.id === "step_4") {
-            console.log("check")
-        }
         const sortStepsnewStep = sortSteps([...steps, step])
         setSteps(sortStepsnewStep)
         setIsShowAddStep(false)
+    }
+
+    const handleAssignSpecificUser = (userId: string) => {
+        setSteps((prevSteps) => {
+            const updatedSteps = prevSteps.map((step) => {
+                if (step.id === "step_4") {
+                    return { ...step, specificUserId: userId }
+                }
+                return step
+            })
+            return updatedSteps
+        })
     }
 
     const handleDeleteStep = (id: string) => {
         setSteps((prev) => prev.filter((step) => step.id !== id))
     }
 
-    const defaultWorkflow = [
-        { id: `step_1`, idx: 1, label: "Quản lí trực tiếp", name: "Line Manager", timeExpected: "Within 24 hours" },
-        { id: `step_2`, idx: 2, label: "Sếp của quản lí trực tiếp", name: "Upper Manager", timeExpected: "Within 24 hours" },
-        { id: `step_3`, idx: 3, label: "Trưởng phòng", name: "Department Head", timeExpected: "Within 32 hours" },
-        { id: `step_4`, idx: 4, label: "Chọn đích danh người cố định", name: "Specific Person", timeExpected: "Within 48 hours" },
-    ]
-    console.log(steps)
     return (
         <div className="">
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -575,56 +580,51 @@ export default function CreateFormBuilderPage() {
                             </div>
                         )}
                         {tab === "workflow" && (
-                            <div className="flex flex-col justify-between flex-1">
-                                <div className="flex-1 h-full p-5">
-                                    <div className="flex h-10 justify-between items-center">
-                                        <h1 className="flex gap-2 font-medium">
-                                            <Workflow size={20} /> Workflow sequence
-                                        </h1>
-                                        <Popover open={isShowAddStep} onOpenChange={setIsShowAddStep}>
-                                            <PopoverTrigger asChild>
-                                                <Button variant="outline" size="sm">
-                                                    <Plus /> Add Step
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent>
-                                                {defaultWorkflow.map((step) => (
-                                                    <div key={step.id} className="p-3 rounded-md hover:bg-muted cursor-pointer flex items-center gap-2" onClick={() => handleAddStep(step)}>
-                                                        {step.label}
-                                                    </div>
-                                                ))}
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-                                    <div className="mt-10 space-y-7 overflow-y-auto  flex-1">
-                                        {steps.map((step, index) => (
-                                            <div key={step.id} className="transition-all duration-300 flex items-start gap-3 relative">
-                                                <Button variant="destructive" className="absolute top-2 right-2" size="sm" onClick={() => handleDeleteStep(step.id)}>
-                                                    <Trash2 size={16} />
-                                                </Button>
-                                                <div className="flex items-center flex-col">
-                                                    <div className="bg-primary/80 font-bold text-white rounded-lg h-8 w-8 text-xs flex items-center justify-center">{index + 1}</div>
-                                                    <div className="w-1 h-12 bg-border"></div>
+                            <div className="flex flex-col justify-between flex-1 overflow-auto  p-5">
+                                <div className="flex h-10 justify-between items-center">
+                                    <h1 className="flex gap-2 font-medium">
+                                        <Workflow size={20} /> Workflow sequence
+                                    </h1>
+                                    <Popover open={isShowAddStep} onOpenChange={setIsShowAddStep}>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" size="sm">
+                                                <Plus /> Add Step
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            {defaultWorkflow.map((step) => (
+                                                <div key={step.id} className="p-3 rounded-md hover:bg-muted cursor-pointer flex items-center gap-2" onClick={() => handleAddStep(step)}>
+                                                    {step.label}
                                                 </div>
-                                                <div className="p-5 border flex-1 rounded-lg shadow-xs">
-                                                    <p className="uppercase tracking-widest font-bold text-neutral-500 text-xs mb-2">responsible</p>
-                                                    {step.id == "step_4" ? <CSelectOptions data={[]} valueKey="" className="h-8!" /> : <h1 className="font-bold text-lg">{step.label}</h1>}
-                                                    <p className="uppercase tracking-widest font-bold text-neutral-500 text-xs mt-4 mb-2 ">sla/deadline</p>
-                                                    <div className="flex gap-2 items-center rounded-sm px-3 py-2 bg-background text-sm">
-                                                        <Clock size={18} /> {step.timeExpected}
-                                                    </div>
+                                            ))}
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <div className="mt-10 space-y-7 overflow-y-auto  flex-1">
+                                    {steps.map((step, index) => (
+                                        <div key={step.id} className="transition-all duration-300 flex items-start gap-3 relative">
+                                            <Button variant="destructive" className="absolute top-2 right-2" size="sm" onClick={() => handleDeleteStep(step.id)}>
+                                                <Trash2 size={16} />
+                                            </Button>
+                                            <div className="flex items-center flex-col">
+                                                <div className="bg-primary/80 font-bold text-white rounded-lg h-8 w-8 text-xs flex items-center justify-center">{index + 1}</div>
+                                                <div className="w-1 h-12 bg-border"></div>
+                                            </div>
+                                            <div className="p-5 border flex-1 rounded-lg shadow-xs">
+                                                <p className="uppercase tracking-widest font-bold text-neutral-500 text-xs mb-2">responsible</p>
+
+                                                {step.id == "step_4" ? (
+                                                    <CSelectSpecificUser handleAssignSpecificUser={handleAssignSpecificUser} />
+                                                ) : (
+                                                    <h1 className="font-bold text-lg">{step.label}</h1>
+                                                )}
+                                                <p className="uppercase tracking-widest font-bold text-neutral-500 text-xs mt-4 mb-2 ">sla/deadline</p>
+                                                <div className="flex gap-2 items-center rounded-sm px-3 py-2 bg-background text-sm">
+                                                    <Clock size={18} /> {step.timeExpected}
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="h-20 py-3 border-t flex items-center gap-5 px-5">
-                                    <Button className="flex-1 h-12" variant={"ghost"}>
-                                        <RotateCcw /> Reset Workflow
-                                    </Button>
-                                    <Button className="flex-1 h-12">
-                                        <Save /> Save Workflow
-                                    </Button>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}

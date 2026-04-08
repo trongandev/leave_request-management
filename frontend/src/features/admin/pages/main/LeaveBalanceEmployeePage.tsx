@@ -96,9 +96,6 @@ export default function LeaveBalanceEmployeePage() {
             setAdjustReason("")
             setAdjustType("add")
         },
-        onError: (err: any) => {
-            toast.error(err.response?.data?.message || t("admin.employees.adjustModal.error", "Failed to adjust leave balance"))
-        },
     })
 
     const handleSaveChanges = () => {

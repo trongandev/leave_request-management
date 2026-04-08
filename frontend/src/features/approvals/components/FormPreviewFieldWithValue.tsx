@@ -28,7 +28,7 @@ export default function FormPreviewFieldWithValue({
     return (
         <div key={child.name} className={field?.layout?.direction === "row" ? "flex-1" : ""}>
             <div className="space-y-1 mb-4">
-                {(child.type === "label" || child.type === "confirm") && (
+                {child.type !== "label" && child.type !== "confirm" && (
                     <Label>
                         {child.label} {child.required && <span className="text-red-500">*</span>}
                     </Label>
@@ -57,6 +57,7 @@ export default function FormPreviewFieldWithValue({
                         readOnly={child.readOnly}
                         value={stateValueData[child.name]}
                         onChange={(e) => handleChangeValue && handleChangeValue(child.name, e.target.value)}
+                        className={`${field?.type === "container" ? "" : "h-28"}`}
                     />
                 )}
                 {child.type === "select" && (
