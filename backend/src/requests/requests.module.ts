@@ -19,6 +19,8 @@ import {
 } from '../approval-steps/approval-steps.schema';
 import { Counter, CounterSchema } from '../counters/counters.schema';
 import { ApprovalStepsFlowLogModule } from '../approval-steps-flow-log/approval-steps-flow-log.module';
+import { User, UserSchema } from '../users/users.schema';
+import { Position, PositionSchema } from '../positions/positions.schema';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { ApprovalStepsFlowLogModule } from '../approval-steps-flow-log/approval-
       { name: FormTemplate.name, schema: FormTemplateSchema },
       { name: ApprovalStep.name, schema: ApprovalStepSchema },
       { name: Counter.name, schema: CounterSchema },
+      { name: User.name, schema: UserSchema },
+      { name: Position.name, schema: PositionSchema },
     ]),
   ],
   controllers: [RequestsController],

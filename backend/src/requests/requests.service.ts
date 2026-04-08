@@ -19,12 +19,30 @@ import { ApprovalStep } from '../approval-steps/approval-steps.schema';
 import { ApprovalStepStatus } from '../enum/approval-step-status.enum';
 import { Counter } from '../counters/counters.schema';
 import { ApprovalStepsFlowLogService } from '../approval-steps-flow-log/approval-steps-flow-log.service';
+import { User } from '../users/users.schema';
+import { Position } from '../positions/positions.schema';
 
 type RequestActor = {
   _id?: string;
   roleId?: {
     name?: string;
   };
+};
+
+type WorkflowRule = {
+  id?: string;
+  idx?: number;
+  label?: string;
+  name?: string;
+  specificUserId?: string;
+  timeExpected?: string;
+};
+
+type ResolvedApprover = {
+  approverId: string;
+  approverName: string;
+  label: string;
+  postition: string;
 };
 
 @Injectable()
@@ -45,66 +63,94 @@ export class RequestsService {
     private readonly formTemplateModel: Model<FormTemplate>,
     @InjectModel(ApprovalStep.name)
     private readonly approvalStepModel: Model<ApprovalStep>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<User>,
+    @InjectModel(Position.name)
+    private readonly positionModel: Model<Position>,
     private readonly usersService: UsersService,
     private readonly approvalStepsService: ApprovalStepsService,
     private readonly approvalStepsFlowLogService: ApprovalStepsFlowLogService,
   ) {}
 
   async create(createRequestDto: CreateRequestDto, user: any) {
-    const status = createRequestDto.status ?? RequestStatus.PENDING;
+    let status = createRequestDto.status ?? RequestStatus.PENDING;
     const normalizedValues = this.normalizeRequestValues(
       createRequestDto.values,
     );
 
+    let autoRejectedReason = '';
+
+    if (status !== RequestStatus.DRAFT) {
+      try {
+        await this.ensureSufficientLeaveBalance(
+          String(user?._id),
+          String(createRequestDto.code),
+          String(createRequestDto.formTemplateId),
+          normalizedValues,
+        );
+      } catch (error) {
+        status = RequestStatus.RETURNED;
+        autoRejectedReason =
+          error instanceof BadRequestException
+            ? String(error.message)
+            : 'Không đủ điều kiện nghỉ phép';
+      }
+    }
+
     const createNewRequest = new this.requestModel({
       ...createRequestDto,
       reqDisplayId: await this.generateDisplayId(),
-      values: normalizedValues,
+      values: {
+        ...normalizedValues,
+        ...(autoRejectedReason ? { autoRejectedReason } : {}),
+      },
       creatorId: user?._id,
       status,
       currentStepOrder:
-        status === RequestStatus.DRAFT
+        status === RequestStatus.DRAFT || status === RequestStatus.RETURNED
           ? 0
           : (createRequestDto.currentStepOrder ?? 0),
     });
 
     const request = await createNewRequest.save();
 
-    if (status === RequestStatus.DRAFT) {
+    if (status === RequestStatus.DRAFT || status === RequestStatus.RETURNED) {
       return request;
     }
 
-    await this.ensureSufficientLeaveBalance(
+    const workflowContext = await this.resolveWorkflowContext(
       String(user?._id),
-      String(createRequestDto.code),
       String(createRequestDto.formTemplateId),
-      normalizedValues,
     );
-
-    const requesterAndManager = await this.resolveRequesterManagerContext(
-      String(user?._id),
-    );
+    const requestReason = this.extractReason(normalizedValues);
 
     // Create flow-log first so each approval step can persist a stable flowLogId reference.
     const flowLog =
       await this.approvalStepsFlowLogService.createOrResetForRequest({
         requestId: String(request._id),
-        requesterName: requesterAndManager.requesterName,
-        managerName: requesterAndManager.managerName,
+        requesterName: workflowContext.requesterName,
+        requesterPosition: workflowContext.requesterPosition,
+        reason: requestReason,
+        approvalSteps: workflowContext.approvers.map((step, index) => ({
+          order: index + 1,
+          label: step.label,
+          postition: step.postition,
+          performer: step.approverName,
+        })),
       });
 
-    await this.approvalStepsService.createBatch([
-      {
+    await this.approvalStepsService.createBatch(
+      workflowContext.approvers.map((step, index) => ({
         requestId: String(request._id),
         flowLogId: String(flowLog._id),
-        originalApproverId: requesterAndManager.managerId,
-        stepOrder: 1,
-        stepLabel: 'Dept Manager Approval',
+        originalApproverId: step.approverId,
+        stepOrder: index + 1,
+        stepLabel: step.label,
         groupId: [],
-        isFinalStep: true,
+        isFinalStep: index === workflowContext.approvers.length - 1,
         requiredAll: true,
-      },
-    ]);
+      })),
+    );
 
     return request;
   }
@@ -130,37 +176,63 @@ export class RequestsService {
 
     await this.approvalStepsService.deleteByRequestId(String(request._id));
 
-    await this.ensureSufficientLeaveBalance(
-      String(request.creatorId),
-      String(request.code),
-      String(request.formTemplateId),
-      request.values,
-    );
+    try {
+      await this.ensureSufficientLeaveBalance(
+        String(request.creatorId),
+        String(request.code),
+        String(request.formTemplateId),
+        request.values,
+      );
+    } catch (error) {
+      request.status = RequestStatus.RETURNED;
+      request.currentStepOrder = 0;
 
-    const requesterAndManager = await this.resolveRequesterManagerContext(
+      const autoRejectedReason =
+        error instanceof BadRequestException
+          ? String(error.message)
+          : 'Không đủ điều kiện nghỉ phép';
+
+      request.values = {
+        ...(request.values ?? {}),
+        autoRejectedReason,
+      };
+
+      return request.save();
+    }
+
+    const workflowContext = await this.resolveWorkflowContext(
       String(request.creatorId),
+      String(request.formTemplateId),
     );
+    const requestReason = this.extractReason(request.values);
 
     // Resubmission resets timeline state and rewires the new approval step to the new/updated flow-log.
     const flowLog =
       await this.approvalStepsFlowLogService.createOrResetForRequest({
         requestId: String(request._id),
-        requesterName: requesterAndManager.requesterName,
-        managerName: requesterAndManager.managerName,
+        requesterName: workflowContext.requesterName,
+        requesterPosition: workflowContext.requesterPosition,
+        reason: requestReason,
+        approvalSteps: workflowContext.approvers.map((step, index) => ({
+          order: index + 1,
+          label: step.label,
+          postition: step.postition,
+          performer: step.approverName,
+        })),
       });
 
-    await this.approvalStepsService.createBatch([
-      {
+    await this.approvalStepsService.createBatch(
+      workflowContext.approvers.map((step, index) => ({
         requestId: String(request._id),
         flowLogId: String(flowLog._id),
-        originalApproverId: requesterAndManager.managerId,
-        stepOrder: 1,
-        stepLabel: 'Dept Manager Approval',
+        originalApproverId: step.approverId,
+        stepOrder: index + 1,
+        stepLabel: step.label,
         groupId: [],
-        isFinalStep: true,
+        isFinalStep: index === workflowContext.approvers.length - 1,
         requiredAll: true,
-      },
-    ]);
+      })),
+    );
 
     request.status = RequestStatus.PENDING;
     request.currentStepOrder = 0;
@@ -490,6 +562,291 @@ export class RequestsService {
     };
   }
 
+  private async resolveWorkflowContext(
+    requesterId: string,
+    formTemplateId: string,
+  ): Promise<{
+    requesterName: string;
+    requesterPosition: string;
+    approvers: ResolvedApprover[];
+  }> {
+    const requesterProfile = await this.userModel
+      .findById(requesterId)
+      .select('fullName managerId departmentId positionId')
+      .populate({
+        path: 'managerId',
+        select: 'fullName managerId',
+        populate: {
+          path: 'managerId',
+          select: 'fullName',
+        },
+      })
+      .populate({
+        path: 'positionId',
+        select: 'fullName name',
+      })
+      .lean<{
+        _id?: unknown;
+        fullName?: string;
+        managerId?: {
+          _id?: unknown;
+          fullName?: string;
+          managerId?: {
+            _id?: unknown;
+            fullName?: string;
+          };
+        };
+        positionId?: {
+          _id?: unknown;
+          fullName?: string;
+          name?: string;
+        };
+        departmentId?: unknown;
+      }>()
+      .exec();
+
+    if (!requesterProfile) {
+      throw new BadRequestException('Không tìm thấy thông tin người gửi đơn');
+    }
+
+    const requesterName = this.toSafeText(
+      requesterProfile.fullName,
+      'Requester',
+    );
+    const requesterPosition = this.toSafeText(
+      requesterProfile.positionId?.fullName ??
+        requesterProfile.positionId?.name,
+      'Position not specified',
+    );
+
+    const fallback = await this.resolveRequesterManagerContext(requesterId);
+
+    const directManagerId =
+      this.toSafeString(requesterProfile.managerId?._id) || fallback.managerId;
+    const directManagerName =
+      this.toSafeText(requesterProfile.managerId?.fullName, '') ||
+      fallback.managerName;
+
+    const upperManagerId = this.toSafeString(
+      requesterProfile.managerId?.managerId?._id,
+    );
+    const upperManagerName = this.toSafeText(
+      requesterProfile.managerId?.managerId?.fullName,
+      '',
+    );
+
+    const departmentHead = await this.findDepartmentHead(
+      this.toSafeString(requesterProfile.departmentId),
+    );
+
+    const rules = await this.getWorkflowRules(formTemplateId);
+    const approvers: ResolvedApprover[] = [];
+
+    for (const rule of rules) {
+      const ruleId = this.extractRuleId(rule);
+      const specificUserId = this.toSafeString(rule.specificUserId);
+      const stepLabel = this.resolveRuleLabel(rule, approvers.length + 1);
+
+      let selectedApprover: { id: string; name: string } | null = null;
+
+      if (!ruleId) {
+        throw new BadRequestException(
+          `${stepLabel}: ruleWorkflowSequence.id là bắt buộc`,
+        );
+      }
+
+      if (ruleId !== 'step_4' && specificUserId) {
+        throw new BadRequestException(
+          `${stepLabel}: chỉ step_4 mới được phép dùng specificUserId`,
+        );
+      }
+
+      if (ruleId === 'step_1') {
+        selectedApprover = {
+          id: directManagerId,
+          name: directManagerName || 'Direct Manager',
+        };
+      } else if (ruleId === 'step_2') {
+        if (!upperManagerId) {
+          throw new BadRequestException(
+            `${stepLabel}: không tìm thấy cấp quản lý tiếp theo`,
+          );
+        }
+
+        selectedApprover = {
+          id: upperManagerId,
+          name: upperManagerName || 'Upper Manager',
+        };
+      } else if (ruleId === 'step_3') {
+        if (!departmentHead) {
+          throw new BadRequestException(
+            `${stepLabel}: không tìm thấy trưởng phòng`,
+          );
+        }
+
+        selectedApprover = departmentHead;
+      } else if (ruleId === 'step_4') {
+        if (!specificUserId) {
+          throw new BadRequestException(
+            `${stepLabel}: step_4 yêu cầu specificUserId`,
+          );
+        }
+
+        const specificUser = await this.userModel
+          .findById(specificUserId)
+          .select('fullName')
+          .lean<{ _id?: unknown; fullName?: unknown }>()
+          .exec();
+
+        if (!specificUser?._id) {
+          throw new BadRequestException(
+            `${stepLabel}: specificUserId không tồn tại`,
+          );
+        }
+
+        selectedApprover = {
+          id: this.toSafeString(specificUser._id),
+          name: this.toSafeText(specificUser.fullName, 'Specific Approver'),
+        };
+      } else {
+        throw new BadRequestException(
+          `${stepLabel}: rule id không hợp lệ (${ruleId}). Hỗ trợ: step_1..step_4`,
+        );
+      }
+
+      const displayContext = await this.resolveApproverDisplayContext(
+        selectedApprover.id,
+      );
+
+      approvers.push({
+        approverId: selectedApprover.id,
+        approverName: selectedApprover.name,
+        label: displayContext.label,
+        postition: displayContext.postition,
+      });
+    }
+
+    if (approvers.length === 0) {
+      const displayContext = await this.resolveApproverDisplayContext(
+        fallback.managerId,
+      );
+      approvers.push({
+        approverId: fallback.managerId,
+        approverName: fallback.managerName,
+        label: displayContext.label,
+        postition: displayContext.postition,
+      });
+    }
+
+    return { requesterName, requesterPosition, approvers };
+  }
+
+  private async getWorkflowRules(
+    formTemplateId: string,
+  ): Promise<WorkflowRule[]> {
+    if (!formTemplateId) {
+      return [];
+    }
+
+    const template = await this.formTemplateModel
+      .findById(formTemplateId)
+      .select('ruleWorkflowSequences')
+      .lean<{ ruleWorkflowSequences?: WorkflowRule[] }>()
+      .exec();
+
+    if (!Array.isArray(template?.ruleWorkflowSequences)) {
+      return [];
+    }
+
+    return [...template.ruleWorkflowSequences].sort(
+      (a, b) => Number(a?.idx ?? 0) - Number(b?.idx ?? 0),
+    );
+  }
+
+  private resolveRuleLabel(rule: WorkflowRule, fallbackOrder: number): string {
+    const label = this.toSafeText(rule.label, '');
+    if (label) {
+      return label;
+    }
+
+    const name = this.toSafeText(rule.name, '');
+    if (name) {
+      return name;
+    }
+
+    return `Approval Step ${fallbackOrder}`;
+  }
+
+  private async resolveApproverDisplayContext(approverId: string): Promise<{
+    label: string;
+    postition: string;
+  }> {
+    const approver = await this.userModel
+      .findById(approverId)
+      .select('fullName departmentId positionId')
+      .populate([
+        { path: 'departmentId', select: 'originName name' },
+        { path: 'positionId', select: 'fullName name' },
+      ])
+      .lean<{
+        departmentId?: { originName?: string; name?: string };
+        positionId?: { fullName?: string; name?: string };
+      }>()
+      .exec();
+
+    return {
+      label:
+        approver?.departmentId?.originName ??
+        approver?.departmentId?.name ??
+        '',
+      postition:
+        approver?.positionId?.fullName ?? approver?.positionId?.name ?? '',
+    };
+  }
+
+  private extractRuleId(rule: WorkflowRule): string {
+    return this.toSafeText(rule.id, '').trim().toLowerCase();
+  }
+
+  private async findDepartmentHead(
+    departmentId: string,
+  ): Promise<{ id: string; name: string } | null> {
+    if (!departmentId) {
+      return null;
+    }
+
+    const topPosition = await this.positionModel
+      .findOne({ departmentId })
+      .sort({ level: -1 })
+      .select('_id')
+      .lean<{ _id?: unknown }>()
+      .exec();
+
+    if (!topPosition?._id) {
+      return null;
+    }
+
+    const headUser = await this.userModel
+      .findOne({ departmentId, positionId: topPosition._id, status: true })
+      .select('fullName')
+      .lean<{ _id?: unknown; fullName?: unknown }>()
+      .exec();
+
+    if (!headUser?._id) {
+      return null;
+    }
+
+    return {
+      id: this.toSafeString(headUser._id),
+      name: this.toSafeText(headUser.fullName, 'Department Head'),
+    };
+  }
+
+  private extractReason(values?: Record<string, unknown>): string {
+    const reason = values?.reason;
+    return typeof reason === 'string' ? reason : '';
+  }
+
   private extractApprovalAmount(
     values?: Record<string, unknown>,
   ): number | undefined {
@@ -530,30 +887,18 @@ export class RequestsService {
     const startDate = new Date(startRaw);
     const endDate = new Date(endRaw);
     if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
-      throw new BadRequestException(
-        'Ngày bắt đầu/kết thúc không hợp lệ để tính totalDays',
-      );
+      throw new BadRequestException('Ngày bắt đầu/kết thúc không hợp lệ');
     }
 
     if (endDate.getTime() < startDate.getTime()) {
-      throw new BadRequestException(
-        'Ngày bắt đầu/kết thúc không hợp lệ để tính totalDays',
-      );
+      throw new BadRequestException('Ngày bắt đầu/kết thúc không hợp lệ');
     }
 
     const diff = endDate.getTime() - startDate.getTime();
 
-    const existingAmount = this.extractApprovalAmount(normalized);
-
-    if (typeof existingAmount === 'number' && Number.isFinite(existingAmount)) {
-      return normalized;
-    }
-
     const totalDays = Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1; // Cộng 1 để tính cả ngày bắt đầu
 
-    if (totalDays > 0) {
-      normalized.totalDays = totalDays;
-    }
+    normalized.totalDays = totalDays > 0 ? totalDays : 0;
 
     return normalized;
   }

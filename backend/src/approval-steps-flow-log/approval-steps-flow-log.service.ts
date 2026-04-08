@@ -1,11 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  ApprovalStepsFlowLog,
-  FlowLogStatus,
-  FlowLogStepStatus,
-} from './approval-steps-flow-log.schema';
+import { ApprovalStepsFlowLog } from './approval-steps-flow-log.schema';
+import { FlowLogStatus } from '../enum/flow-log-statuses.enum';
 
 @Injectable()
 export class ApprovalStepsFlowLogService {
@@ -17,11 +14,41 @@ export class ApprovalStepsFlowLogService {
   async createOrResetForRequest(params: {
     requestId: string;
     requesterName: string;
-    managerName: string;
-    expectedDate?: Date;
+    requesterPosition?: string;
+    reason?: string;
+    approvalSteps: Array<{
+      order: number;
+      label: string;
+      postition: string;
+      performer?: string;
+      signedAt?: string;
+    }>;
   }): Promise<ApprovalStepsFlowLog> {
-    // Upsert + full steps reset ensures resubmission always starts from a clean timeline.
-    const now = new Date();
+    const sortedApprovalSteps = [...params.approvalSteps].sort(
+      (a, b) => a.order - b.order,
+    );
+    const hasApprovalSteps = sortedApprovalSteps.length > 0;
+    const reason = params.reason ?? '';
+    const nowIso = new Date().toISOString();
+
+    const normalizedSteps = [
+      {
+        order: 0,
+        label: 'Register Request',
+        postition: params.requesterPosition ?? '',
+        reason,
+        performer: params.requesterName,
+        signedAt: nowIso,
+      },
+      ...sortedApprovalSteps.map((step) => ({
+        order: step.order,
+        label: step.label,
+        postition: step.postition,
+        reason,
+        performer: step.performer,
+        signedAt: step.signedAt ?? '',
+      })),
+    ];
 
     return this.flowLogModel
       .findOneAndUpdate(
@@ -29,25 +56,13 @@ export class ApprovalStepsFlowLogService {
         {
           $set: {
             requestId: params.requestId,
-            currentStepId: 1,
-            status: FlowLogStatus.PROCESSING,
-            steps: [
-              {
-                order: 0,
-                label: 'Register Request',
-                status: FlowLogStepStatus.COMPLETED,
-                performer: params.requesterName,
-                updatedAt: now,
-              },
-              {
-                order: 1,
-                label: 'Dept Manager Approval',
-                status: FlowLogStepStatus.IN_PROGRESS,
-                performer: params.managerName,
-                expectedDate: params.expectedDate,
-                updatedAt: now,
-              },
-            ],
+            currentStepOrder: hasApprovalSteps
+              ? sortedApprovalSteps[0].order
+              : 0,
+            status: hasApprovalSteps
+              ? FlowLogStatus.PROCESSING
+              : FlowLogStatus.APPROVED,
+            steps: normalizedSteps,
           },
         },
         {
@@ -115,33 +130,29 @@ export class ApprovalStepsFlowLogService {
     flowLog: ApprovalStepsFlowLog,
     performerName?: string,
   ): Promise<void> {
-    // State transition: current in_progress -> completed, then move pointer to next step.
-
-    const now = new Date();
+    const nowIso = new Date().toISOString();
     const currentIndex = flowLog.steps.findIndex(
-      (step) => step.order === flowLog.currentStepId,
+      (step) => step.order === flowLog.currentStepOrder,
     );
 
     if (currentIndex >= 0) {
-      flowLog.steps[currentIndex].status = FlowLogStepStatus.COMPLETED;
-      flowLog.steps[currentIndex].updatedAt = now;
+      flowLog.steps[currentIndex].signedAt = nowIso;
       if (performerName) {
         flowLog.steps[currentIndex].performer = performerName;
       }
     }
 
-    flowLog.currentStepId += 1;
+    const nextOrder = flowLog.currentStepOrder + 1;
 
     const nextIndex = flowLog.steps.findIndex(
-      (step) => step.order === flowLog.currentStepId,
+      (step) => step.order === nextOrder,
     );
 
     if (nextIndex >= 0) {
-      flowLog.steps[nextIndex].status = FlowLogStepStatus.IN_PROGRESS;
-      flowLog.steps[nextIndex].updatedAt = now;
+      flowLog.currentStepOrder = nextOrder;
     } else {
       flowLog.status = FlowLogStatus.APPROVED;
-      flowLog.currentStepId = Math.max(flowLog.currentStepId - 1, 0);
+      flowLog.currentStepOrder = Math.max(flowLog.currentStepOrder, 0);
     }
 
     await flowLog.save();
@@ -151,15 +162,13 @@ export class ApprovalStepsFlowLogService {
     flowLog: ApprovalStepsFlowLog,
     performerName?: string,
   ): Promise<void> {
-    // State transition: mark current step failed and stop the process at aggregate status.
-
+    const nowIso = new Date().toISOString();
     const currentStep = flowLog.steps.find(
-      (step) => step.order === flowLog.currentStepId,
+      (step) => step.order === flowLog.currentStepOrder,
     );
 
     if (currentStep) {
-      currentStep.status = FlowLogStepStatus.FAILED;
-      currentStep.updatedAt = new Date();
+      currentStep.signedAt = nowIso;
       if (performerName) {
         currentStep.performer = performerName;
       }
@@ -176,12 +185,11 @@ export class ApprovalStepsFlowLogService {
     }
 
     const currentStep = flowLog.steps.find(
-      (step) => step.order === flowLog.currentStepId,
+      (step) => step.order === flowLog.currentStepOrder,
     );
 
-    if (currentStep && currentStep.status !== FlowLogStepStatus.COMPLETED) {
-      currentStep.status = FlowLogStepStatus.CANCELLED;
-      currentStep.updatedAt = new Date();
+    if (currentStep && !currentStep.signedAt) {
+      currentStep.signedAt = new Date().toISOString();
     }
 
     flowLog.status = FlowLogStatus.CANCELLED;

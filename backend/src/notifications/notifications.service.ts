@@ -162,8 +162,8 @@ export class NotificationsService {
       recipientId: params.recipientId,
       senderId: this.normalizeSenderId(params.senderId),
       type: NotificationType.REQUEST_ASSIGNED,
-      title: 'Don cho duyet moi',
-      content: `Ban co don ${params.requestCode ?? params.requestId} dang cho duyet.`,
+      title: 'Đơn chờ duyệt mới',
+      content: `Bạn có đơn ${params.requestCode ?? params.requestId} đang chờ duyệt.`,
       link: this.buildLink(params.requestId),
       metadata: {
         requestId: params.requestId,
@@ -183,8 +183,8 @@ export class NotificationsService {
       recipientId: params.recipientId,
       senderId: this.normalizeSenderId(params.senderId),
       type: NotificationType.STEP_APPROVED,
-      title: 'Don da duyet qua 1 cap',
-      content: `Don ${params.requestCode ?? params.requestId} vua duoc duyet them 1 cap.`,
+      title: 'Đơn đã duyệt qua 1 cấp',
+      content: `Đơn ${params.requestCode ?? params.requestId} vừa được duyệt thêm 1 cấp.`,
       link: this.buildLink(params.requestId),
       metadata: {
         requestId: params.requestId,
@@ -203,8 +203,8 @@ export class NotificationsService {
       recipientId: params.recipientId,
       senderId: this.normalizeSenderId(params.senderId),
       type: NotificationType.REQUEST_APPROVED,
-      title: 'Don da duoc phe duyet',
-      content: `Don ${params.requestCode ?? params.requestId} da duoc phe duyet hoan toan.`,
+      title: 'Đơn đã được phê duyệt',
+      content: `Đơn ${params.requestCode ?? params.requestId} đã được phê duyệt hoàn toàn.`,
       link: this.buildLink(params.requestId),
       metadata: {
         requestId: params.requestId,
@@ -219,14 +219,14 @@ export class NotificationsService {
     reason?: string;
     senderId?: string | null;
   }) {
-    const reasonSuffix = params.reason ? ` Ly do: ${params.reason}` : '';
+    const reasonSuffix = params.reason ? ` Lý do: ${params.reason}` : '';
 
     return this.emit({
       recipientId: params.recipientId,
       senderId: this.normalizeSenderId(params.senderId),
       type: NotificationType.REQUEST_REJECTED,
-      title: 'Don bi tu choi',
-      content: `Don ${params.requestCode ?? params.requestId} da bi tu choi.${reasonSuffix}`,
+      title: 'Đơn bị từ chối',
+      content: `Đơn ${params.requestCode ?? params.requestId} đã bị từ chối.${reasonSuffix}`,
       link: this.buildLink(params.requestId),
       metadata: {
         requestId: params.requestId,
@@ -242,14 +242,14 @@ export class NotificationsService {
     reason?: string;
     senderId?: string | null;
   }) {
-    const reasonSuffix = params.reason ? ` Ly do: ${params.reason}` : '';
+    const reasonSuffix = params.reason ? ` Lý do: ${params.reason}` : '';
 
     return this.emit({
       recipientId: params.recipientId,
       senderId: this.normalizeSenderId(params.senderId),
       type: NotificationType.REQUEST_RETURNED,
-      title: 'Don bi tra ve',
-      content: `Don ${params.requestCode ?? params.requestId} can cap nhat lai thong tin.${reasonSuffix}`,
+      title: 'Đơn bị trả về',
+      content: `Đơn ${params.requestCode ?? params.requestId} cần cập nhật lại thông tin.${reasonSuffix}`,
       link: this.buildLink(params.requestId),
       metadata: {
         requestId: params.requestId,
@@ -267,8 +267,8 @@ export class NotificationsService {
       recipientId: params.recipientId,
       senderId: params.fromUserId,
       type: NotificationType.DELEGATION_RECEIVED,
-      title: 'Ban vua duoc uy quyen',
-      content: 'Ban vua nhan uy quyen xu ly duyet don thay nguoi khac.',
+      title: 'Bạn vừa được ủy quyền',
+      content: 'Bạn vừa nhận ủy quyền xử lý duyệt đơn thay người khác.',
       link: '/settings/delegations',
       metadata: {
         delegationId: params.delegationId,
@@ -287,8 +287,8 @@ export class NotificationsService {
       recipientId: params.recipientId,
       senderId: this.normalizeSenderId(params.senderId),
       type: NotificationType.LEAVE_BALANCE_UPDATED,
-      title: 'So du nghi phep da cap nhat',
-      content: `So du nghi phep nam ${params.year} cua ban vua duoc cap nhat.`,
+      title: 'Số dư nghỉ phép đã cập nhật',
+      content: `Số dư nghỉ phép năm ${params.year} của bạn vừa được cập nhật.`,
       link: '/profile/leave-balance',
       metadata: {
         leaveBalanceId: params.leaveBalanceId,

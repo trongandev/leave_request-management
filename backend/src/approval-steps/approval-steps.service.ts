@@ -237,18 +237,18 @@ export class ApprovalStepsService {
     approveDto: ApproveApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const appStep = await this.findById(stepId);
-    const step = appStep?.appStep;
+    const step = await this.findById(stepId);
+
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
     }
 
-    // const canHandle = await this.canActorHandleStep(step, actor);
-    // if (!canHandle) {
-    //   throw new ForbiddenException(
-    //     'Only assigned approver, delegated approver or ADMIN can approve this step',
-    //   );
-    // }
+    const canHandle = await this.canActorHandleStep(step, actor);
+    if (!canHandle) {
+      throw new ForbiddenException(
+        'Only assigned approver, delegated approver or ADMIN can approve this step',
+      );
+    }
 
     if (
       ![ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED].includes(
@@ -268,25 +268,22 @@ export class ApprovalStepsService {
       : new Date();
     step.signatureUrl = approveDto.signatureUrl;
 
-    const savedStep: any = await step.save();
-    console.log(savedStep, 'savedStep<<<');
+    const savedStep = await step.save();
 
-    const approvedRequest: any = await this.requestModel
+    const approvedRequest = await this.requestModel
       .findById(savedStep.requestId)
       .select('creatorId code')
       .lean<{ creatorId?: unknown; code?: string }>()
       .exec();
-    console.log('approvedRequest>>>', approvedRequest);
 
-    const approvedRequestCreatorId = approvedRequest?.creatorId._id;
-
-    console.log('approvedRequestCreatorId>>>', approvedRequestCreatorId);
-
+    const approvedRequestCreatorId = this.toIdString(
+      approvedRequest?.creatorId,
+    );
     if (approvedRequestCreatorId) {
       await this.notificationsService.notifyStepApproved({
         recipientId: approvedRequestCreatorId,
         senderId: String(actor._id),
-        requestId: String(savedStep.requestId._id),
+        requestId: String(savedStep.requestId),
         requestCode: approvedRequest?.code,
         stepOrder: Number(savedStep.stepOrder),
       });
@@ -297,7 +294,10 @@ export class ApprovalStepsService {
         flowLogId: string,
         performerName?: string,
       ) => Promise<void>;
-      markApproved: (requestId: any, performerName?: string) => Promise<void>;
+      markApproved: (
+        requestId: string,
+        performerName?: string,
+      ) => Promise<void>;
     };
     // Prefer flowLogId linkage for deterministic timeline updates.
     // Fallback to requestId keeps backward compatibility for historical approval_steps.
@@ -308,11 +308,11 @@ export class ApprovalStepsService {
       );
     } else {
       await markApproved.markApproved(
-        String(savedStep.requestId._id),
+        String(savedStep.requestId),
         this.extractActorName(actor),
       );
     }
-    await this.syncRequestStatus(String(savedStep.requestId._id));
+    await this.syncRequestStatus(String(savedStep.requestId));
     return savedStep;
   }
 
@@ -322,7 +322,7 @@ export class ApprovalStepsService {
     rejectDto: RejectApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step: any = await this.findById(stepId);
+    const step = await this.findById(stepId);
 
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
@@ -353,7 +353,7 @@ export class ApprovalStepsService {
       : new Date();
     step.signatureUrl = rejectDto.signatureUrl;
 
-    const savedStep: any = await step.save();
+    const savedStep = await step.save();
 
     const rejectedRequest = await this.requestModel
       .findById(savedStep.requestId)
@@ -365,7 +365,7 @@ export class ApprovalStepsService {
       rejectedRequest?.creatorId,
     );
     if (rejectedRequestCreatorId) {
-      await this.notificationsService.notifyRequestRejected({
+      await this.notificationsService.notifyRequestReturned({
         recipientId: rejectedRequestCreatorId,
         senderId: String(actor._id),
         requestId: String(savedStep.requestId),
@@ -406,7 +406,7 @@ export class ApprovalStepsService {
     returnDto: ReturnApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step: any = await this.findById(stepId);
+    const step = await this.findById(stepId);
 
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
@@ -467,7 +467,7 @@ export class ApprovalStepsService {
     delegateDto: DelegateApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step: any = await this.findById(stepId);
+    const step = await this.findById(stepId);
 
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
@@ -495,17 +495,16 @@ export class ApprovalStepsService {
       step.deadlineAt = new Date(delegateDto.newDeadlineAt);
     }
 
-    const savedStep: any = await step.save();
+    const savedStep = await step.save();
     await this.syncRequestStatus(String(savedStep.requestId));
     return savedStep;
   }
 
   // Get single approval step by ID
 
-  async findById(id: string) {
-    const appStep: any = await this.approvalStepModel
+  async findById(id: string): Promise<ApprovalStep | null> {
+    return this.approvalStepModel
       .findById(id)
-      .populate('originalApproverId', '_id fullName')
       .populate([
         {
           path: 'requestId',
@@ -523,11 +522,35 @@ export class ApprovalStepsService {
         },
       ])
       .exec();
-    const userId = appStep?.requestId?.creatorId._id;
+  }
+
+  async findDetailById(id: string): Promise<{
+    appStep: ApprovalStep | null;
+    lb: LeaveBalance | null;
+  }> {
+    const appStep = await this.findById(id);
+
+    if (!appStep) {
+      return { appStep: null, lb: null };
+    }
+
+    const populatedStep = appStep as ApprovalStep & {
+      requestId?: {
+        creatorId?: unknown;
+        values?: Record<string, unknown>;
+      };
+    };
+
+    const creatorId = this.toIdString(populatedStep.requestId?.creatorId);
+    if (!creatorId) {
+      return { appStep, lb: null };
+    }
+
+    const year = this.resolveLeaveBalanceYear(populatedStep.requestId?.values);
     const lb = await this.leaveBalanceModel
-      .findOne({ userId })
-      .select('totalDays remainingDays')
+      .findOne({ userId: creatorId, year })
       .exec();
+
     return { appStep, lb };
   }
 
@@ -743,7 +766,7 @@ export class ApprovalStepsService {
     );
     if (rejectedStep) {
       await this.requestModel.findByIdAndUpdate(requestId, {
-        status: RequestStatus.REJECTED,
+        status: RequestStatus.RETURNED,
         currentStepOrder: 0,
       });
       return;
