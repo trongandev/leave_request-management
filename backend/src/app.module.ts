@@ -29,12 +29,9 @@ import { DelegationsModule } from './delegations/delegations.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { ApprovalStepsFlowLogModule } from './approval-steps-flow-log/approval-steps-flow-log.module';
-<<<<<<< HEAD
 import { PushNotiModule } from './push-noti/push-noti.module';
-=======
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuditInterceptor } from './common/dto/interceptors/audit.interceptor';
->>>>>>> 116596b863c263a77a66c6fdb1a6e018edc7687d
 
 @Module({
   imports: [
