@@ -21,7 +21,7 @@ import { CBadge } from "@/components/etc/CBadgeColor"
 import { deptMapColor } from "@/config/mapColor"
 
 export default function LeaveBalanceEmployeePage() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
 
     const departmentsData = [
         { value: "all", label: t("admin.employees.filters.allDepartments", "All Departments") },
@@ -148,7 +148,7 @@ export default function LeaveBalanceEmployeePage() {
         if (!data?.data) return []
         return data.data.map((item: any) => {
             const user = (typeof item.userId === "object" ? item.userId : {}) as any
-            const deptName = user?.departmentId?.originName || "System"
+            const deptName = i18n.language === 'en' ? (user?.departmentId?.originName || user?.departmentId?.name) : (user?.departmentId?.name || user?.departmentId?.originName) || "System"
             return {
                 ID: user?.empId || "N/A",
                 Name: user?.fullName || "N/A",
@@ -332,7 +332,7 @@ export default function LeaveBalanceEmployeePage() {
                                     </div>
                                 </td>
                                 <td className="py-4 px-6 text-center">
-                                    <CBadge className={deptMapColor((item.userId?.departmentId as any)?.originName || "")}>{item.userId.departmentId.originName}</CBadge>
+                                    <CBadge className={deptMapColor((item.userId?.departmentId as any)?.originName || "")}>{i18n.language === 'en' ? ((item.userId?.departmentId as any)?.originName || (item.userId?.departmentId as any)?.name) : ((item.userId?.departmentId as any)?.name || (item.userId?.departmentId as any)?.originName)}</CBadge>
                                 </td>
                                 <td className="py-4 px-6 text-center">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">

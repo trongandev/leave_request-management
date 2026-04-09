@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { useQuery } from "@tanstack/react-query"
 import userService from "@/services/userService"
 export default function TeamLeaveCalendarViewPage() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const [viewDate, setViewDate] = useState(dayjs())
     const { data } = useQuery({
         queryKey: ["team-members"],
@@ -107,7 +107,7 @@ export default function TeamLeaveCalendarViewPage() {
                                         </div>
                                         <div className="flex-1">
                                             <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200 group-hover:text-primary transition-colors">{member.fullName}</p>
-                                            <p className="text-xs text-neutral-400">{member.departmentId.originName}</p>
+                                            <p className="text-xs text-neutral-400">{i18n.language === 'en' ? (member.departmentId.originName || member.departmentId.name) : (member.departmentId.name || member.departmentId.originName)}</p>
                                         </div>
                                     </label>
                                 ))}
