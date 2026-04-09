@@ -326,11 +326,11 @@ export const formTemplateSeed = [
     engName: 'Annual Leave Request',
     code: 'ANNUAL_LEAVE',
     submitButtonText: 'Gửi yêu cầu',
-    maxDays: 1,
+    maxDays: 12,
     requireAttachment: true,
     autoApprove: false,
     isActive: true,
-    isReductible: false,
+    isReductible: true,
     ruleWorkflowSequences: [
       {
         id: 'step_1',
