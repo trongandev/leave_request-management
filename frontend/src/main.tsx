@@ -11,6 +11,7 @@ import { toast } from "sonner" // Hoặc thư viện toast bạn thích
 import { Toaster } from "./components/ui/sonner.tsx"
 import { ThemeProvider } from "./contexts/themeContext.tsx"
 import { FontProvider } from "./contexts/fontContext.tsx"
+import { ErrorBoundary } from "./features/general/pages/ErrorBoundary.tsx"
 
 function getErrorMessage(error: any, fallback: string) {
     const responseMessage = error?.response?.data?.message
@@ -60,17 +61,19 @@ export const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <BrowserRouter>
-            <QueryClientProvider client={queryClient}>
-                <TooltipProvider>
-                    <ThemeProvider>
-                        <FontProvider>
-                            <App />
+            <ErrorBoundary>
+                <QueryClientProvider client={queryClient}>
+                    <TooltipProvider>
+                        <ThemeProvider>
+                            <FontProvider>
+                                <App />
 
-                            <Toaster position="top-center" richColors />
-                        </FontProvider>
-                    </ThemeProvider>
-                </TooltipProvider>
-            </QueryClientProvider>
+                                <Toaster position="top-center" richColors />
+                            </FontProvider>
+                        </ThemeProvider>
+                    </TooltipProvider>
+                </QueryClientProvider>
+            </ErrorBoundary>
         </BrowserRouter>
     </StrictMode>,
 )

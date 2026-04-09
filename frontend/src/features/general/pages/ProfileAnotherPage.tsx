@@ -1,30 +1,30 @@
-import CAvatarName from "@/components/etc/CAvatarName";
-import { useTranslation } from "react-i18next";
-import CAvatarProfile from "@/components/etc/CAvatarProfile";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { CalendarDaysIcon, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react";
-import dayjs from "dayjs";
-import { useQuery } from "@tanstack/react-query";
-import userService from "@/services/userService";
-import LoadingUI from "@/components/etc/LoadingUI";
-import CTable from "@/components/etc/CTable";
-import { format } from "date-fns";
+import CAvatarName from "@/components/etc/CAvatarName"
+import { useTranslation } from "react-i18next"
+import CAvatarProfile from "@/components/etc/CAvatarProfile"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { CalendarDaysIcon, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react"
+import dayjs from "dayjs"
+import { useQuery } from "@tanstack/react-query"
+import userService from "@/services/userService"
+import LoadingUI from "@/components/etc/LoadingUI"
+import CTable from "@/components/etc/CTable"
+import { format } from "date-fns"
 
 export default function ProfileAnotherPage() {
-    const { t } = useTranslation();
+    const { t } = useTranslation()
     const { data, isLoading } = useQuery({
         queryKey: ["profile" + location.pathname.split("/")[2]],
         queryFn: () => userService.getUserById(location.pathname.split("/")[2]),
-    });
-    const user = data?.user;
-    const lb = data?.lb;
-    console.log(data);
+    })
+    const user = data?.user
+    const lb = data?.lb
+    console.log(data)
 
     if (isLoading) {
-        return <LoadingUI />;
+        return <LoadingUI />
     }
-    const columns = ["TYPE", "DATE", "DURATION", "STATUS"];
+    const columns = ["TYPE", "DATE", "DURATION", "STATUS"]
     return (
         <main className="max-w-7xl mx-auto w-full px-8 py-8">
             <div className="flex gap-8 items-start">
@@ -51,11 +51,6 @@ export default function ProfileAnotherPage() {
                                             {t("general.profile.info.remote")}
                                         </span>
                                     </div>
-                                </div>
-                                <div className="mt-7 w-full">
-                                    <Button className="w-full h-12">
-                                        <Edit2 /> {t("general.profile.info.editProfile")}
-                                    </Button>
                                 </div>
                             </div>
                         </CardContent>
@@ -137,7 +132,8 @@ export default function ProfileAnotherPage() {
                                         <div className="w-full h-2 bg-secondary-foreground/20 rounded-full overflow-hidden relative  ">
                                             <div
                                                 className="absolute bg-primary z-10 w-full h-full rounded-full transition-all duration-500 min-w-0"
-                                                style={{ transform: `translateX(${-(1 - (lb?.remainingDays || 0) / (lb?.totalDays || 12)) * 100}%)` }}></div>
+                                                style={{ transform: `translateX(${-(1 - (lb?.remainingDays || 0) / (lb?.totalDays || 12)) * 100}%)` }}
+                                            ></div>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -164,15 +160,15 @@ export default function ProfileAnotherPage() {
                                         </td>
 
                                         {(() => {
-                                            const start = dayjs(request?.values?.startDate);
-                                            const end = dayjs(request?.values?.endDate);
-                                            const durationDays = start.isValid() && end.isValid() ? Math.max(end.diff(start, "day") + 1, 0) : 0;
+                                            const start = dayjs(request?.values?.startDate)
+                                            const end = dayjs(request?.values?.endDate)
+                                            const durationDays = start.isValid() && end.isValid() ? Math.max(end.diff(start, "day") + 1, 0) : 0
 
                                             return (
                                                 <td className="px-4 py-4 text-slate-500">
                                                     {durationDays} {durationDays > 1 ? "days" : "day"}
                                                 </td>
-                                            );
+                                            )
                                         })()}
                                         <td className="px-4 py-4">
                                             <span className="px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold uppercase">{request.status}</span>
@@ -185,5 +181,5 @@ export default function ProfileAnotherPage() {
                 </Card>
             </div>
         </main>
-    );
+    )
 }

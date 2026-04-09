@@ -15,7 +15,7 @@ export default function TeamLeaveCalendarViewPage() {
         queryKey: ["team-members"],
         queryFn: () => userService.getTeamMembers(),
     })
-    console.log(data)
+    const teamMembers = Array.isArray(data) ? data.filter(Boolean) : []
     const generateCalendar = () => {
         const startOfMonth = viewDate.startOf("month")
         const startDate = startOfMonth.startOf("week")
@@ -98,19 +98,26 @@ export default function TeamLeaveCalendarViewPage() {
                             <button className="text-xs text-primary hover:text-primary-dark font-medium">{t("approvals.calendar.teamMembers.selectAll")}</button>
                         </div>
                         <div className="space-y-3">
-                            {data &&
-                                data?.map((member) => (
-                                    <label className="flex items-center gap-3 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-lg cursor-pointer group transition-colors">
-                                        <input className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
-                                        <div className="h-8 w-8 rounded-full bg-neutral-200 overflow-hidden shrink-0">
-                                            <img alt={member.fullName} className="h-full w-full object-cover" data-alt={`Portrait of ${member.fullName}`} src={member.avatar} />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200 group-hover:text-primary transition-colors">{member.fullName}</p>
-                                            <p className="text-xs text-neutral-400">{member.departmentId.originName}</p>
-                                        </div>
-                                    </label>
-                                ))}
+                            {teamMembers.map((member, index) => (
+                                <label
+                                    className="flex items-center gap-3 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-lg cursor-pointer group transition-colors"
+                                    key={member?._id || member?._id || index}
+                                >
+                                    <input className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
+                                    <div className="h-8 w-8 rounded-full bg-neutral-200 overflow-hidden shrink-0">
+                                        <img
+                                            alt={member?.fullName || "Unknown member"}
+                                            className="h-full w-full object-cover"
+                                            data-alt={`Portrait of ${member?.fullName || "Unknown member"}`}
+                                            src={member?.avatar || ""}
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200 group-hover:text-primary transition-colors">{member?.fullName || "Unknown member"}</p>
+                                        <p className="text-xs text-neutral-400">{member?.departmentId?.originName || "No department"}</p>
+                                    </div>
+                                </label>
+                            ))}
                         </div>
                     </div>
                 </aside>

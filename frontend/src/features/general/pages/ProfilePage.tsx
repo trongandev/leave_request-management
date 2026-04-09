@@ -53,11 +53,6 @@ export default function ProfilePage() {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="mt-7 w-full">
-                                    <Button className="w-full h-12">
-                                        <Edit2 /> {t("general.profile.info.editProfile")}
-                                    </Button>
-                                </div>
                             </div>
                         </CardContent>
                     </Card>
