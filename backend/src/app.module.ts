@@ -29,6 +29,7 @@ import { DelegationsModule } from './delegations/delegations.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { ApprovalStepsFlowLogModule } from './approval-steps-flow-log/approval-steps-flow-log.module';
+import { PushNotiModule } from './push-noti/push-noti.module';
 
 @Module({
   imports: [
@@ -83,6 +84,8 @@ import { ApprovalStepsFlowLogModule } from './approval-steps-flow-log/approval-s
     AuditLogsModule,
 
     ApprovalStepsFlowLogModule,
+
+    PushNotiModule,
   ],
   controllers: [AppController],
   providers: [

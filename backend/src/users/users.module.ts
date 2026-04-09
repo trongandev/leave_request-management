@@ -13,6 +13,7 @@ import {
 import { Position, PositionSchema } from 'src/positions/positions.schema';
 import { LeaveBalancesModule } from '../leave-balances/leave-balances.module';
 import { Request, RequestSchema } from 'src/requests/requests.schema';
+import { PushNotiModule } from 'src/push-noti/push-noti.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { Request, RequestSchema } from 'src/requests/requests.schema';
       { name: Request.name, schema: RequestSchema },
     ]),
     LeaveBalancesModule,
+    PushNotiModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

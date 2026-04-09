@@ -21,6 +21,7 @@ import { removeVietnameseTones } from 'src/common/utils/utils';
 import { LeaveBalancesService } from '../leave-balances/leave-balances.service';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { Request } from 'src/requests/requests.schema';
+import { PushNotiGateway } from 'src/push-noti/push-noti.gateway';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +33,35 @@ export class UsersService {
     @InjectModel(Position.name) private positionModel: Model<Position>,
     @InjectModel(Request.name) private requestModel: Model<Request>,
     private leaveBalancesService: LeaveBalancesService,
+    private pushNotiGateway: PushNotiGateway,
   ) {}
+
+  pushNotiToUser(user: any) {
+    const managerId = user?.managerId?._id;
+    if (!managerId) {
+      throw new NotFoundException('User does not have a manager to notify');
+      return;
+    }
+
+    this.pushNotiGateway.sendNotificationToUser(managerId, {
+      content: `Nhân viên ${user._id} vừa nộp một đơn. Vui lòng kiểm tra!`,
+      requestId: 'ID_DON_VUA_TAO',
+      type: 'LEAVE_REQUEST',
+    });
+  }
+
+  testNotificationCurrentUser(user: any) {
+    const userId = user?._id;
+    console.log(`Sending notification to user: ${userId}`);
+    this.pushNotiGateway.sendNotificationToUser(userId, {
+      title: `${user.fullName}`,
+      content: `Vừa tạo đơn xin nghỉ phép. Vui lòng kiểm tra!`,
+      link: 'http://localhost:5173/employee/my-request-history-list',
+      requestId: 'ID_DON_VUA_TAO',
+      avatar: user?.avatar,
+      type: 'LEAVE_REQUEST',
+    });
+  }
 
   async create(createUserDto: CreateUserDto) {
     const findEmail = await this.userModel.findOne({
