@@ -35,18 +35,20 @@ export class ApprovalStepsFlowLogService {
       {
         order: 0,
         label: 'Register Request',
-        postition: params.requesterPosition ?? '',
+        postition: params.requesterPosition ?? 'System',
         reason,
-        performer: params.requesterName,
-        status: FlowLogStatus.APPROVED,
+        performer: params.requesterName || 'System',
+        status: hasApprovalSteps
+          ? FlowLogStatus.PROCESSING
+          : FlowLogStatus.APPROVED,
         signedAt: nowIso,
       },
       ...sortedApprovalSteps.map((step) => ({
         order: step.order,
         label: step.label,
-        postition: step.postition,
+        postition: step.postition || 'System',
         reason,
-        performer: step.performer,
+        performer: step.performer || 'System',
         status: FlowLogStatus.PROCESSING,
         signedAt: step.signedAt ?? '',
       })),
@@ -143,9 +145,9 @@ export class ApprovalStepsFlowLogService {
       const completedStep = {
         order: finalStepOrder,
         label: 'Hoàn tất',
-        postition: '',
+        postition: 'System',
         reason: '',
-        performer: '',
+        performer: performerName || 'System',
         status: FlowLogStatus.APPROVED,
         signedAt: nowIso,
       };

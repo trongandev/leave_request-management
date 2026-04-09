@@ -364,7 +364,7 @@ export class ApprovalStepsService {
         const dto = payload as RejectApprovalStepDto;
         step.status = ApprovalStepStatus.REJECTED;
         step.actualApproverId = String(actor._id);
-        step.comment = dto.reason;
+        step.comment = dto.reason ?? dto.comment;
         step.signedAt = dto.signedAt ? new Date(dto.signedAt) : new Date();
         step.signatureUrl = dto.signatureUrl;
         step.verifiedAt = new Date();
@@ -377,7 +377,7 @@ export class ApprovalStepsService {
         const dto = payload as ReturnApprovalStepDto;
         step.status = ApprovalStepStatus.RETURNED;
         step.actualApproverId = String(actor._id);
-        step.comment = dto.reason;
+        step.comment = dto.reason ?? dto.comment;
         step.signedAt = dto.signedAt ? new Date(dto.signedAt) : new Date();
         step.verifiedAt = new Date();
         step.totalTime =
@@ -415,6 +415,15 @@ export class ApprovalStepsService {
     return requestId;
   }
 
+  private resolveFlowLogId(step: ApprovalStep): string | null {
+    return (
+      this.toIdString(step.flowLogId) ||
+      this.toIdString(
+        (step as { flowLogId?: { _id?: unknown } }).flowLogId?._id,
+      )
+    );
+  }
+
   private async handleActionSideEffects(
     savedStep: ApprovalStep,
     requestId: string,
@@ -446,12 +455,13 @@ export class ApprovalStepsService {
           });
         }
 
-        if (!savedStep.flowLogId) {
+        const flowLogId = this.resolveFlowLogId(savedStep);
+        if (!flowLogId) {
           throw new BadRequestException('Approval step is missing flowLogId');
         }
 
         await this.approvalStepsFlowLogService.markApprovedByFlowLogId(
-          String(savedStep.flowLogId),
+          flowLogId,
           this.extractActorName(actor),
         );
         return;
@@ -465,16 +475,17 @@ export class ApprovalStepsService {
             senderId: String(actor._id),
             requestId,
             requestCode: requestMeta?.code,
-            reason: dto.reason,
+            reason: dto.reason ?? dto.comment,
           });
         }
 
-        if (!savedStep.flowLogId) {
+        const flowLogId = this.resolveFlowLogId(savedStep);
+        if (!flowLogId) {
           throw new BadRequestException('Approval step is missing flowLogId');
         }
 
         await this.approvalStepsFlowLogService.markRejectedByFlowLogId(
-          String(savedStep.flowLogId),
+          flowLogId,
           this.extractActorName(actor),
         );
         return;
@@ -519,9 +530,6 @@ export class ApprovalStepsService {
               },
             },
           ],
-        },
-        {
-          path: 'flowLogId',
         },
       ])
       .exec();

@@ -11,13 +11,13 @@ export class ApprovalFlowStep {
   @Prop({ required: true, trim: true, default: '' })
   label!: string;
 
-  @Prop({ required: true, trim: true, default: '' })
+  @Prop({ trim: true, default: '' })
   postition!: string;
 
   @Prop({ trim: true, default: '' })
   reason!: string;
 
-  @Prop({ required: true, trim: true, default: '' })
+  @Prop({ trim: true, default: '' })
   performer!: string;
 
   @Prop({

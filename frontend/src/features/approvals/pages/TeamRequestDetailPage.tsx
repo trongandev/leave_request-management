@@ -110,13 +110,13 @@ export default function TeamRequestDetailPage() {
                                 <div className="flex justify-between gap-5 pb-5 ">
                                     <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold mb-1">Current Balance</p>
                                     <div className="text-2xl font-bold text-slate-900 dark:text-white">
-                                        {lb?.totalDays ?? 0} <span className="text-sm font-medium text-slate-500">days</span>
+                                        {lb?.remainingDays ?? 0} <span className="text-sm font-medium text-slate-500">days</span>
                                     </div>
                                 </div>
                                 <div className="border-t  pt-5 flex gap-5 justify-between text-primary">
                                     <p className="text-xs uppercase tracking-wide  font-semibold mb-1">After Approval </p>
                                     <div className="text-2xl font-bold  dark:text-white">
-                                        {lb?.totalDays !== undefined ? lb.totalDays - (requestId?.values?.totalDays || 0) : 0} <span className="text-sm font-medium ">days</span>
+                                        {lb?.remainingDays !== undefined ? lb.remainingDays - (requestId?.values?.totalDays || 0) : 0} <span className="text-sm font-medium ">days</span>
                                     </div>
                                 </div>
                             </div>

@@ -17,7 +17,12 @@ export class ApproveApprovalStepDto {
 
 export class RejectApprovalStepDto {
   @IsString()
-  reason!: string;
+  @IsOptional()
+  comment?: string;
+
+  @IsString()
+  @IsOptional()
+  reason?: string;
 
   @IsDateString()
   @IsOptional()
@@ -30,7 +35,12 @@ export class RejectApprovalStepDto {
 
 export class ReturnApprovalStepDto {
   @IsString()
-  reason!: string;
+  @IsOptional()
+  comment?: string;
+
+  @IsString()
+  @IsOptional()
+  reason?: string;
 
   @IsDateString()
   @IsOptional()
