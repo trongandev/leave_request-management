@@ -188,17 +188,9 @@ export default function ProfilePage() {
                                                 </td>
                                             )}
 
-                                            {(() => {
-                                                const start = dayjs(request?.values?.startDate)
-                                                const end = dayjs(request?.values?.endDate)
-                                                const durationDays = start.isValid() && end.isValid() ? Math.max(end.diff(start, "day") + 1, 0) : 0
-
-                                                return (
-                                                    <td className="px-4 py-4 text-slate-500">
-                                                        {t(durationDays > 1 ? "general.profile.activity.days" : "general.profile.activity.day", { count: durationDays })}
-                                                    </td>
-                                                )
-                                            })()}
+                                            <td className="px-4 py-4 text-slate-500">
+                                                {t(request?.values?.totalDays > 1 ? "general.profile.activity.days" : "general.profile.activity.day", { count: request?.values?.totalDays })}
+                                            </td>
                                             <td className="px-4 py-4">
                                                 <CRenderStatus status={request.status} />
                                             </td>
