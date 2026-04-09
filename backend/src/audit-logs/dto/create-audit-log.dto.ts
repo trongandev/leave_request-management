@@ -1,4 +1,5 @@
 import {
+  IsEnum,
   IsIP,
   IsNotEmpty,
   IsObject,
@@ -6,19 +7,25 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import { AuditAction } from '../../enum/audit-action.enum';
+import { AuditModule } from '../../enum/audit-module.enum';
 
 export class CreateAuditLogDto {
   @IsString({ message: 'userId must be a string' })
   @IsNotEmpty({ message: 'userId is required' })
   userId!: string;
 
-  @IsString({ message: 'action must be a string' })
+  @IsEnum(AuditAction, {
+    message: `action must be one of: ${Object.values(AuditAction).join(', ')}`,
+  })
   @IsNotEmpty({ message: 'action is required' })
-  action!: string;
+  action!: AuditAction;
 
-  @IsString({ message: 'module must be a string' })
+  @IsEnum(AuditModule, {
+    message: `module must be one of: ${Object.values(AuditModule).join(', ')}`,
+  })
   @IsNotEmpty({ message: 'module is required' })
-  module!: string;
+  module!: AuditModule;
 
   @IsOptional()
   @IsString({ message: 'resourceId must be a string' })

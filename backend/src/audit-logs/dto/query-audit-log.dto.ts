@@ -1,5 +1,7 @@
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { AuditAction } from '../../enum/audit-action.enum';
+import { AuditModule } from '../../enum/audit-module.enum';
 
 export class QueryAuditLogDto extends PaginationDto {
   @IsOptional()
@@ -7,12 +9,16 @@ export class QueryAuditLogDto extends PaginationDto {
   userId?: string;
 
   @IsOptional()
-  @IsString({ message: 'action must be a string' })
-  action?: string;
+  @IsEnum(AuditAction, {
+    message: `action must be one of: ${Object.values(AuditAction).join(', ')}`,
+  })
+  action?: AuditAction;
 
   @IsOptional()
-  @IsString({ message: 'module must be a string' })
-  module?: string;
+  @IsEnum(AuditModule, {
+    message: `module must be one of: ${Object.values(AuditModule).join(', ')}`,
+  })
+  module?: AuditModule;
 
   @IsOptional()
   @IsString({ message: 'resourceId must be a string' })

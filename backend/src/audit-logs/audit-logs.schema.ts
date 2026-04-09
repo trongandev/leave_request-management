@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { AUDIT_ACTION_ARRAY, AuditAction } from '../enum/audit-action.enum';
+import { AUDIT_MODULE_ARRAY, AuditModule } from '../enum/audit-module.enum';
 
 @Schema({
   timestamps: true,
@@ -9,11 +11,11 @@ export class AuditLog extends Document {
   @Prop({ required: true })
   userId!: string;
 
-  @Prop({ required: true })
-  action!: string;
+  @Prop({ type: String, required: true, enum: AUDIT_ACTION_ARRAY })
+  action!: AuditAction;
 
-  @Prop({ required: true })
-  module!: string;
+  @Prop({ type: String, required: true, enum: AUDIT_MODULE_ARRAY })
+  module!: AuditModule;
 
   @Prop()
   resourceId?: string;

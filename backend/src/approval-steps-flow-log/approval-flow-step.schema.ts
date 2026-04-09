@@ -1,4 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { FlowLogStatus } from '../enum/flow-log-statuses.enum';
+
+const FLOW_LOG_STATUS_VALUES = Object.values(FlowLogStatus);
 
 @Schema({ _id: false })
 export class ApprovalFlowStep {
@@ -8,14 +11,22 @@ export class ApprovalFlowStep {
   @Prop({ required: true, trim: true, default: '' })
   label!: string;
 
-  @Prop({ required: true, trim: true, default: '' })
+  @Prop({ trim: true, default: '' })
   postition!: string;
 
   @Prop({ trim: true, default: '' })
   reason!: string;
 
-  @Prop({ required: true, trim: true, default: '' })
+  @Prop({ trim: true, default: '' })
   performer!: string;
+
+  @Prop({
+    type: String,
+    required: true,
+    enum: FLOW_LOG_STATUS_VALUES,
+    default: FlowLogStatus.PROCESSING,
+  })
+  status!: FlowLogStatus;
 
   @Prop({ default: '' })
   signedAt!: string;
