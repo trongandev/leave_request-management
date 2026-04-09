@@ -204,7 +204,7 @@ export class AuditInterceptor implements NestInterceptor {
   }
 
   private extractParamId(request: Request): string | undefined {
-    const paramValue = (request.params as Record<string, unknown>)?.id;
+    const paramValue = (request.params as any)?.id;
     return this.toIdString(paramValue);
   }
 
@@ -295,7 +295,7 @@ export class AuditInterceptor implements NestInterceptor {
   }
 
   private extractUserId(request: Request): string {
-    const user = request.user as { _id?: unknown; id?: unknown } | undefined;
+    const user = request.user as any;
     const rawUserId = this.toIdString(user?._id ?? user?.id);
 
     if (rawUserId) {
@@ -334,8 +334,10 @@ export class AuditInterceptor implements NestInterceptor {
   }): Promise<void> {
     try {
       const oldValue = await params.oldValuePromise;
-      const responseEntity = this.extractResponseEntity(params.responseData);
-      const body = (params.request.body ?? {}) as Record<string, unknown>;
+      const responseEntity: any = this.extractResponseEntity(
+        params.responseData,
+      );
+      const body = (params.request.body ?? {}) as Record<any, any>;
 
       const resourceIdFromLookup = await params.resourceIdForLookupPromise;
       const resourceId =
