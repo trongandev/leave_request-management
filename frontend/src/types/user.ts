@@ -34,6 +34,7 @@ export interface User {
 export interface PositionId {
     _id: string
     name: string
+    originName?: string
     departmentId: DepartmentId
     __v: number
     createdAt: string

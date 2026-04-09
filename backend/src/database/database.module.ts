@@ -22,6 +22,10 @@ import {
   LeaveBalanceSchema,
 } from 'src/leave-balances/leave-balances.schema';
 import { Counter, CounterSchema } from 'src/counters/counters.schema';
+import {
+  SystemSetting,
+  SystemSettingSchema,
+} from 'src/system-setting/system-setting.schema';
 
 @Module({
   imports: [
@@ -35,6 +39,7 @@ import { Counter, CounterSchema } from 'src/counters/counters.schema';
       { name: Request.name, schema: RequestSchema },
       { name: LeaveBalance.name, schema: LeaveBalanceSchema },
       { name: Counter.name, schema: CounterSchema },
+      { name: SystemSetting.name, schema: SystemSettingSchema },
     ]),
   ],
   providers: [DatabaseSeeder],

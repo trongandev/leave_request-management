@@ -86,7 +86,7 @@ export default function GlobalRequestPage() {
                                     <span className="text-sm text-slate-600 dark:text-slate-400">{t("admin.globalRequests.filters.annual")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-slate-900 dark:text-white font-medium">3 {t("admin.globalRequests.table.days")}</div>
+                                    <div className="text-sm text-slate-900 dark:text-white font-medium">{t("admin.globalRequests.table.days", { count: 3 })}</div>
                                     <div className="text-xs text-slate-500">Oct 12 - Oct 14</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">Oct 08, 2023</td>
@@ -111,7 +111,7 @@ export default function GlobalRequestPage() {
                                     <span className="text-sm text-slate-600 dark:text-slate-400">{t("admin.globalRequests.filters.sick")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-slate-900 dark:text-white font-medium">2 {t("admin.globalRequests.table.days")}</div>
+                                    <div className="text-sm text-slate-900 dark:text-white font-medium">{t("admin.globalRequests.table.days", { count: 2 })}</div>
                                     <div className="text-xs text-slate-500">Oct 10 - Oct 11</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">Oct 09, 2023</td>
@@ -136,7 +136,7 @@ export default function GlobalRequestPage() {
                                     <span className="text-sm text-slate-600 dark:text-slate-400">{t("admin.globalRequests.filters.emergency")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-slate-900 dark:text-white font-medium">1 {t("admin.globalRequests.table.day")}</div>
+                                    <div className="text-sm text-slate-900 dark:text-white font-medium">{t("admin.globalRequests.table.day", { count: 1 })}</div>
                                     <div className="text-xs text-slate-500">Oct 10</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">Oct 10, 2023</td>
@@ -163,7 +163,7 @@ export default function GlobalRequestPage() {
                                     <span className="text-sm text-slate-600 dark:text-slate-400">{t("admin.globalRequests.filters.remote")}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-slate-900 dark:text-white font-medium">5 {t("admin.globalRequests.table.days")}</div>
+                                    <div className="text-sm text-slate-900 dark:text-white font-medium">{t("admin.globalRequests.table.days", { count: 5 })}</div>
                                     <div className="text-xs text-slate-500">Oct 20 - Oct 24</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">Oct 11, 2023</td>

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { useQuery } from "@tanstack/react-query"
 import userService from "@/services/userService"
 export default function TeamLeaveCalendarViewPage() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const [viewDate, setViewDate] = useState(dayjs())
     const { data } = useQuery({
         queryKey: ["team-members"],

@@ -20,6 +20,7 @@ export interface DepartmentPayload {
 export interface Position {
     _id: string
     name: string
+    originName?: string
     fullName: string
     level: number
     description: string

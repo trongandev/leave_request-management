@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 export default function TeamManagement() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const [searchTerm, setSearchTerm] = useState("")
     const [page, setPage] = useState(1)
 
@@ -103,14 +103,14 @@ export default function TeamManagement() {
                         <td className="py-4 px-6 text-center">
                             <div className="flex justify-center">
                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${deptMapColor(item?.departmentId?.originName || "")} tracking-wide`}>
-                                    {item?.departmentId?.originName || t("admin.employeeManagement.common.system")}
+                                    {i18n.language === 'en' ? (item?.departmentId?.originName || item?.departmentId?.name) : (item?.departmentId?.name || item?.departmentId?.originName) || t("admin.employeeManagement.common.system")}
                                 </span>
                             </div>
                         </td>
                         <td className="py-4 px-6 text-center">
                             <div className="flex justify-center">
-                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${positionMapColor(item?.positionId?.fullName || "")} tracking-wide`}>
-                                    {item?.positionId?.fullName || t("admin.employeeManagement.common.empty")}
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${positionMapColor(item?.positionId?.fullName || item?.positionId?.name || "")} tracking-wide`}>
+                                    {i18n.language === 'en' ? (item?.positionId?.originName || item?.positionId?.name) : (item?.positionId?.name || item?.positionId?.originName) || t("admin.employeeManagement.common.empty")}
                                 </span>
                             </div>
                         </td>

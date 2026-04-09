@@ -24,7 +24,7 @@ function getLevelBadgeClass(level: number) {
 }
 
 export default function PositionManagementPage() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const queryClient = useQueryClient()
     const [page, setPage] = useState(1)
 
@@ -197,7 +197,7 @@ export default function PositionManagementPage() {
                                         {t("admin.organization.positions.levelValue", { level: position.level })}
                                     </Badge>
                                 </td>
-                                <td className="px-6 py-4 text-neutral-600 dark:text-neutral-300">{position.departmentId.originName}</td>
+                                <td className="px-6 py-4 text-neutral-600 dark:text-neutral-300">{i18n.language === 'en' ? (position.departmentId.originName || position.departmentId.name) : (position.departmentId.name || position.departmentId.originName)}</td>
                                 <td className="px-6 py-4 text-neutral-600 dark:text-neutral-300">{position.description || t("admin.organization.common.empty")}</td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-center gap-2">

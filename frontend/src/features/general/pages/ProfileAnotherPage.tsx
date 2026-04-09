@@ -12,7 +12,7 @@ import CTable from "@/components/etc/CTable"
 import { format } from "date-fns"
 
 export default function ProfileAnotherPage() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const { data, isLoading } = useQuery({
         queryKey: ["profile" + location.pathname.split("/")[2]],
         queryFn: () => userService.getUserById(location.pathname.split("/")[2]),
@@ -24,7 +24,12 @@ export default function ProfileAnotherPage() {
     if (isLoading) {
         return <LoadingUI />
     }
-    const columns = ["TYPE", "DATE", "DURATION", "STATUS"]
+    const columns = [
+        t("general.profile.activity.columns.type", "TYPE"),
+        t("general.profile.activity.columns.date", "DATE"),
+        t("general.profile.activity.columns.duration", "DURATION"),
+        t("general.profile.activity.columns.status", "STATUS"),
+    ]
     return (
         <main className="max-w-7xl mx-auto w-full px-8 py-8">
             <div className="flex gap-8 items-start">
@@ -35,15 +40,21 @@ export default function ProfileAnotherPage() {
                             <div className="px-6 pb-6 -mt-12 flex flex-col items-center text-center">
                                 {user && <CAvatarProfile user={user} className="h-24 w-24 bg-white text-3xl font-semibold" />}
                                 <h1 className="text-xl mt-3 font-bold text-slate-900 dark:text-white">{user?.fullName || "Alex Johnson"}</h1>
-                                <p className="text-slate-500 text-sm font-medium">{user?.positionId?.fullName || "Senior Frontend Developer"}</p>
+                                <p className="text-slate-500 text-sm font-medium">
+                                    {i18n.language === "en" ? user?.positionId?.originName || user?.positionId?.name : user?.positionId?.name || user?.positionId?.originName || "System"}
+                                </p>
                                 <div className="mt-6 w-full space-y-3 pt-6 border-t border-slate-100 dark:border-slate-800">
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-slate-500">{t("general.profile.info.empId")}</span>
-                                        <span className="font-semibold text-slate-900 dark:text-slate-200">{user?.empId || "EMP-4829"}</span>
+                                        <span className="font-semibold text-slate-900 dark:text-slate-200">{user?.empId || "EMP"}</span>
                                     </div>
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-slate-500">{t("general.profile.info.department")}</span>
-                                        <span className="font-semibold text-slate-900 dark:text-slate-200">{user?.departmentId?.originName || "IT"}</span>
+                                        <span className="font-semibold text-slate-900 dark:text-slate-200">
+                                            {i18n.language === "en"
+                                                ? user?.departmentId?.originName || user?.departmentId?.name
+                                                : user?.departmentId?.name || user?.departmentId?.originName || "System"}
+                                        </span>
                                     </div>
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-slate-500">{t("general.profile.info.workMode")}</span>
@@ -97,19 +108,21 @@ export default function ProfileAnotherPage() {
                             <Card>
                                 <CardContent>
                                     <h4 className="font-bold text-slate-900 dark:text-white mb-3">{t("general.profile.details.lineManager")}</h4>
-                                    {user?.managerId ? <CAvatarName user={user?.managerId} /> : <div className="text-xs text-foreground">No line manager assigned</div>}
+                                    {user?.managerId ? <CAvatarName user={user?.managerId} /> : <div className="text-xs text-foreground">{t("general.profile.details.noManager")}</div>}
                                 </CardContent>
                             </Card>
                             <Card>
                                 <CardContent>
-                                    <h4 className="font-bold text-slate-900 dark:text-white">BirthDate</h4>
+                                    <h4 className="font-bold text-slate-900 dark:text-white">{t("general.profile.details.birthDate") || "BirthDate"}</h4>
                                     <div className="flex items-center gap-3 mt-2">
                                         <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-500">
                                             <Gift className="" />
                                         </div>
                                         <div>
                                             <p className="font-medium text-slate-900 dark:text-white">{user?.birthDate ? dayjs(user.birthDate).format("MMMM D, YYYY") : "N/A"}</p>
-                                            <div className="text-xs text-slate-500">{user?.birthDate ? dayjs().year() - dayjs(user.birthDate).year() : "N/A"} Years Old</div>
+                                            <div className="text-xs text-slate-500">
+                                                {user?.birthDate ? dayjs().year() - dayjs(user.birthDate).year() : "N/A"} {t("general.profile.details.yearsOld") || "Years Old"}
+                                            </div>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -124,7 +137,7 @@ export default function ProfileAnotherPage() {
                                 <Card>
                                     <CardContent>
                                         <div className="flex justify-between items-center mb-2">
-                                            <span className="text-sm font-medium text-slate-900 dark:text-white">Số phép còn lại</span>
+                                            <span className="text-sm font-medium text-slate-900 dark:text-white">{t("general.profile.timeOff.remainingLabel") || "Số phép còn lại"}</span>
                                             <span className="text-sm font-medium text-slate-900 dark:text-white">
                                                 {lb?.remainingDays || 0}/{lb?.totalDays || 12}
                                             </span>
@@ -166,7 +179,7 @@ export default function ProfileAnotherPage() {
 
                                             return (
                                                 <td className="px-4 py-4 text-slate-500">
-                                                    {durationDays} {durationDays > 1 ? "days" : "day"}
+                                                    {t(durationDays > 1 ? "general.profile.activity.days" : "general.profile.activity.day", { count: durationDays })}
                                                 </td>
                                             )
                                         })()}
