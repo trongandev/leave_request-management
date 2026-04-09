@@ -73,22 +73,24 @@ export default function FormTemplateDetailPage() {
 
     const rootFields = data?.fields.filter((f) => !f.parentId).sort((a, b) => (a.order || 0) - (b.order || 0))
 
-    const liveTotalDays = calculateTotalDays(stateValueData.startDate, stateValueData.endDate)
-    const liveStartDate = parseDate(stateValueData.startDate)
+    const shouldCheckBalance = Boolean(data?.isReductible)
+    const liveTotalDays = shouldCheckBalance ? calculateTotalDays(stateValueData.startDate, stateValueData.endDate) : null
+    const liveStartDate = shouldCheckBalance ? parseDate(stateValueData.startDate) : null
     const liveBalanceYear = liveStartDate?.getFullYear()
     const remainingDays = Number(leaveBalance?.remainingDays ?? 0)
-    const hasBalanceMatch = typeof liveTotalDays === "number" && leaveBalance && typeof liveBalanceYear === "number" && leaveBalance.year === liveBalanceYear
+    const hasBalanceMatch =
+        shouldCheckBalance && typeof liveTotalDays === "number" && leaveBalance && typeof liveBalanceYear === "number" && leaveBalance.year === liveBalanceYear
     const exceedsBalance = hasBalanceMatch && liveTotalDays > remainingDays
 
     const handleSubmit = async () => {
         const totalDays = calculateTotalDays(stateValueData.startDate, stateValueData.endDate)
 
-        if (stateValueData.startDate && stateValueData.endDate && totalDays === null) {
+        if (shouldCheckBalance && stateValueData.startDate && stateValueData.endDate && totalDays === null) {
             toast.error("Ngày bắt đầu/kết thúc không hợp lệ")
             return
         }
 
-        if (typeof totalDays === "number" && leaveBalance && liveBalanceYear && leaveBalance.year === liveBalanceYear) {
+        if (shouldCheckBalance && typeof totalDays === "number" && leaveBalance && liveBalanceYear && leaveBalance.year === liveBalanceYear) {
             if (totalDays > remainingDays) {
                 toast.error(`Số ngày nghỉ (${totalDays}) vượt quá số dư còn lại (${remainingDays}).`)
                 return
@@ -108,7 +110,7 @@ export default function FormTemplateDetailPage() {
 
         const submitData = Object.fromEntries(submitEntries)
 
-        if (typeof totalDays === "number") {
+        if (shouldCheckBalance && typeof totalDays === "number") {
             submitData.totalDays = totalDays
         }
 
@@ -145,7 +147,7 @@ export default function FormTemplateDetailPage() {
 
                                 return <FormPreviewFieldWithValue child={field} stateValueData={stateValueData} handleChangeValue={handleChangeValue} />
                             })}
-                            {typeof liveTotalDays === "number" && leaveBalance && typeof liveBalanceYear === "number" && leaveBalance.year === liveBalanceYear && (
+                            {shouldCheckBalance && typeof liveTotalDays === "number" && leaveBalance && typeof liveBalanceYear === "number" && leaveBalance.year === liveBalanceYear && (
                                 <div className={`rounded-lg border px-4 py-3 text-sm ${exceedsBalance ? "border-red-300 bg-red-50 text-red-700" : "border-green-300 bg-green-50 text-green-700"}`}>
                                     {exceedsBalance
                                         ? `Tổng ngày nghỉ ${liveTotalDays} vượt quá số dư còn lại ${remainingDays}.`

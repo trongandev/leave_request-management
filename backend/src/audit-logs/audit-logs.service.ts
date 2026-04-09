@@ -1,20 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { OnEvent } from '@nestjs/event-emitter';
 import { paginate } from '../common/utils/pagination.util';
 import { AuditLog } from './audit-logs.schema';
 import { CreateAuditLogDto } from './dto/create-audit-log.dto';
 import { QueryAuditLogDto } from './dto/query-audit-log.dto';
+import { AUDIT_LOG_CREATED_EVENT } from './constants/audit-log.constants';
 
 @Injectable()
 export class AuditLogsService {
+  private readonly logger = new Logger(AuditLogsService.name);
+
   constructor(
     @InjectModel(AuditLog.name)
     private readonly auditLogModel: Model<AuditLog>,
   ) {}
 
-  create(createAuditLogDto: CreateAuditLogDto) {
-    return this.auditLogModel.create(createAuditLogDto);
+  @OnEvent(AUDIT_LOG_CREATED_EVENT)
+  async handleAuditLogCreated(createAuditLogDto: CreateAuditLogDto) {
+    try {
+      await this.auditLogModel.create(createAuditLogDto);
+    } catch (error) {
+      this.logger.error('Failed to persist audit log event', error as Error);
+    }
   }
 
   findAll(queryAuditLogDto: QueryAuditLogDto) {
@@ -65,15 +74,5 @@ export class AuditLogsService {
     }
 
     return auditLog;
-  }
-
-  async remove(id: string) {
-    const deleted = await this.auditLogModel.findByIdAndDelete(id).exec();
-
-    if (!deleted) {
-      throw new NotFoundException(`Audit log ${id} not found`);
-    }
-
-    return deleted;
   }
 }

@@ -6,7 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { envValidationSchema } from './config/env.validation';
 import { DatabaseConfig } from './config/database.config';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/dto/filters/http-exception.filter';
 import { AuthModule } from './auth/auth.module';
 import { RolesModule } from './roles/roles.module';
@@ -29,7 +29,12 @@ import { DelegationsModule } from './delegations/delegations.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { ApprovalStepsFlowLogModule } from './approval-steps-flow-log/approval-steps-flow-log.module';
+<<<<<<< HEAD
 import { PushNotiModule } from './push-noti/push-noti.module';
+=======
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AuditInterceptor } from './common/dto/interceptors/audit.interceptor';
+>>>>>>> 116596b863c263a77a66c6fdb1a6e018edc7687d
 
 @Module({
   imports: [
@@ -38,6 +43,7 @@ import { PushNotiModule } from './push-noti/push-noti.module';
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot(),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -102,6 +108,10 @@ import { PushNotiModule } from './push-noti/push-noti.module';
     {
       provide: APP_GUARD,
       useClass: PermissionsGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
     },
   ],
   exports: [DatabaseConfig],

@@ -159,7 +159,7 @@ export class UsersService {
       positionsByDept.get(deptId)!.push(pos);
     });
 
-    const usersToCreate: any = [];
+    const usersToCreate: Array<Record<string, unknown>> = [];
     const usedEmails = new Set<string>();
     let emailRetries = 0;
 
@@ -219,7 +219,7 @@ export class UsersService {
           });
         } catch (error) {
           console.error(
-            `Failed to create leave balance for user ${user._id}:`,
+            `Failed to create leave balance for user ${String(user._id)}:`,
             error,
           );
         }
@@ -456,10 +456,13 @@ export class UsersService {
           },
         ])
         .exec();
+
+      const teamMemberIds = teamMembers.map((member) => String(member._id));
+
       // lấy ra các request của từng user có trong team để hiển thị số lượng request đang chờ phê duyệt
       const getRequestAllTeamMembers = await this.requestModel
         .find({
-          creatorId: { $in: teamMembers.map((member) => member._id) },
+          creatorId: { $in: teamMemberIds },
           status: 'approved',
         })
         .select('code values createdAt creatorId')
