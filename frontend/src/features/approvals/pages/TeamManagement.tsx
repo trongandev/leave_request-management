@@ -21,7 +21,6 @@ export default function TeamManagement() {
         queryKey: ["team-management", page, searchTerm],
         queryFn: () => userService.getTeamMembers(),
     })
-    console.log(data)
     const handlePageChange = (page: number) => {
         setPage(page)
     }
@@ -89,7 +88,7 @@ export default function TeamManagement() {
                 </CardContent>
             </Card>
             <CTable data={data} columns={columns} handlePageChange={handlePageChange} isLoading={isLoading}>
-                {data?.map((item, index) => (
+                {data?.teamMember.map((item, index) => (
                     <tr key={index} className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
                         <td className="py-4 px-6">
                             <Link to={`/profile/${item._id}`} className="flex items-center justify-left gap-3">
@@ -103,14 +102,20 @@ export default function TeamManagement() {
                         <td className="py-4 px-6 text-center">
                             <div className="flex justify-center">
                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${deptMapColor(item?.departmentId?.originName || "")} tracking-wide`}>
-                                    {i18n.language === 'en' ? (item?.departmentId?.originName || item?.departmentId?.name) : (item?.departmentId?.name || item?.departmentId?.originName) || t("admin.employeeManagement.common.system")}
+                                    {i18n.language === "en"
+                                        ? item?.departmentId?.originName || item?.departmentId?.name
+                                        : item?.departmentId?.name || item?.departmentId?.originName || t("admin.employeeManagement.common.system")}
                                 </span>
                             </div>
                         </td>
                         <td className="py-4 px-6 text-center">
                             <div className="flex justify-center">
-                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${positionMapColor(item?.positionId?.fullName || item?.positionId?.name || "")} tracking-wide`}>
-                                    {i18n.language === 'en' ? (item?.positionId?.originName || item?.positionId?.name) : (item?.positionId?.name || item?.positionId?.originName) || t("admin.employeeManagement.common.empty")}
+                                <span
+                                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${positionMapColor(item?.positionId?.fullName || item?.positionId?.name || "")} tracking-wide`}
+                                >
+                                    {i18n.language === "en"
+                                        ? item?.positionId?.fullName || item?.positionId?.name
+                                        : item?.positionId?.name || item?.positionId?.fullName || t("admin.employeeManagement.common.empty")}
                                 </span>
                             </div>
                         </td>

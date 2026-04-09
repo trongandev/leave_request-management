@@ -31,7 +31,6 @@ export default function EditDetailRequestPage() {
         }
     }, [data])
     const handleChangeValue = (fieldId: string, value: any) => {
-        console.log(fieldId)
         setValueFields((prev: any) => ({
             ...prev,
             [fieldId]: value,

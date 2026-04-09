@@ -52,7 +52,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
         this.progressInterval = setInterval(() => {
             this.setState((prev) => {
-                const nextProgress = Math.min(100, prev.progress + (Math.floor(Math.random() * 15) + 8))
+                const nextProgress = Math.min(100, prev.progress + (Math.floor(Math.random() * 20) + 8))
                 return { ...prev, progress: nextProgress }
             })
         }, 800)
@@ -164,7 +164,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                                             <span className="text-[10px] font-bold text-primary">{this.state.progress}%</span>
                                         </div>
                                         <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
-                                            <div className="bg-primary h-full rounded-full" style={{ width: this.state.progress + "%" }}></div>
+                                            <div className="bg-primary h-full rounded-full transition-all duration-300" style={{ width: this.state.progress + "%" }}></div>
                                         </div>
                                     </div>
                                 </div>

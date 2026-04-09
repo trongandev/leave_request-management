@@ -2,7 +2,6 @@ import LoadingUI from "@/components/etc/LoadingUI"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { handleDistanceDate } from "@/lib/utils"
 import approvalService from "@/services/approvalService"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -24,6 +23,7 @@ export default function TeamRequestDetailPage() {
     const lb = data?.lb
     const creatorId = approvalStep?.requestId?.creatorId
     const requestId = approvalStep?.requestId
+    // const flowLogId = approvalStep?.requestId
 
     const mutation = useMutation({
         mutationFn: (variables: { comment: string; type: "approve" | "reject" }) => {
@@ -113,10 +113,10 @@ export default function TeamRequestDetailPage() {
                                         {lb?.totalDays ?? 0} <span className="text-sm font-medium text-slate-500">days</span>
                                     </div>
                                 </div>
-                                <div className="border-t  pt-5 flex gap-5 justify-between">
-                                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold mb-1">After Approval </p>
-                                    <div className="text-2xl font-bold text-slate-900 dark:text-white">
-                                        {lb?.totalDays !== undefined ? lb.totalDays - 1 : 0} <span className="text-sm font-medium text-slate-500">days</span>
+                                <div className="border-t  pt-5 flex gap-5 justify-between text-primary">
+                                    <p className="text-xs uppercase tracking-wide  font-semibold mb-1">After Approval </p>
+                                    <div className="text-2xl font-bold  dark:text-white">
+                                        {lb?.totalDays !== undefined ? lb.totalDays - (requestId?.values?.totalDays || 0) : 0} <span className="text-sm font-medium ">days</span>
                                     </div>
                                 </div>
                             </div>
@@ -127,7 +127,7 @@ export default function TeamRequestDetailPage() {
                             <div className="pb-5 px-1 border-b  flex justify-between items-center">
                                 <h3 className="font-semibold text-slate-900 dark:text-white">Request Information</h3>
                                 <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                    <Calendar1 size={18} /> {handleDistanceDate(requestId?.values?.startDate, requestId?.values?.endDate)} total
+                                    <Calendar1 size={18} /> {requestId?.values?.totalDays} {requestId?.values?.totalDays > 1 ? "days" : "day"} total
                                 </span>
                             </div>
                             <div className="p-6">
@@ -143,7 +143,7 @@ export default function TeamRequestDetailPage() {
                                         <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Date Range</p>
                                         <div className="text-slate-900 dark:text-white font-medium">
                                             {format(new Date(requestId?.values?.startDate), "MMM dd, yyyy")} - {format(new Date(requestId?.values?.endDate), "MMM dd, yyyy")} (
-                                            {handleDistanceDate(requestId?.values?.startDate, requestId?.values?.endDate)})
+                                            {requestId?.values?.totalDays} {requestId?.values?.totalDays > 1 ? "days" : "day"})
                                         </div>
                                     </div>
                                     <div className="sm:col-span-2">

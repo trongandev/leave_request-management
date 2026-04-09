@@ -92,7 +92,6 @@ export default function CreateFormBuilderPage() {
 
     const createTemplateMutation = useMutation({
         mutationFn: async (data: any) => {
-            console.log(data)
             let res = null
             if (id) {
                 delete data.code

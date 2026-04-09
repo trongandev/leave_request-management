@@ -2,7 +2,10 @@ import { Controller, Get, Param, Delete, Query } from '@nestjs/common';
 import { ErrorLogService } from './error-log.service';
 
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { RequirePermissions } from 'src/auth/decorators/permissions.decorator';
+import { Permission } from 'src/enum/permission.enum';
 
+@RequirePermissions(Permission.VIEW_REPORT)
 @Controller('error-log')
 export class ErrorLogController {
   constructor(private readonly errorLogService: ErrorLogService) {}

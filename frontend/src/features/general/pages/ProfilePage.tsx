@@ -1,10 +1,9 @@
 import CAvatarName from "@/components/etc/CAvatarName"
 import { useTranslation } from "react-i18next"
 import CAvatarProfile from "@/components/etc/CAvatarProfile"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuthStore } from "@/store/useAuthStore"
-import { CalendarDaysIcon, ChevronRight, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react"
+import { CalendarDaysIcon, ChevronRight, Gift, MailIcon, PhoneIcon } from "lucide-react"
 import dayjs from "dayjs"
 import { useQuery } from "@tanstack/react-query"
 import LoadingUI from "@/components/etc/LoadingUI"
@@ -12,6 +11,7 @@ import CTable from "@/components/etc/CTable"
 import { format } from "date-fns"
 import requestService from "@/services/requestService"
 import CRenderStatus from "@/components/etc/CRenderStatus"
+import { toast } from "sonner"
 
 export default function ProfilePage() {
     const { t, i18n } = useTranslation()
@@ -41,7 +41,9 @@ export default function ProfilePage() {
                             <div className="px-6 pb-6 -mt-12 flex flex-col items-center text-center">
                                 {user && <CAvatarProfile user={user} className="h-24 w-24 bg-white text-3xl font-semibold" />}
                                 <h1 className="text-xl mt-3 font-bold text-slate-900 dark:text-white">{user?.fullName || "Alex Johnson"}</h1>
-                                        <p className="text-slate-500 text-sm font-medium">{i18n.language === 'en' ? (user?.positionId?.originName || user?.positionId?.name) : (user?.positionId?.name || user?.positionId?.originName) || "System"}</p>
+                                <p className="text-slate-500 text-sm font-medium">
+                                    {i18n.language === "en" ? user?.positionId?.originName || user?.positionId?.name : user?.positionId?.name || user?.positionId?.originName || "System"}
+                                </p>
                                 <div className="mt-6 w-full space-y-3 pt-6 border-t border-slate-100 dark:border-slate-800">
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-slate-500">{t("general.profile.info.empId")}</span>
@@ -49,7 +51,11 @@ export default function ProfilePage() {
                                     </div>
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-slate-500">{t("general.profile.info.department")}</span>
-                                        <span className="font-semibold text-slate-900 dark:text-slate-200">{i18n.language === 'en' ? (user?.departmentId?.originName || user?.departmentId?.name) : (user?.departmentId?.name || user?.departmentId?.originName) || "System"}</span>
+                                        <span className="font-semibold text-slate-900 dark:text-slate-200">
+                                            {i18n.language === "en"
+                                                ? user?.departmentId?.originName || user?.departmentId?.name
+                                                : user?.departmentId?.name || user?.departmentId?.originName || "System"}
+                                        </span>
                                     </div>
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-slate-500">{t("general.profile.info.workMode")}</span>
@@ -69,7 +75,15 @@ export default function ProfilePage() {
                                     <MailIcon className="text-neutral-500" size={20} />
                                     <div className="text-xs">
                                         <p className="text-neutral-600">{t("general.profile.contact.workEmail")}</p>
-                                        <p className="text-slate-900 dark:text-slate-200 font-medium">{user?.email}</p>
+                                        <p
+                                            className="text-slate-900 dark:text-slate-200 font-medium"
+                                            onClick={() => {
+                                                toast.success("Copy Email vào Clipboard thành công")
+                                                window.navigator.clipboard.writeText(user?.email || "")
+                                            }}
+                                        >
+                                            {user?.email}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex gap-3 items-center">
@@ -103,7 +117,11 @@ export default function ProfilePage() {
                             <Card>
                                 <CardContent>
                                     <h4 className="font-bold text-slate-900 dark:text-white mb-3">{t("general.profile.details.lineManager")}</h4>
-                                    {user?.managerId ? <CAvatarName isLinkActiveAnother user={user?.managerId} /> : <div className="text-xs text-foreground">{t("general.profile.details.noManager")}</div>}
+                                    {user?.managerId ? (
+                                        <CAvatarName isLinkActiveAnother user={user?.managerId} />
+                                    ) : (
+                                        <div className="text-xs text-foreground">{t("general.profile.details.noManager")}</div>
+                                    )}
                                 </CardContent>
                             </Card>
                             <Card>
@@ -115,7 +133,9 @@ export default function ProfilePage() {
                                         </div>
                                         <div>
                                             <p className="font-medium text-slate-900 dark:text-white">{user?.birthDate ? dayjs(user.birthDate).format("MMMM D, YYYY") : "N/A"}</p>
-                                            <div className="text-xs text-slate-500">{user?.birthDate ? dayjs().year() - dayjs(user.birthDate).year() : "N/A"} {t("general.profile.details.yearsOld") || "Years Old"}</div>
+                                            <div className="text-xs text-slate-500">
+                                                {user?.birthDate ? dayjs().year() - dayjs(user.birthDate).year() : "N/A"} {t("general.profile.details.yearsOld") || "Years Old"}
+                                            </div>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -152,7 +172,7 @@ export default function ProfilePage() {
                                     {t("general.profile.activity.viewLog")} <ChevronRight />
                                 </button>
                             </div>
-                            <CTable columns={columns} data={data || []} isLoading={isLoading}>
+                            <CTable columns={columns} data={data || []} isLoading={isLoading} classNameNoData="h-32!">
                                 {data &&
                                     data?.data.map((request) => (
                                         <tr>

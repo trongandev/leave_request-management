@@ -84,7 +84,6 @@ axiosInstance.interceptors.response.use(
                 })
 
                 const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data
-                console.log(response.data.data)
 
                 // Lưu access token mới
                 storage.setCookieToken({

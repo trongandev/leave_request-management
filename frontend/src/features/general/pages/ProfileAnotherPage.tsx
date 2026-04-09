@@ -1,15 +1,15 @@
 import CAvatarName from "@/components/etc/CAvatarName"
 import { useTranslation } from "react-i18next"
 import CAvatarProfile from "@/components/etc/CAvatarProfile"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { CalendarDaysIcon, Edit2, Gift, MailIcon, PhoneIcon } from "lucide-react"
+import { CalendarDaysIcon, Gift, MailIcon, PhoneIcon } from "lucide-react"
 import dayjs from "dayjs"
 import { useQuery } from "@tanstack/react-query"
 import userService from "@/services/userService"
 import LoadingUI from "@/components/etc/LoadingUI"
 import CTable from "@/components/etc/CTable"
 import { format } from "date-fns"
+import { toast } from "sonner"
 
 export default function ProfileAnotherPage() {
     const { t, i18n } = useTranslation()
@@ -19,7 +19,6 @@ export default function ProfileAnotherPage() {
     })
     const user = data?.user
     const lb = data?.lb
-    console.log(data)
 
     if (isLoading) {
         return <LoadingUI />
@@ -74,7 +73,15 @@ export default function ProfileAnotherPage() {
                                     <MailIcon className="text-neutral-500" size={20} />
                                     <div className="text-xs">
                                         <p className="text-neutral-600">{t("general.profile.contact.workEmail")}</p>
-                                        <p className="text-slate-900 dark:text-slate-200 font-medium">{user?.email}</p>
+                                        <p
+                                            className="text-slate-900 dark:text-slate-200 font-medium"
+                                            onClick={() => {
+                                                toast.success("Copy Email vào Clipboard thành công")
+                                                window.navigator.clipboard.writeText(user?.email || "")
+                                            }}
+                                        >
+                                            {user?.email}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex gap-3 items-center">
@@ -159,7 +166,7 @@ export default function ProfileAnotherPage() {
                                     {t("general.profile.activity.viewLog")} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                 </button>
                             </div>
-                            <CTable columns={columns} data={data?.rq} isLoading={isLoading}>
+                            <CTable columns={columns} data={data?.rq} isLoading={isLoading} classNameNoData="h-32!">
                                 {data?.rq?.map((request) => (
                                     <tr>
                                         <td className="px-4 py-4">

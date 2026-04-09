@@ -19,7 +19,6 @@ export default function MyRequestHistoryListPage() {
         queryKey: ["my-request-history"],
         queryFn: () => requestService.getRequestProfile({ page }),
     })
-    console.log(data)
     const handleChangePage = (newPage: number) => {
         setPage(newPage)
     }

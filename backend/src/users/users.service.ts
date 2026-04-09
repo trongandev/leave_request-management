@@ -427,10 +427,19 @@ export class UsersService {
           },
         ])
         .exec();
-      return [...teamMembers, user];
+      // lấy ra các request của từng user có trong team để hiển thị số lượng request đang chờ phê duyệt
+      const getRequestAllTeamMembers = await this.requestModel
+        .find({
+          creatorId: { $in: teamMembers.map((member) => member._id) },
+          status: 'approved',
+        })
+        .select('code values createdAt creatorId')
+        .populate('creatorId', 'avatar _id fullName email')
+        .exec();
+
+      const teamMember = [...teamMembers, user];
+      return { teamMember, getRequestAllTeamMembers };
     } else {
-      console.log(user?.managerId?._id, user.roleId.name);
-      console.log("User is not a manager or doesn't have a managerId");
       const [teamMembers, manager] = await Promise.all([
         this.userModel
           .find({ managerId: user?.managerId?._id })

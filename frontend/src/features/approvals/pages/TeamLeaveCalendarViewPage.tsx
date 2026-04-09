@@ -1,21 +1,73 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import dayjs from "dayjs"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Frown, PlusIcon, Search } from "lucide-react"
+import { ChevronLeft, ChevronRight, PlusIcon, Search } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Link } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { useQuery } from "@tanstack/react-query"
 import userService from "@/services/userService"
 export default function TeamLeaveCalendarViewPage() {
-    const { t, i18n } = useTranslation()
+    const { t } = useTranslation()
     const [viewDate, setViewDate] = useState(dayjs())
     const { data } = useQuery({
         queryKey: ["team-members"],
         queryFn: () => userService.getTeamMembers(),
     })
-    const teamMembers = Array.isArray(data) ? data.filter(Boolean) : []
+    const teamMembers = Array.isArray(data?.teamMember) ? data.teamMember.filter(Boolean) : []
+    const requestAllTeamMembers = useMemo(() => {
+        return Array.isArray(data?.getRequestAllTeamMembers) ? data.getRequestAllTeamMembers.filter(Boolean) : []
+    }, [data])
+
+    const requestsByDate = useMemo(() => {
+        const grouped: Record<
+            string,
+            Array<{
+                requestId: string
+                creatorId: string
+                fullName: string
+                avatar: string
+            }>
+        > = {}
+
+        requestAllTeamMembers.forEach((request) => {
+            const startRaw = request?.values?.startDate
+            const endRaw = request?.values?.endDate || startRaw
+
+            if (!startRaw || !endRaw) return
+
+            const startDate = dayjs(startRaw).startOf("day")
+            const endDate = dayjs(endRaw).startOf("day")
+
+            if (!startDate.isValid() || !endDate.isValid()) return
+
+            const creator = request?.creatorId
+            if (!creator?._id) return
+
+            const creatorInfo = {
+                requestId: request?._id || "",
+                creatorId: creator._id,
+                fullName: creator.fullName || "Unknown member",
+                avatar: creator.avatar || "",
+            }
+
+            let cursor = startDate
+            while (cursor.isBefore(endDate) || cursor.isSame(endDate, "day")) {
+                const dateKey = cursor.format("YYYY-MM-DD")
+                if (!grouped[dateKey]) grouped[dateKey] = []
+
+                const hasCreator = grouped[dateKey].some((item) => item.creatorId === creatorInfo.creatorId)
+                if (!hasCreator) {
+                    grouped[dateKey].push(creatorInfo)
+                }
+
+                cursor = cursor.add(1, "day")
+            }
+        })
+
+        return grouped
+    }, [requestAllTeamMembers])
     const generateCalendar = () => {
         const startOfMonth = viewDate.startOf("month")
         const startDate = startOfMonth.startOf("week")
@@ -37,36 +89,34 @@ export default function TeamLeaveCalendarViewPage() {
     const today = () => setViewDate(dayjs())
 
     const renderRequestCalendar = (date: string) => {
-        switch (date) {
-            case "2026-03-10":
-                return (
-                    <span className="ml-3 text-xs font-medium tracking-wide uppercase px-2 h-7 rounded-l-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 flex items-center gap-2">
-                        <Frown size={18} /> Charline sick
-                    </span>
-                )
-            case "2026-03-11":
-            case "2026-03-12":
-            case "2026-03-13":
-                return <div className="bg-red-100 dark:bg-red-900  w-full h-3"></div>
-            case "2026-03-26":
-                return (
-                    <span className="ml-3 text-xs font-medium tracking-wide uppercase px-2 py-1 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-orange-300"></div> Evan 2h OT
-                    </span>
-                )
-            case "2026-03-30":
-                return (
-                    <span className="ml-3 text-xs font-medium tracking-wide uppercase px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 ">
-                        Public Holiday
-                    </span>
-                )
-            default:
-                return <span className="ml-3">{date.split("-")[2]}</span>
+        const dayRequests = requestsByDate[date] || []
+        const dayLabel = date.split("-")[2]
+
+        if (!dayRequests.length) {
+            return <span className="ml-3">{dayLabel}</span>
         }
+
+        return (
+            <div className="px-3 flex flex-col gap-2">
+                <span className="text-xs font-semibold">{dayLabel}</span>
+                <div className="flex items-center -space-x-2">
+                    {dayRequests.slice(0, 3).map((item, index) => (
+                        <img
+                            key={`${item.requestId || item.creatorId}-${index}`}
+                            alt={item.fullName}
+                            className="h-6 w-6 rounded-full border-2 border-white object-cover bg-neutral-200"
+                            src={item.avatar}
+                            title={item.fullName}
+                        />
+                    ))}
+                    {dayRequests.length > 3 && <span className="ml-2 text-[10px] font-semibold text-neutral-500">+{dayRequests.length - 3}</span>}
+                </div>
+            </div>
+        )
     }
     return (
         <div className="bg-background flex flex-col overflow-hidden">
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 gap-5 overflow-hidden">
                 <aside className="w-72 bg-card flex flex-col z-10  md:flex shadow-xs rounded-lg border">
                     <div className="p-5 border-b">
                         <h2 className="text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-4">{t("approvals.calendar.filters.title")}</h2>
@@ -101,7 +151,7 @@ export default function TeamLeaveCalendarViewPage() {
                             {teamMembers.map((member, index) => (
                                 <label
                                     className="flex items-center gap-3 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-lg cursor-pointer group transition-colors"
-                                    key={member?._id || member?._id || index}
+                                    key={member?._id || index}
                                 >
                                     <input className="rounded border-neutral-300 text-primary focus:ring-primary/30 h-4 w-4" type="checkbox" />
                                     <div className="h-8 w-8 rounded-full bg-neutral-200 overflow-hidden shrink-0">
@@ -121,9 +171,9 @@ export default function TeamLeaveCalendarViewPage() {
                         </div>
                     </div>
                 </aside>
-                <main className="flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark p-6 h-full overflow-hidden">
+                <main className="flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark  h-full overflow-hidden">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 shrink-0">
-                        <Card className="p-0">
+                        <Card className="p-0 rounded-sm">
                             <CardContent className="flex items-center gap-4 h-12 p-0 px-2">
                                 <Button variant={"ghost"} onClick={() => prevMonth()}>
                                     <ChevronLeft />
@@ -143,7 +193,7 @@ export default function TeamLeaveCalendarViewPage() {
                             </CardContent>
                         </Card>
                         <div className="flex items-center gap-3 w-full sm:w-auto">
-                            <Link to="/approvals/request-time-off" className="w-full">
+                            <Link to="/employee/create-new-request-form" className="w-full">
                                 <Button className="h-12 px-5">
                                     <PlusIcon />
                                     <span>{t("approvals.calendar.header.requestTimeOff")}</span>

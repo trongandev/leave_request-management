@@ -19,7 +19,6 @@ export default function FormTemplateDetailPage() {
     const navigate = useNavigate()
     const [stateValueData, setStateValueData] = useState<{ [key: string]: any }>({})
     const id = location.pathname.split("/")[3]
-    console.log(id)
     const { data, isLoading } = useQuery({
         queryKey: ["form-template-detail" + id],
         queryFn: () => formTemplateService.getById(id),
@@ -78,11 +77,7 @@ export default function FormTemplateDetailPage() {
     const liveStartDate = parseDate(stateValueData.startDate)
     const liveBalanceYear = liveStartDate?.getFullYear()
     const remainingDays = Number(leaveBalance?.remainingDays ?? 0)
-    const hasBalanceMatch =
-        typeof liveTotalDays === "number" &&
-        leaveBalance &&
-        typeof liveBalanceYear === "number" &&
-        leaveBalance.year === liveBalanceYear
+    const hasBalanceMatch = typeof liveTotalDays === "number" && leaveBalance && typeof liveBalanceYear === "number" && leaveBalance.year === liveBalanceYear
     const exceedsBalance = hasBalanceMatch && liveTotalDays > remainingDays
 
     const handleSubmit = async () => {
@@ -124,7 +119,6 @@ export default function FormTemplateDetailPage() {
             code: data?.code || "",
         }
         mutation.mutate(newFormData)
-        console.log(newFormData)
     }
     if (isLoading) {
         return <LoadingUI />

@@ -21,8 +21,8 @@ import {
     UserIcon,
     Users,
     WalletCardsIcon,
-    NotepadText,
     MailWarning,
+    BugIcon,
 } from "lucide-react"
 import { createElement, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -79,7 +79,6 @@ export default function GeneralSidebar() {
                 items: [
                     { name: "Team Management", icon: Users, href: "/approvals/team-management" },
                     { name: "Team Requests", icon: MailWarning, href: "/approvals/team-requests" },
-                    { name: t("sidebar.leaveBalances"), icon: NotepadText, href: "/approvals/leave-balances" },
                 ],
             },
             {
@@ -162,6 +161,7 @@ export default function GeneralSidebar() {
                 name: t("sidebar.system"),
                 items: [
                     { name: t("sidebar.reportsAndAnalytics"), icon: BarChartIcon, href: "/admin/reports-analytics" },
+                    { name: "Error Logs", icon: BugIcon, href: "/admin/error-logs" },
                     { name: t("sidebar.systemAuditLogs"), icon: HistoryIcon, href: "/admin/audit-logs" },
                     { name: t("sidebar.accessControl"), icon: BrickWallShieldIcon, href: "/admin/access-control" },
                 ],

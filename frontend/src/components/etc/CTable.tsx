@@ -7,9 +7,10 @@ interface Props {
     handlePageChange?: (page: number) => void
     isLoading?: boolean
     children?: React.ReactNode
+    classNameNoData?: string
 }
 
-export default function CTable({ data, columns, handlePageChange, isLoading, children }: Props) {
+export default function CTable({ data, columns, handlePageChange, isLoading, children, classNameNoData }: Props) {
     return (
         <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-xs border bg-card  overflow-hidden ">
             <div className="flex-1 overflow-x-auto">
@@ -61,9 +62,9 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                             children
                         ) : (
                             <>
-                                {data ? (
+                                {data?.data ? (
                                     <>
-                                        {data?.map((item: any, index: number) => (
+                                        {data?.data.map((item: any, index: number) => (
                                             <tr key={index}>
                                                 {Object.keys(item).map((column) => (
                                                     <td key={column} className="py-4 px-6 text-sm text-neutral-500">
@@ -75,7 +76,7 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                                     </>
                                 ) : (
                                     <>
-                                        {data?.data.map((item: any, index: number) => (
+                                        {data?.map((item: any, index: number) => (
                                             <tr key={index}>
                                                 {Object.keys(item).map((column) => (
                                                     <td key={column} className="py-4 px-6 text-sm text-neutral-500">
@@ -90,7 +91,7 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                         )}
                         {(data?.length == 0 || data?.data?.length == 0) && (
                             <tr>
-                                <td colSpan={columns?.length || Object.keys(data || data?.data[0] || {}).length} className="h-100 w-full">
+                                <td colSpan={columns?.length || Object.keys(data || data?.data[0] || {}).length} className={`h-100 w-full ${classNameNoData || ""}`}>
                                     <div className="flex items-center justify-center text-gray-600 h-full">No data available...</div>
                                 </td>
                             </tr>

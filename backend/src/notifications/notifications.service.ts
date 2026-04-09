@@ -86,7 +86,7 @@ export class NotificationsService {
 
     // Keep list responses object-first instead of returning array directly.
     return {
-      items: paged.data,
+      data: paged.data,
       meta: paged.meta,
     };
   }

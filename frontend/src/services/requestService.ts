@@ -25,7 +25,6 @@ class RequestService {
     }
 
     async update(data: any) {
-        console.log(data)
         const response = await axiosInstance.patch<APIResponse<any>>(`/requests/${data._id}`, data)
         return response.data.data
     }

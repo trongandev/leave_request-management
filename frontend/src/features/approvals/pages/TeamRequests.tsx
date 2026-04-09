@@ -1,4 +1,5 @@
 import CAvatarProfile from "@/components/etc/CAvatarProfile"
+import CRenderStatus from "@/components/etc/CRenderStatus"
 import CTable from "@/components/etc/CTable"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -98,10 +99,10 @@ export default function TeamRequests() {
                                 {format(new Date(requestId?.values.startDate), "MMM d")} - {format(new Date(requestId?.values.endDate), "MMM d")}
                             </td>
                             <td className="py-4 px-6 text-center text-neutral-600 dark:text-neutral-400  font-medium">{format(new Date(item.createdAt), "MMM d, yyyy, h:mm a")}</td>
-                            <td className="py-4 px-6 text-center">{item.status}</td>
+                            <td className="py-4 px-6 text-center">{CRenderStatus(item)}</td>
                             <td className="py-4 px-6 text-center">
                                 <Link to={`/approvals/team-requests/${item._id}`}>
-                                    <Button variant={"ghost"} size={"xs"}>
+                                    <Button variant={"outline-primary"} size={"xs"}>
                                         <Eye /> Preview
                                     </Button>
                                 </Link>

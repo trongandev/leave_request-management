@@ -48,6 +48,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message: errorResponse.message,
       stack: errorResponse.stack,
     });
+    console.error('='.repeat(20) + '[ BEGIN ERROR LOG ]' + '='.repeat(20));
+    console.error(errorResponse);
+    console.error('='.repeat(20) + '[ END ERROR LOG ]' + '='.repeat(20));
 
     response.status(status).json(errorResponse);
   }

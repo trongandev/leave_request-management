@@ -21,12 +21,20 @@ export default function CreateNewRequestFormPage() {
                     Select a blueprint to begin drafting your institutional documents. Each template is architecturally structured for global compliance.
                 </p>
                 <section className="relative mt-20">
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 space-y-30">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                         {data &&
                             data?.data?.map((form) => (
                                 <Link to={`/approvals/form-manager/${form._id}`} key={form._id} className="relative group cursor-pointer">
-                                    <div className="relative transition-all duration-300 group-hover:-translate-y-4">
+                                    <div className="relative transition-all duration-300 z-0">
                                         <div className="w-1/2 h-6 bg-blue-700/10 folder-tab ml-2"></div>
+                                        <div className="absolute transition-all duration-300 translate-y-10 group-hover:-translate-y-20 w-full h-40 px-10 -z-10  ">
+                                            <div className="bg-card backdrop-blur-xl border rounded-md w-full h-full p-5 grid gap-2 grid-cols-3">
+                                                <div className="bg-foreground/20 h-2 rounded-full col-span-full animate-pulse"></div>
+                                                <div className="bg-foreground/20 h-2 rounded-full col-span-2  animate-pulse"></div>
+                                                <div className="bg-foreground/20 h-2 rounded-full col-span-1  animate-pulse"></div>
+                                                <div className="bg-foreground/20 h-2 rounded-full  col-span-1  animate-pulse"></div>
+                                            </div>
+                                        </div>
                                         <div className="bg-card h-64 shadow-xl flex flex-col border ">
                                             <div className="p-6 flex-1">
                                                 <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">

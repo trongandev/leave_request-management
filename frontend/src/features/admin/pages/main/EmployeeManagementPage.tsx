@@ -202,10 +202,10 @@ export default function EmployeeManagementPage() {
             if (!deptField) return { id: "", name: "" }
             if (typeof deptField === "string") {
                 const dept = departmentsOptions?.data?.find((d: Department) => d._id === deptField)
-                return { id: deptField, name: i18n.language === 'en' ? (dept?.originName || dept?.name) : (dept?.name || dept?.originName) ?? "" }
+                return { id: deptField, name: i18n.language === "en" ? dept?.originName || dept?.name : ((dept?.name || dept?.originName) ?? "") }
             }
             const deptObj = deptField as Department
-            return { id: deptObj._id, name: i18n.language === 'en' ? (deptObj.originName || deptObj.name) : (deptObj.name || deptObj.originName) ?? "" }
+            return { id: deptObj._id, name: i18n.language === "en" ? deptObj.originName || deptObj.name : ((deptObj.name || deptObj.originName) ?? "") }
         },
         [departmentsOptions?.data],
     )
@@ -356,10 +356,10 @@ export default function EmployeeManagementPage() {
         if (!deptField) return ""
         if (typeof deptField === "string") {
             const dept = departmentsOptions?.data?.find((d: Department) => d._id === deptField)
-            return i18n.language === 'en' ? (dept?.originName || dept?.name) : (dept?.name || dept?.originName) ?? ""
+            return i18n.language === "en" ? dept?.originName || dept?.name : ((dept?.name || dept?.originName) ?? "")
         }
         const deptObj = deptField as Department
-        return i18n.language === 'en' ? (deptObj.originName || deptObj.name) : (deptObj.name || deptObj.originName) ?? ""
+        return i18n.language === "en" ? deptObj.originName || deptObj.name : ((deptObj.name || deptObj.originName) ?? "")
     }, [editFormData.positionId, editAllPositions, departmentsOptions?.data])
 
     return (
@@ -377,11 +377,9 @@ export default function EmployeeManagementPage() {
                                     <Button className="h-10" variant={"outline"}>
                                         <Download /> {t("admin.employeeManagement.actions.export")}
                                     </Button>
-                                    {appConfig.isDevelopment && (
-                                        <Button className="h-10" variant={"outline"} onClick={() => setIsFakeOpen(true)}>
-                                            <Sparkles /> {t("admin.employeeManagement.actions.createFake")}
-                                        </Button>
-                                    )}
+                                    <Button className="h-10" variant={"outline"} onClick={() => setIsFakeOpen(true)}>
+                                        <Sparkles /> {t("admin.employeeManagement.actions.createFake")}
+                                    </Button>
                                     <Button className="h-10" onClick={() => setIsCreateOpen(true)}>
                                         <CirclePlus /> {t("admin.employeeManagement.actions.create")}
                                     </Button>
@@ -411,7 +409,7 @@ export default function EmployeeManagementPage() {
                                             ...departmentsData,
                                             ...(departmentsOptions?.data ?? []).map((department: Department) => ({
                                                 value: department.code,
-                                                label: i18n.language === 'en' ? (department.originName || department.name) : (department.name || department.originName),
+                                                label: i18n.language === "en" ? department.originName || department.name : department.name || department.originName,
                                             })),
                                         ]}
                                         valueKey="value"
@@ -462,7 +460,9 @@ export default function EmployeeManagementPage() {
                                         <span
                                             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${deptMapColor(item?.departmentId?.originName || "")} tracking-wide`}
                                         >
-                                            {i18n.language === 'en' ? (item?.departmentId?.originName || item?.departmentId?.name) : (item?.departmentId?.name || item?.departmentId?.originName) || t("admin.employeeManagement.common.system")}
+                                            {i18n.language === "en"
+                                                ? item?.departmentId?.originName || item?.departmentId?.name
+                                                : item?.departmentId?.name || item?.departmentId?.originName || t("admin.employeeManagement.common.system")}
                                         </span>
                                     </div>
                                 </td>
@@ -471,7 +471,9 @@ export default function EmployeeManagementPage() {
                                         <span
                                             className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${positionMapColor(item?.positionId?.fullName || item?.positionId?.name || "")} tracking-wide`}
                                         >
-                                            {i18n.language === 'en' ? (item?.positionId?.originName || item?.positionId?.name) : (item?.positionId?.name || item?.positionId?.originName) || t("admin.employeeManagement.common.empty")}
+                                            {i18n.language === "en"
+                                                ? item?.positionId?.originName || item?.positionId?.name
+                                                : item?.positionId?.name || item?.positionId?.originName || t("admin.employeeManagement.common.empty")}
                                         </span>
                                     </div>
                                 </td>

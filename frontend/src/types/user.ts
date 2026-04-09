@@ -88,3 +88,8 @@ export interface ProfileResponse {
     user: User
     lb: LeaveBalance
 }
+
+export interface TeamMember {
+    teamMember: User[]
+    getRequestAllTeamMembers: Request[]
+}

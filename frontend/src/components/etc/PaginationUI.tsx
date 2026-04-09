@@ -3,6 +3,7 @@ import { Button } from "../ui/button"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import type { IMetaTag } from "@/types/user"
 import { useTranslation } from "react-i18next"
+import CSelectOption from "./CSelectOption"
 
 type PaginationUIProps = {
     pagination: IMetaTag | undefined
@@ -30,7 +31,7 @@ export default function PaginationUI({ pagination, onPageChange }: PaginationUIP
     if (!pagination) {
         return null
     }
-    const { page, limit, total, last_page, has_next, has_prev } = pagination
+    const { page, total, last_page, has_next, has_prev } = pagination
     const pages = getPageNumbers(page, last_page)
 
     return (
@@ -38,8 +39,10 @@ export default function PaginationUI({ pagination, onPageChange }: PaginationUIP
             <div className="flex items-center justify-between">
                 <div className="flex-1 text-sm text-neutral-500">
                     {t("etc.pagination.show")} <span className="font-medium text-neutral-900 dark:text-white">1</span> {t("etc.pagination.to")}{" "}
-                    <span className="font-medium text-neutral-900 dark:text-white">{limit}</span> {t("etc.pagination.of")} <span className="font-medium text-neutral-900 dark:text-white">{total}</span>{" "}
-                    {t("etc.pagination.employee")}
+                    <span className="font-medium text-neutral-900 dark:text-white">
+                        <CSelectOption data={["1", "2", "3", "5", "10", "20"]} value={"10"} className="w-auto inline-flex h-8! " />
+                    </span>{" "}
+                    {t("etc.pagination.of")} <span className="font-medium text-neutral-900 dark:text-white">{total}</span>
                 </div>
                 <div className="">
                     <Pagination>

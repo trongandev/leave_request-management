@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination"
-import { ChevronDown, Search, UserCog, ArrowRight, X, Check, Users, Shield, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronDown, Search, ArrowRight, X, Check, Users, Shield, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import type { User } from "@/types/user"
 import userService from "@/services/userService"
 import LoadingUI from "@/components/etc/LoadingUI"
 import CAvatarProfile from "@/components/etc/CAvatarProfile"
 import { useTranslation, Trans } from "react-i18next"
 import { toast } from "sonner"
+import { Link } from "react-router-dom"
 
 function UserCombobox({
     label,
@@ -52,7 +53,7 @@ function UserCombobox({
                 u.fullName?.toLowerCase().includes(keyword) ||
                 u.empId?.toLowerCase().includes(keyword) ||
                 u.positionId?.fullName?.toLowerCase().includes(keyword) ||
-                u.departmentId?.name?.toLowerCase().includes(keyword)
+                u.departmentId?.name?.toLowerCase().includes(keyword),
         )
     }, [users, search])
 
@@ -64,10 +65,13 @@ function UserCombobox({
                 </div>
                 {label}
             </label>
-            <Popover open={open} onOpenChange={(val) => {
-                setOpen(val)
-                if (!val) setSearch("")
-            }}>
+            <Popover
+                open={open}
+                onOpenChange={(val) => {
+                    setOpen(val)
+                    if (!val) setSearch("")
+                }}
+            >
                 <PopoverTrigger asChild>
                     <button
                         id={id}
@@ -85,9 +89,7 @@ function UserCombobox({
                                     <div className="absolute -bottom-0.5 -right-0.5 size-3.5 bg-green-500 rounded-full border-2 border-white dark:border-slate-800" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                                        {selectedUser.fullName}
-                                    </p>
+                                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{selectedUser.fullName}</p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                                         {selectedUser.positionId?.fullName || selectedUser.positionId?.name}
                                         {selectedUser.departmentId?.name && ` · ${selectedUser.departmentId.name}`}
@@ -109,19 +111,13 @@ function UserCombobox({
                                 <div className="size-10 rounded-full border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center bg-slate-50 dark:bg-slate-800">
                                     <Icon className="size-4 text-slate-400" />
                                 </div>
-                                <span className="flex-1 text-sm text-slate-400 dark:text-slate-500">
-                                    {placeholder}
-                                </span>
+                                <span className="flex-1 text-sm text-slate-400 dark:text-slate-500">{placeholder}</span>
                             </>
                         )}
                         <ChevronDown className="size-4 text-slate-400 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                     </button>
                 </PopoverTrigger>
-                <PopoverContent
-                    align="start"
-                    sideOffset={6}
-                    className="w-[var(--radix-popover-trigger-width)] p-0 rounded-xl overflow-hidden border-slate-200 dark:border-slate-700 shadow-xl"
-                >
+                <PopoverContent align="start" sideOffset={6} className="w-[var(--radix-popover-trigger-width)] p-0 rounded-xl overflow-hidden border-slate-200 dark:border-slate-700 shadow-xl">
                     <div className="p-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
@@ -158,21 +154,14 @@ function UserCombobox({
                                             setOpen(false)
                                         }}
                                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-150
-                                            ${isSelected
-                                                ? "bg-primary/8 ring-1 ring-primary/20"
-                                                : "hover:bg-slate-50 dark:hover:bg-slate-800/70"
-                                            }`}
+                                            ${isSelected ? "bg-primary/8 ring-1 ring-primary/20" : "hover:bg-slate-50 dark:hover:bg-slate-800/70"}`}
                                     >
                                         <div className="relative shrink-0">
                                             <CAvatarProfile user={user} className="size-9! text-xs! ring-0!" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className={`text-sm font-medium truncate ${isSelected ? "text-primary" : "text-slate-900 dark:text-white"}`}>
-                                                {user.fullName}
-                                            </p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                                                {user.positionId?.fullName || user.positionId?.name || "N/A"}
-                                            </p>
+                                            <p className={`text-sm font-medium truncate ${isSelected ? "text-primary" : "text-slate-900 dark:text-white"}`}>{user.fullName}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.positionId?.fullName || user.positionId?.name || "N/A"}</p>
                                         </div>
                                         {user.departmentId?.name && (
                                             <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hidden sm:inline-block">
@@ -211,22 +200,25 @@ export default function AssignManager() {
         total: 0,
         page: 1,
         limit: 10,
-        last_page: 1
+        last_page: 1,
     })
 
-    const fetchUsers = useCallback(async (page = currentPage) => {
-        try {
-            const res = await userService.getAllUsers({ page })
-            setUsers(res.data)
-            if (res.meta) {
-                setPaginationMeta(res.meta)
+    const fetchUsers = useCallback(
+        async (page = currentPage) => {
+            try {
+                const res = await userService.getAllUsers({ page })
+                setUsers(res.data)
+                if (res.meta) {
+                    setPaginationMeta(res.meta)
+                }
+            } catch {
+                setUsers([])
+            } finally {
+                setLoading(false)
             }
-        } catch {
-            setUsers([])
-        } finally {
-            setLoading(false)
-        }
-    }, [currentPage])
+        },
+        [currentPage],
+    )
 
     useEffect(() => {
         fetchUsers(currentPage)
@@ -235,9 +227,7 @@ export default function AssignManager() {
     const currentManager = useMemo(() => {
         if (!selectedEmployee?.managerId) return null
         const raw = selectedEmployee.managerId
-        return typeof raw === "string"
-            ? users.find((u) => u._id === raw) ?? null
-            : raw as User
+        return typeof raw === "string" ? (users.find((u) => u._id === raw) ?? null) : (raw as User)
     }, [selectedEmployee, users])
 
     const canSubmit = selectedEmployee && selectedManager && selectedEmployee._id !== selectedManager._id && selectedManager._id !== currentManager?._id
@@ -251,10 +241,12 @@ export default function AssignManager() {
         setSubmitting(true)
         try {
             await userService.assignManager(selectedEmployee.empId, selectedManager.empId)
-            toast.success(t("approvals.assignManager.messages.assignSuccess", {
-                manager: selectedManager.fullName,
-                employee: selectedEmployee.fullName
-            }))
+            toast.success(
+                t("approvals.assignManager.messages.assignSuccess", {
+                    manager: selectedManager.fullName,
+                    employee: selectedEmployee.fullName,
+                }),
+            )
             setSelectedEmployee(null)
             setSelectedManager(null)
             setLoading(true)
@@ -286,9 +278,11 @@ export default function AssignManager() {
         setSubmitting(true)
         try {
             await userService.removeManager(selectedEmployee.empId)
-            toast.success(t("approvals.assignManager.messages.unassignSuccess", {
-                employee: selectedEmployee.fullName
-            }))
+            toast.success(
+                t("approvals.assignManager.messages.unassignSuccess", {
+                    employee: selectedEmployee.fullName,
+                }),
+            )
             setSelectedEmployee(null)
             setSelectedManager(null)
             setLoading(true)
@@ -318,44 +312,31 @@ export default function AssignManager() {
                     u.fullName?.toLowerCase().includes(kw) ||
                     u.empId?.toLowerCase().includes(kw) ||
                     u.positionId?.fullName?.toLowerCase().includes(kw) ||
-                    u.departmentId?.name?.toLowerCase().includes(kw)
+                    u.departmentId?.name?.toLowerCase().includes(kw),
             )
         }
         return result
     }, [users, tableSearch, tableFilter])
 
-    const stats = useMemo(() => ({
-        total: users.length,
-        hasManager: users.filter((u) => u.managerId).length,
-        noManager: users.filter((u) => !u.managerId).length,
-    }), [users])
+    const stats = useMemo(
+        () => ({
+            total: users.length,
+            hasManager: users.filter((u) => u.managerId).length,
+            noManager: users.filter((u) => !u.managerId).length,
+        }),
+        [users],
+    )
 
     if (loading) return <LoadingUI />
 
     return (
         <>
             <main className="h-[calc(100vh-8rem)] flex flex-col gap-4">
-                <header className="flex items-center gap-2.5 shrink-0">
-                    <div className="p-1.5 rounded-lg bg-primary/10">
-                        <UserCog className="size-4 text-primary" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                        <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                            {t("sidebar.assignManager")}
-                        </h1>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 hidden sm:block">
-                            {t("approvals.assignManager.subtitle")}
-                        </p>
-                    </div>
-                </header>
-
                 <div className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-[9fr_15fr] gap-4">
                     <Card className="shadow-sm border-slate-200 dark:border-slate-700/80 overflow-hidden h-full flex flex-col">
                         <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-slate-50/80 to-transparent dark:from-slate-800/30 py-4">
                             <CardTitle className="text-base">{t("approvals.assignManager.form.title")}</CardTitle>
-                            <CardDescription className="text-xs">
-                                {t("approvals.assignManager.form.desc")}
-                            </CardDescription>
+                            <CardDescription className="text-xs">{t("approvals.assignManager.form.desc")}</CardDescription>
                         </CardHeader>
                         <CardContent className="pt-5 pb-2 flex-1 overflow-y-auto">
                             <div className="space-y-5">
@@ -378,23 +359,17 @@ export default function AssignManager() {
                                     <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/15">
                                         <AlertCircle className="size-4 text-amber-500 shrink-0 mt-0.5" />
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">
-                                                {t("approvals.assignManager.form.currentManagerAlert")}
-                                            </p>
+                                            <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">{t("approvals.assignManager.form.currentManagerAlert")}</p>
                                             <div className="flex items-center gap-2">
                                                 <CAvatarProfile user={currentManager} className="size-6! text-[10px]! ring-0!" />
                                                 <div className="min-w-0">
-                                                    <p className="text-xs font-medium text-amber-800 dark:text-amber-300 truncate">
-                                                        {currentManager.fullName}
-                                                    </p>
+                                                    <p className="text-xs font-medium text-amber-800 dark:text-amber-300 truncate">{currentManager.fullName}</p>
                                                     <p className="text-[10px] text-amber-600/80 dark:text-amber-500/80 truncate">
                                                         {(currentManager.positionId as any)?.fullName || (currentManager.positionId as any)?.name || "—"}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <p className="text-[10px] text-amber-600 dark:text-amber-500 mt-1.5">
-                                                {t("approvals.assignManager.form.overrideConfirm")}
-                                            </p>
+                                            <p className="text-[10px] text-amber-600 dark:text-amber-500 mt-1.5">{t("approvals.assignManager.form.overrideConfirm")}</p>
                                         </div>
                                     </div>
                                 )}
@@ -423,22 +398,16 @@ export default function AssignManager() {
                                     {selectedEmployee && selectedManager && selectedEmployee._id === selectedManager._id ? (
                                         <div className="flex items-center gap-2 px-3.5 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40">
                                             <X className="size-4 text-red-500 shrink-0" />
-                                            <p className="text-xs text-red-600 dark:text-red-400">
-                                                {t("approvals.assignManager.form.sameUserError")}
-                                            </p>
+                                            <p className="text-xs text-red-600 dark:text-red-400">{t("approvals.assignManager.form.sameUserError")}</p>
                                         </div>
                                     ) : selectedEmployee && selectedManager && selectedManager._id === currentManager?._id ? (
                                         <div className="flex items-center gap-2 px-3.5 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40">
                                             <AlertCircle className="size-4 text-amber-500 shrink-0" />
-                                            <p className="text-xs text-amber-600 dark:text-amber-400">
-                                                {t("approvals.assignManager.form.alreadyAssignedError")}
-                                            </p>
+                                            <p className="text-xs text-amber-600 dark:text-amber-400">{t("approvals.assignManager.form.alreadyAssignedError")}</p>
                                         </div>
                                     ) : selectedEmployee && selectedManager ? (
                                         <div className="rounded-xl border border-primary/15 bg-primary/[0.03] dark:bg-primary/5 px-4 py-3">
-                                            <p className="text-[10px] font-bold text-primary/60 uppercase tracking-wider mb-2">
-                                                {t("approvals.assignManager.form.submit")}
-                                            </p>
+                                            <p className="text-[10px] font-bold text-primary/60 uppercase tracking-wider mb-2">{t("approvals.assignManager.form.submit")}</p>
                                             <div className="flex items-center gap-2">
                                                 <div className="flex items-center gap-2 flex-1 min-w-0">
                                                     <CAvatarProfile user={selectedEmployee} className="size-7! text-xs! ring-0!" />
@@ -460,9 +429,7 @@ export default function AssignManager() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <p className="text-xs text-slate-400 dark:text-slate-600 text-center">
-                                            {t("approvals.assignManager.form.placeholder")}
-                                        </p>
+                                        <p className="text-xs text-slate-400 dark:text-slate-600 text-center">{t("approvals.assignManager.form.placeholder")}</p>
                                     )}
                                 </div>
                             </div>
@@ -489,7 +456,11 @@ export default function AssignManager() {
                                     {submitting ? (
                                         <svg className="animate-spin size-4" viewBox="0 0 24 24" fill="none">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                            <path
+                                                className="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            />
                                         </svg>
                                     ) : (
                                         <X className="size-4" />
@@ -506,7 +477,11 @@ export default function AssignManager() {
                                     <span className="flex items-center gap-2">
                                         <svg className="animate-spin size-4" viewBox="0 0 24 24" fill="none">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                            <path
+                                                className="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            />
                                         </svg>
                                         {t("approvals.assignManager.form.loading")}
                                     </span>
@@ -525,9 +500,7 @@ export default function AssignManager() {
                             <div className="flex items-start justify-between gap-4 flex-wrap">
                                 <div>
                                     <CardTitle className="text-base">{t("approvals.assignManager.table.title")}</CardTitle>
-                                    <CardDescription className="text-xs mt-0.5">
-                                        {t("approvals.assignManager.table.subtitle")}
-                                    </CardDescription>
+                                    <CardDescription className="text-xs mt-0.5">{t("approvals.assignManager.table.subtitle")}</CardDescription>
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
@@ -558,16 +531,17 @@ export default function AssignManager() {
                                         const labels = {
                                             all: t("approvals.assignManager.table.all"),
                                             has_manager: t("approvals.assignManager.table.hasManager"),
-                                            no_manager: t("approvals.assignManager.table.noManager")
+                                            no_manager: t("approvals.assignManager.table.noManager"),
                                         }
                                         return (
                                             <button
                                                 key={f}
                                                 onClick={() => setTableFilter(f)}
-                                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150 ${tableFilter === f
-                                                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
-                                                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-                                                    }`}
+                                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150 ${
+                                                    tableFilter === f
+                                                        ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                                                        : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                                                }`}
                                             >
                                                 {labels[f]}
                                             </button>
@@ -581,11 +555,21 @@ export default function AssignManager() {
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                                         <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-10">#</th>
-                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("approvals.assignManager.table.colEmployee")}</th>
-                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("approvals.assignManager.table.colPosition")}</th>
-                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("approvals.assignManager.table.colManager")}</th>
-                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("approvals.assignManager.table.colStatus")}</th>
-                                        <th className="px-4 py-3 text-right text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("approvals.assignManager.table.colAction")}</th>
+                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                            {t("approvals.assignManager.table.colEmployee")}
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                            {t("approvals.assignManager.table.colPosition")}
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                            {t("approvals.assignManager.table.colManager")}
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                            {t("approvals.assignManager.table.colStatus")}
+                                        </th>
+                                        <th className="px-4 py-3 text-right text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                            {t("approvals.assignManager.table.colAction")}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -606,31 +590,29 @@ export default function AssignManager() {
                                             const managerIdRaw = user.managerId
                                             const manager: User | null = managerIdRaw
                                                 ? typeof managerIdRaw === "string"
-                                                    ? users.find((u) => u._id === managerIdRaw) ?? null
+                                                    ? (users.find((u) => u._id === managerIdRaw) ?? null)
                                                     : (managerIdRaw as User)
                                                 : null
                                             const isSelectedRow = selectedEmployee?._id === user._id
                                             return (
                                                 <tr
                                                     key={user._id}
-                                                    className={`transition-colors duration-100 ${isSelectedRow
-                                                        ? "bg-primary/[0.04] dark:bg-primary/10"
-                                                        : "hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
-                                                        }`}
+                                                    className={`transition-colors duration-100 ${
+                                                        isSelectedRow ? "bg-primary/[0.04] dark:bg-primary/10" : "hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
+                                                    }`}
                                                 >
-                                                    <td className="px-4 py-3 text-xs text-slate-400 dark:text-slate-600 font-mono">
-                                                        {idx + 1}
-                                                    </td>
+                                                    <td className="px-4 py-3 text-xs text-slate-400 dark:text-slate-600 font-mono">{idx + 1}</td>
                                                     <td className="px-4 py-3">
                                                         <div className="flex items-center gap-2.5">
                                                             <CAvatarProfile user={user} className="size-8! text-xs! ring-0! shrink-0" />
                                                             <div className="min-w-0">
-                                                                <p className={`text-sm font-semibold truncate ${isSelectedRow ? "text-primary" : "text-slate-900 dark:text-white"}`}>
+                                                                <Link
+                                                                    to={`/profile/${user._id}`}
+                                                                    className={`text-sm font-semibold truncate ${isSelectedRow ? "text-primary" : "text-slate-900 dark:text-white"}`}
+                                                                >
                                                                     {user.fullName}
-                                                                </p>
-                                                                <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-mono">
-                                                                    {user.empId || "—"}
-                                                                </p>
+                                                                </Link>
+                                                                <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-mono">{user.empId || "—"}</p>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -638,21 +620,17 @@ export default function AssignManager() {
                                                         <p className="text-xs text-slate-700 dark:text-slate-300 font-medium truncate max-w-40">
                                                             {user.positionId?.fullName || user.positionId?.name || "—"}
                                                         </p>
-                                                        {user.departmentId?.name && (
-                                                            <p className="text-[11px] text-slate-400 truncate max-w-40">{user.departmentId.name}</p>
-                                                        )}
+                                                        {user.departmentId?.name && <p className="text-[11px] text-slate-400 truncate max-w-40">{user.departmentId.name}</p>}
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         {hasManager && manager ? (
                                                             <div className="flex items-center gap-2">
                                                                 <CAvatarProfile user={manager} className="size-7! text-[10px]! ring-0! shrink-0" />
                                                                 <div className="min-w-0">
-                                                                    <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-32">
+                                                                    <Link to={`/profile/${manager._id}`} className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-32">
                                                                         {manager.fullName}
-                                                                    </p>
-                                                                    <p className="text-[10px] text-slate-400 truncate max-w-32">
-                                                                        {(manager.positionId as any)?.fullName || "N/A"}
-                                                                    </p>
+                                                                    </Link>
+                                                                    <p className="text-[10px] text-slate-400 truncate max-w-32">{(manager.positionId as any)?.fullName || "N/A"}</p>
                                                                 </div>
                                                             </div>
                                                         ) : (
@@ -678,10 +656,9 @@ export default function AssignManager() {
                                                                 setSelectedEmployee(user)
                                                                 if (selectedManager?._id === user._id) setSelectedManager(null)
                                                             }}
-                                                            className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-150 ${isSelectedRow
-                                                                ? "bg-primary text-white shadow-sm"
-                                                                : "text-primary border border-primary/25 hover:bg-primary/5 hover:border-primary/50"
-                                                                }`}
+                                                            className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-150 ${
+                                                                isSelectedRow ? "bg-primary text-white shadow-sm" : "text-primary border border-primary/25 hover:bg-primary/5 hover:border-primary/50"
+                                                            }`}
                                                         >
                                                             {isSelectedRow ? t("approvals.assignManager.table.selected") : t("approvals.assignManager.table.select")}
                                                         </button>
@@ -699,18 +676,12 @@ export default function AssignManager() {
                                     i18nKey="approvals.assignManager.table.pagination.showing"
                                     values={{
                                         count: filteredTableUsers.length,
-                                        total: paginationMeta.total
+                                        total: paginationMeta.total,
                                     }}
-                                    components={[
-                                        <span />,
-                                        <span className="font-bold text-slate-900 dark:text-white" />
-                                    ]}
+                                    components={[<span />, <span className="font-bold text-slate-900 dark:text-white" />]}
                                 />
                                 {tableSearch && (
-                                    <button
-                                        onClick={() => setTableSearch("")}
-                                        className="ml-2 inline-flex items-center gap-1 text-primary hover:underline"
-                                    >
+                                    <button onClick={() => setTableSearch("")} className="ml-2 inline-flex items-center gap-1 text-primary hover:underline">
                                         <X className="size-3" />
                                         {t("approvals.assignManager.table.pagination.clearFilter")}
                                     </button>
@@ -725,7 +696,7 @@ export default function AssignManager() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                                                     disabled={currentPage === 1}
                                                     className="gap-1 pl-2.5 h-8"
                                                 >
@@ -736,18 +707,10 @@ export default function AssignManager() {
 
                                             {Array.from({ length: paginationMeta.last_page }, (_, i) => i + 1).map((p) => {
                                                 // Show limited pages if totalPages is large
-                                                if (
-                                                    p === 1 ||
-                                                    p === paginationMeta.last_page ||
-                                                    (p >= currentPage - 1 && p <= currentPage + 1)
-                                                ) {
+                                                if (p === 1 || p === paginationMeta.last_page || (p >= currentPage - 1 && p <= currentPage + 1)) {
                                                     return (
                                                         <PaginationItem key={p}>
-                                                            <PaginationLink
-                                                                onClick={() => setCurrentPage(p)}
-                                                                isActive={currentPage === p}
-                                                                className="h-8 w-8 cursor-pointer"
-                                                            >
+                                                            <PaginationLink onClick={() => setCurrentPage(p)} isActive={currentPage === p} className="h-8 w-8 cursor-pointer">
                                                                 {p}
                                                             </PaginationLink>
                                                         </PaginationItem>
@@ -755,7 +718,11 @@ export default function AssignManager() {
                                                 }
                                                 if (p === currentPage - 2 || p === currentPage + 2) {
                                                     if (p > 1 && p < paginationMeta.last_page) {
-                                                        return <PaginationItem key={p}><span className="px-2 text-slate-300">...</span></PaginationItem>
+                                                        return (
+                                                            <PaginationItem key={p}>
+                                                                <span className="px-2 text-slate-300">...</span>
+                                                            </PaginationItem>
+                                                        )
                                                     }
                                                 }
                                                 return null
@@ -765,7 +732,7 @@ export default function AssignManager() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={() => setCurrentPage(prev => Math.min(paginationMeta.last_page, prev + 1))}
+                                                    onClick={() => setCurrentPage((prev) => Math.min(paginationMeta.last_page, prev + 1))}
                                                     disabled={currentPage === paginationMeta.last_page}
                                                     className="gap-1 pr-2.5 h-8"
                                                 >
@@ -795,10 +762,7 @@ export default function AssignManager() {
                             <Trans
                                 i18nKey="approvals.assignManager.dialogs.override.desc"
                                 values={{ name: selectedEmployee?.fullName }}
-                                components={[
-                                    <span />,
-                                    <span className="font-bold text-slate-900 dark:text-white" />
-                                ]}
+                                components={[<span />, <span className="font-bold text-slate-900 dark:text-white" />]}
                             />
                         </DialogDescription>
                     </DialogHeader>
@@ -827,24 +791,19 @@ export default function AssignManager() {
                     </div>
 
                     <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowOverrideDialog(false)}
-                            disabled={submitting}
-                            className="rounded-lg"
-                        >
+                        <Button variant="outline" onClick={() => setShowOverrideDialog(false)} disabled={submitting} className="rounded-lg">
                             {t("approvals.assignManager.form.cancel")}
                         </Button>
-                        <Button
-                            onClick={handleConfirmOverride}
-                            disabled={submitting}
-                            className="rounded-lg bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-500/20"
-                        >
+                        <Button onClick={handleConfirmOverride} disabled={submitting} className="rounded-lg bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-500/20">
                             {submitting ? (
                                 <span className="flex items-center gap-2">
                                     <svg className="animate-spin size-4" viewBox="0 0 24 24" fill="none">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        />
                                     </svg>
                                     {t("approvals.assignManager.form.loading")}
                                 </span>
@@ -872,10 +831,7 @@ export default function AssignManager() {
                             <Trans
                                 i18nKey="approvals.assignManager.dialogs.unassign.desc"
                                 values={{ name: selectedEmployee?.fullName }}
-                                components={[
-                                    <span />,
-                                    <span className="font-bold text-slate-900 dark:text-white" />
-                                ]}
+                                components={[<span />, <span className="font-bold text-slate-900 dark:text-white" />]}
                             />
                         </DialogDescription>
                     </DialogHeader>
@@ -892,25 +848,19 @@ export default function AssignManager() {
                     )}
 
                     <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowUnassignDialog(false)}
-                            disabled={submitting}
-                            className="rounded-lg"
-                        >
+                        <Button variant="outline" onClick={() => setShowUnassignDialog(false)} disabled={submitting} className="rounded-lg">
                             {t("approvals.assignManager.form.cancel")}
                         </Button>
-                        <Button
-                            variant="destructive"
-                            onClick={doUnassign}
-                            disabled={submitting}
-                            className="rounded-lg shadow-md shadow-red-500/20"
-                        >
+                        <Button variant="destructive" onClick={doUnassign} disabled={submitting} className="rounded-lg shadow-md shadow-red-500/20">
                             {submitting ? (
                                 <span className="flex items-center gap-2">
                                     <svg className="animate-spin size-4" viewBox="0 0 24 24" fill="none">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        />
                                     </svg>
                                     {t("approvals.assignManager.form.loading")}
                                 </span>

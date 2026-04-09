@@ -207,7 +207,7 @@ export class ApprovalStepsService {
           ],
         },
       ],
-      sort: { deadlineAt: 1 },
+      sort: { deadlineAt: -1 },
     });
 
     // return this.approvalStepModel
@@ -237,17 +237,11 @@ export class ApprovalStepsService {
     approveDto: ApproveApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step = await this.findById(stepId);
+    const newStep = await this.findById(stepId);
+    const step = newStep?.appStep;
 
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
-    }
-
-    const canHandle = await this.canActorHandleStep(step, actor);
-    if (!canHandle) {
-      throw new ForbiddenException(
-        'Only assigned approver, delegated approver or ADMIN can approve this step',
-      );
     }
 
     if (
@@ -269,11 +263,7 @@ export class ApprovalStepsService {
     step.signatureUrl = approveDto.signatureUrl;
 
     const savedStep = await step.save();
-    const requestId =
-      this.toIdString(savedStep.requestId) ||
-      this.toIdString(
-        (savedStep as { requestId?: { _id?: unknown } }).requestId?._id,
-      );
+    const requestId = savedStep.requestId._id;
 
     if (!requestId) {
       throw new BadRequestException('Approval step is missing requestId');
@@ -282,12 +272,8 @@ export class ApprovalStepsService {
     const approvedRequest = await this.requestModel
       .findById(requestId)
       .select('creatorId code')
-      .lean<{ creatorId?: unknown; code?: string }>()
       .exec();
-
-    const approvedRequestCreatorId = this.toIdString(
-      approvedRequest?.creatorId,
-    );
+    const approvedRequestCreatorId = String(approvedRequest?.creatorId._id);
     if (approvedRequestCreatorId) {
       await this.notificationsService.notifyStepApproved({
         recipientId: approvedRequestCreatorId,
@@ -298,12 +284,12 @@ export class ApprovalStepsService {
       });
     }
 
-    if (!savedStep.flowLogId) {
+    if (!savedStep.flowLogId._id) {
       throw new BadRequestException('Approval step is missing flowLogId');
     }
 
     await this.approvalStepsFlowLogService.markApprovedByFlowLogId(
-      String(savedStep.flowLogId),
+      String(savedStep.flowLogId._id),
       this.extractActorName(actor),
     );
 
@@ -511,8 +497,8 @@ export class ApprovalStepsService {
 
   // Get single approval step by ID
 
-  async findById(id: string): Promise<ApprovalStep | null> {
-    return this.approvalStepModel
+  async findById(id: string) {
+    const appStep: any = await this.approvalStepModel
       .findById(id)
       .populate([
         {
@@ -529,8 +515,14 @@ export class ApprovalStepsService {
             },
           ],
         },
+        {
+          path: 'flowLogId',
+        },
       ])
       .exec();
+    const userId = this.toIdString(appStep?.requestId?.creatorId._id);
+    const lb = await this.leaveBalanceModel.findOne({ userId }).exec();
+    return { appStep, lb };
   }
 
   // Get all approval steps by request ID

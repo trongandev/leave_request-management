@@ -1,6 +1,6 @@
 import axiosInstance from "@/api/axiosInstance"
 import { type APIResponse } from "../types/etc"
-import { type User, type UserLB, type UserResponse } from "../types/user"
+import { type TeamMember, type User, type UserLB, type UserResponse } from "../types/user"
 
 type GetAllUsersParams = {
     page?: number
@@ -61,7 +61,7 @@ class UserService {
     }
 
     async getTeamMembers() {
-        const response = await axiosInstance.get<APIResponse<User[]>>(`/users/teams`)
+        const response = await axiosInstance.get<APIResponse<TeamMember>>(`/users/teams`)
         return response.data.data
     }
 

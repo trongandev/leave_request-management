@@ -45,6 +45,7 @@ import EditDetailRequestPage from "./features/requests/pages/EditDetailRequestPa
 import TeamRequests from "./features/approvals/pages/TeamRequests"
 import TeamManagement from "./features/approvals/pages/TeamManagement"
 import TeamRequestDetailPage from "./features/approvals/pages/TeamRequestDetailPage"
+import ErrorRequestLogPage from "./features/admin/pages/system/ErrorRequestLogPage"
 
 function App() {
     return (
@@ -95,6 +96,7 @@ function App() {
 
                     {/* START SYSTEM GROUP */}
                     <Route path="/admin/reports-analytics" element={<ReportAndAnalyticsPage />} />
+                    <Route path="/admin/error-logs" element={<ErrorRequestLogPage />} />
                     <Route path="/admin/audit-logs" element={<AuditLogPage />} />
                     <Route path="/admin/access-control" element={<AccessControlPage />} />
                     {/* END SYSTEM GROUP */}
