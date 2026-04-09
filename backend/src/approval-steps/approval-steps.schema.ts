@@ -63,6 +63,15 @@ export class ApprovalStep extends Document {
 
   @Prop()
   signatureUrl?: string;
+
+  @Prop()
+  claimedAt?: Date;
+
+  @Prop()
+  verifiedAt?: Date;
+
+  @Prop()
+  totalTime?: number;
 }
 
 export const ApprovalStepSchema = SchemaFactory.createForClass(ApprovalStep);

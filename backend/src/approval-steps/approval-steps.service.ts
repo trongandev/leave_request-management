@@ -35,6 +35,13 @@ type RequestActor = {
   };
 };
 
+type ApprovalStepDetailResponse = {
+  appStep: ApprovalStep;
+  lb: LeaveBalance | null;
+};
+
+type ApprovalActionType = 'approve' | 'reject' | 'return' | 'delegate';
+
 @Injectable()
 export class ApprovalStepsService {
   // This service is the approval-state engine.
@@ -237,64 +244,7 @@ export class ApprovalStepsService {
     approveDto: ApproveApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const newStep = await this.findById(stepId);
-    const step = newStep?.appStep;
-
-    if (!step) {
-      throw new NotFoundException(`Approval step ${stepId} not found`);
-    }
-
-    if (
-      ![ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED].includes(
-        step.status,
-      )
-    ) {
-      throw new ForbiddenException(
-        `Cannot approve step with status ${step.status}`,
-      );
-    }
-
-    step.status = ApprovalStepStatus.APPROVED;
-    step.actualApproverId = String(actor._id);
-    step.comment = approveDto.comment;
-    step.signedAt = approveDto.signedAt
-      ? new Date(approveDto.signedAt)
-      : new Date();
-    step.signatureUrl = approveDto.signatureUrl;
-
-    const savedStep = await step.save();
-    const requestId = savedStep.requestId._id;
-
-    if (!requestId) {
-      throw new BadRequestException('Approval step is missing requestId');
-    }
-
-    const approvedRequest = await this.requestModel
-      .findById(requestId)
-      .select('creatorId code')
-      .exec();
-    const approvedRequestCreatorId = String(approvedRequest?.creatorId._id);
-    if (approvedRequestCreatorId) {
-      await this.notificationsService.notifyStepApproved({
-        recipientId: approvedRequestCreatorId,
-        senderId: String(actor._id),
-        requestId,
-        requestCode: approvedRequest?.code,
-        stepOrder: Number(savedStep.stepOrder),
-      });
-    }
-
-    if (!savedStep.flowLogId._id) {
-      throw new BadRequestException('Approval step is missing flowLogId');
-    }
-
-    await this.approvalStepsFlowLogService.markApprovedByFlowLogId(
-      String(savedStep.flowLogId._id),
-      this.extractActorName(actor),
-    );
-
-    await this.syncRequestStatus(requestId);
-    return savedStep;
+    return this.handleStepAction(stepId, 'approve', approveDto, actor);
   }
 
   // Reject an approval step
@@ -303,78 +253,7 @@ export class ApprovalStepsService {
     rejectDto: RejectApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step = await this.findById(stepId);
-
-    if (!step) {
-      throw new NotFoundException(`Approval step ${stepId} not found`);
-    }
-
-    const canHandle = await this.canActorHandleStep(step, actor);
-    if (!canHandle) {
-      throw new ForbiddenException(
-        'Only assigned approver, delegated approver or ADMIN can reject this step',
-      );
-    }
-
-    if (
-      ![ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED].includes(
-        step.status,
-      )
-    ) {
-      throw new ForbiddenException(
-        `Cannot reject step with status ${step.status}`,
-      );
-    }
-
-    step.status = ApprovalStepStatus.REJECTED;
-    step.actualApproverId = String(actor._id);
-    step.comment = rejectDto.reason;
-    step.signedAt = rejectDto.signedAt
-      ? new Date(rejectDto.signedAt)
-      : new Date();
-    step.signatureUrl = rejectDto.signatureUrl;
-
-    const savedStep = await step.save();
-    const requestId =
-      this.toIdString(savedStep.requestId) ||
-      this.toIdString(
-        (savedStep as { requestId?: { _id?: unknown } }).requestId?._id,
-      );
-
-    if (!requestId) {
-      throw new BadRequestException('Approval step is missing requestId');
-    }
-
-    const rejectedRequest = await this.requestModel
-      .findById(requestId)
-      .select('creatorId code')
-      .lean<{ creatorId?: unknown; code?: string }>()
-      .exec();
-
-    const rejectedRequestCreatorId = this.toIdString(
-      rejectedRequest?.creatorId,
-    );
-    if (rejectedRequestCreatorId) {
-      await this.notificationsService.notifyRequestReturned({
-        recipientId: rejectedRequestCreatorId,
-        senderId: String(actor._id),
-        requestId,
-        requestCode: rejectedRequest?.code,
-        reason: rejectDto.reason,
-      });
-    }
-
-    if (!savedStep.flowLogId) {
-      throw new BadRequestException('Approval step is missing flowLogId');
-    }
-
-    await this.approvalStepsFlowLogService.markRejectedByFlowLogId(
-      String(savedStep.flowLogId),
-      this.extractActorName(actor),
-    );
-
-    await this.syncRequestStatus(requestId);
-    return savedStep;
+    return this.handleStepAction(stepId, 'reject', rejectDto, actor);
   }
 
   async returnStep(
@@ -382,68 +261,7 @@ export class ApprovalStepsService {
     returnDto: ReturnApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step = await this.findById(stepId);
-
-    if (!step) {
-      throw new NotFoundException(`Approval step ${stepId} not found`);
-    }
-
-    const canHandle = await this.canActorHandleStep(step, actor);
-    if (!canHandle) {
-      throw new ForbiddenException(
-        'Only assigned approver, delegated approver or ADMIN can return this step',
-      );
-    }
-
-    if (
-      ![ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED].includes(
-        step.status,
-      )
-    ) {
-      throw new ForbiddenException(
-        `Cannot return step with status ${step.status}`,
-      );
-    }
-
-    step.status = ApprovalStepStatus.RETURNED;
-    step.actualApproverId = String(actor._id);
-    step.comment = returnDto.reason;
-    step.signedAt = returnDto.signedAt
-      ? new Date(returnDto.signedAt)
-      : new Date();
-
-    const savedStep = await step.save();
-    const requestId =
-      this.toIdString(savedStep.requestId) ||
-      this.toIdString(
-        (savedStep as { requestId?: { _id?: unknown } }).requestId?._id,
-      );
-
-    if (!requestId) {
-      throw new BadRequestException('Approval step is missing requestId');
-    }
-
-    const returnedRequest = await this.requestModel
-      .findById(requestId)
-      .select('creatorId code')
-      .lean<{ creatorId?: unknown; code?: string }>()
-      .exec();
-
-    const returnedRequestCreatorId = this.toIdString(
-      returnedRequest?.creatorId,
-    );
-    if (returnedRequestCreatorId) {
-      await this.notificationsService.notifyRequestReturned({
-        recipientId: returnedRequestCreatorId,
-        senderId: String(actor._id),
-        requestId,
-        requestCode: returnedRequest?.code,
-        reason: returnDto.reason,
-      });
-    }
-
-    await this.syncRequestStatus(requestId);
-    return savedStep;
+    return this.handleStepAction(stepId, 'return', returnDto, actor);
   }
 
   // Delegate approval to another approver
@@ -452,7 +270,21 @@ export class ApprovalStepsService {
     delegateDto: DelegateApprovalStepDto,
     actor: RequestActor,
   ): Promise<ApprovalStep> {
-    const step = await this.findById(stepId);
+    return this.handleStepAction(stepId, 'delegate', delegateDto, actor);
+  }
+
+  private async handleStepAction(
+    stepId: string,
+    action: ApprovalActionType,
+    payload:
+      | ApproveApprovalStepDto
+      | RejectApprovalStepDto
+      | ReturnApprovalStepDto
+      | DelegateApprovalStepDto,
+    actor: RequestActor,
+  ): Promise<ApprovalStep> {
+    const detail = await this.findById(stepId);
+    const step = detail?.appStep;
 
     if (!step) {
       throw new NotFoundException(`Approval step ${stepId} not found`);
@@ -461,44 +293,217 @@ export class ApprovalStepsService {
     const canHandle = await this.canActorHandleStep(step, actor);
     if (!canHandle) {
       throw new ForbiddenException(
-        'Only assigned approver, delegated approver or ADMIN can delegate this step',
+        'Only assigned approver, delegated approver or ADMIN can approve this step',
       );
     }
 
-    if (step.status !== ApprovalStepStatus.PENDING) {
-      throw new ForbiddenException(
-        `Cannot delegate step with status ${step.status}`,
-      );
-    }
-
-    step.status = ApprovalStepStatus.DELEGATED;
-    step.actualApproverId = delegateDto.delegateToUserId;
-    step.delegationId = delegateDto.delegationId;
-    step.comment = delegateDto.reason;
-
-    if (delegateDto.newDeadlineAt) {
-      step.deadlineAt = new Date(delegateDto.newDeadlineAt);
-    }
+    this.assertActionAllowedByStatus(action, step.status);
+    this.applyStepAction(step, action, payload, actor);
 
     const savedStep = await step.save();
+    const requestId = this.resolveRequestId(savedStep);
+
+    await this.handleActionSideEffects(
+      savedStep,
+      requestId,
+      action,
+      payload,
+      actor,
+    );
+    await this.syncRequestStatus(requestId);
+
+    return savedStep;
+  }
+
+  private assertActionAllowedByStatus(
+    action: ApprovalActionType,
+    currentStatus: ApprovalStepStatus,
+  ): void {
+    if (action === 'delegate') {
+      if (currentStatus !== ApprovalStepStatus.PENDING) {
+        throw new ForbiddenException(
+          `Cannot delegate step with status ${currentStatus}`,
+        );
+      }
+      return;
+    }
+
+    const allowed = [ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED];
+    if (!allowed.includes(currentStatus)) {
+      throw new ForbiddenException(
+        `Cannot ${action} step with status ${currentStatus}`,
+      );
+    }
+  }
+
+  private applyStepAction(
+    step: ApprovalStep,
+    action: ApprovalActionType,
+    payload:
+      | ApproveApprovalStepDto
+      | RejectApprovalStepDto
+      | ReturnApprovalStepDto
+      | DelegateApprovalStepDto,
+    actor: RequestActor,
+  ): void {
+    switch (action) {
+      case 'approve': {
+        const dto = payload as ApproveApprovalStepDto;
+        step.status = ApprovalStepStatus.APPROVED;
+        step.actualApproverId = String(actor._id);
+        step.comment = dto.comment;
+        step.signedAt = dto.signedAt ? new Date(dto.signedAt) : new Date();
+        step.signatureUrl = dto.signatureUrl;
+        step.verifiedAt = new Date();
+        step.totalTime =
+          step.verifiedAt.getTime() -
+          (step.claimedAt?.getTime() ?? step.verifiedAt.getTime());
+        return;
+      }
+      case 'reject': {
+        const dto = payload as RejectApprovalStepDto;
+        step.status = ApprovalStepStatus.REJECTED;
+        step.actualApproverId = String(actor._id);
+        step.comment = dto.reason;
+        step.signedAt = dto.signedAt ? new Date(dto.signedAt) : new Date();
+        step.signatureUrl = dto.signatureUrl;
+        step.verifiedAt = new Date();
+        step.totalTime =
+          step.verifiedAt.getTime() -
+          (step.claimedAt?.getTime() ?? step.verifiedAt.getTime());
+        return;
+      }
+      case 'return': {
+        const dto = payload as ReturnApprovalStepDto;
+        step.status = ApprovalStepStatus.RETURNED;
+        step.actualApproverId = String(actor._id);
+        step.comment = dto.reason;
+        step.signedAt = dto.signedAt ? new Date(dto.signedAt) : new Date();
+        step.verifiedAt = new Date();
+        step.totalTime =
+          step.verifiedAt.getTime() -
+          (step.claimedAt?.getTime() ?? step.verifiedAt.getTime());
+        return;
+      }
+      case 'delegate': {
+        const dto = payload as DelegateApprovalStepDto;
+        step.status = ApprovalStepStatus.DELEGATED;
+        step.actualApproverId = dto.delegateToUserId;
+        step.delegationId = dto.delegationId;
+        step.comment = dto.reason;
+        if (dto.newDeadlineAt) {
+          step.deadlineAt = new Date(dto.newDeadlineAt);
+        }
+        return;
+      }
+      default:
+        throw new BadRequestException('Unsupported approval action');
+    }
+  }
+
+  private resolveRequestId(step: ApprovalStep): string {
     const requestId =
-      this.toIdString(savedStep.requestId) ||
+      this.toIdString(step.requestId) ||
       this.toIdString(
-        (savedStep as { requestId?: { _id?: unknown } }).requestId?._id,
+        (step as { requestId?: { _id?: unknown } }).requestId?._id,
       );
 
     if (!requestId) {
       throw new BadRequestException('Approval step is missing requestId');
     }
 
-    await this.syncRequestStatus(requestId);
-    return savedStep;
+    return requestId;
+  }
+
+  private async handleActionSideEffects(
+    savedStep: ApprovalStep,
+    requestId: string,
+    action: ApprovalActionType,
+    payload:
+      | ApproveApprovalStepDto
+      | RejectApprovalStepDto
+      | ReturnApprovalStepDto
+      | DelegateApprovalStepDto,
+    actor: RequestActor,
+  ): Promise<void> {
+    const requestMeta = await this.requestModel
+      .findById(requestId)
+      .select('creatorId code')
+      .lean<{ creatorId?: unknown; code?: string }>()
+      .exec();
+
+    const recipientId = this.toIdString(requestMeta?.creatorId);
+
+    switch (action) {
+      case 'approve': {
+        if (recipientId) {
+          await this.notificationsService.notifyStepApproved({
+            recipientId,
+            senderId: String(actor._id),
+            requestId,
+            requestCode: requestMeta?.code,
+            stepOrder: Number(savedStep.stepOrder),
+          });
+        }
+
+        if (!savedStep.flowLogId) {
+          throw new BadRequestException('Approval step is missing flowLogId');
+        }
+
+        await this.approvalStepsFlowLogService.markApprovedByFlowLogId(
+          String(savedStep.flowLogId),
+          this.extractActorName(actor),
+        );
+        return;
+      }
+      case 'reject': {
+        const dto = payload as RejectApprovalStepDto;
+
+        if (recipientId) {
+          await this.notificationsService.notifyRequestReturned({
+            recipientId,
+            senderId: String(actor._id),
+            requestId,
+            requestCode: requestMeta?.code,
+            reason: dto.reason,
+          });
+        }
+
+        if (!savedStep.flowLogId) {
+          throw new BadRequestException('Approval step is missing flowLogId');
+        }
+
+        await this.approvalStepsFlowLogService.markRejectedByFlowLogId(
+          String(savedStep.flowLogId),
+          this.extractActorName(actor),
+        );
+        return;
+      }
+      case 'return': {
+        const dto = payload as ReturnApprovalStepDto;
+
+        if (recipientId) {
+          await this.notificationsService.notifyRequestReturned({
+            recipientId,
+            senderId: String(actor._id),
+            requestId,
+            requestCode: requestMeta?.code,
+            reason: dto.reason,
+          });
+        }
+        return;
+      }
+      case 'delegate':
+        return;
+      default:
+        throw new BadRequestException('Unsupported approval action');
+    }
   }
 
   // Get single approval step by ID
 
-  async findById(id: string) {
-    const appStep: any = await this.approvalStepModel
+  async findById(id: string): Promise<ApprovalStepDetailResponse | null> {
+    const step = await this.approvalStepModel
       .findById(id)
       .populate([
         {
@@ -520,9 +525,30 @@ export class ApprovalStepsService {
         },
       ])
       .exec();
-    const userId = this.toIdString(appStep?.requestId?.creatorId._id);
-    const lb = await this.leaveBalanceModel.findOne({ userId }).exec();
-    return { appStep, lb };
+
+    if (!step) {
+      return null;
+    }
+
+    if (!step.claimedAt) {
+      step.claimedAt = new Date();
+      await step.save();
+    }
+
+    const requestOwnerId =
+      this.toIdString(
+        (step as { requestId?: { creatorId?: unknown } }).requestId?.creatorId,
+      ) ||
+      this.toIdString(
+        (step as { requestId?: { creatorId?: { _id?: unknown } } }).requestId
+          ?.creatorId?._id,
+      );
+
+    const lb = requestOwnerId
+      ? await this.leaveBalanceModel.findOne({ userId: requestOwnerId }).exec()
+      : null;
+
+    return { appStep: step, lb };
   }
 
   // Get all approval steps by request ID

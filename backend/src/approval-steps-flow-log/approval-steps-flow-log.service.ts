@@ -38,6 +38,7 @@ export class ApprovalStepsFlowLogService {
         postition: params.requesterPosition ?? '',
         reason,
         performer: params.requesterName,
+        status: FlowLogStatus.APPROVED,
         signedAt: nowIso,
       },
       ...sortedApprovalSteps.map((step) => ({
@@ -46,6 +47,7 @@ export class ApprovalStepsFlowLogService {
         postition: step.postition,
         reason,
         performer: step.performer,
+        status: FlowLogStatus.PROCESSING,
         signedAt: step.signedAt ?? '',
       })),
     ];
@@ -119,6 +121,7 @@ export class ApprovalStepsFlowLogService {
 
     if (currentIndex >= 0) {
       flowLog.steps[currentIndex].signedAt = nowIso;
+      flowLog.steps[currentIndex].status = FlowLogStatus.APPROVED;
       if (performerName) {
         flowLog.steps[currentIndex].performer = performerName;
       }
@@ -131,10 +134,24 @@ export class ApprovalStepsFlowLogService {
     );
 
     if (nextIndex >= 0) {
+      flowLog.steps[nextIndex].status = FlowLogStatus.PROCESSING;
       flowLog.currentStepOrder = nextOrder;
     } else {
+      // Last approval is complete; add final "Hoàn tất" (Completed) step automatically
+      const maxOrder = Math.max(...flowLog.steps.map((s) => s.order), 0);
+      const finalStepOrder = maxOrder + 1;
+      const completedStep = {
+        order: finalStepOrder,
+        label: 'Hoàn tất',
+        postition: '',
+        reason: '',
+        performer: '',
+        status: FlowLogStatus.APPROVED,
+        signedAt: nowIso,
+      };
+      flowLog.steps.push(completedStep);
+      flowLog.currentStepOrder = finalStepOrder;
       flowLog.status = FlowLogStatus.APPROVED;
-      flowLog.currentStepOrder = Math.max(flowLog.currentStepOrder, 0);
     }
 
     await flowLog.save();
@@ -151,6 +168,7 @@ export class ApprovalStepsFlowLogService {
 
     if (currentStep) {
       currentStep.signedAt = nowIso;
+      currentStep.status = FlowLogStatus.REJECTED;
       if (performerName) {
         currentStep.performer = performerName;
       }
@@ -170,8 +188,11 @@ export class ApprovalStepsFlowLogService {
       (step) => step.order === flowLog.currentStepOrder,
     );
 
-    if (currentStep && !currentStep.signedAt) {
-      currentStep.signedAt = new Date().toISOString();
+    if (currentStep) {
+      if (!currentStep.signedAt) {
+        currentStep.signedAt = new Date().toISOString();
+      }
+      currentStep.status = FlowLogStatus.CANCELLED;
     }
 
     flowLog.status = FlowLogStatus.CANCELLED;
