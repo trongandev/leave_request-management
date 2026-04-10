@@ -14,6 +14,7 @@ import { User } from '../users/users.schema';
 import { SystemSettingService } from '../system-setting/system-setting.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { paginate } from '../common/utils/pagination.util';
+import { calculateLeaveEntitlement } from '../common/utils/leave-balance-calculator.util';
 import { Counter } from '../counters/counters.schema';
 import { NotificationsService } from '../notifications/notifications.service';
 
@@ -63,30 +64,6 @@ export class LeaveBalancesService {
     });
   }
 
-  private getProratedBaseDays(
-    basePerYear: number,
-    joinedAt: Date,
-    targetYear: number,
-  ) {
-    // Core rule: prorate base leave for first working year by join month.
-    const joinMonth = joinedAt.getMonth() + 1;
-    const joinYear = joinedAt.getFullYear();
-
-    // Nếu là năm vào làm thì áp dụng công thức prorate theo tháng.
-    if (targetYear === joinYear) {
-      const prorated = (basePerYear / 12) * (12 - joinMonth + 1);
-      return Number(prorated.toFixed(2));
-    }
-
-    return Number(basePerYear.toFixed(2));
-  }
-
-  private getSeniorityDays(joinedAt: Date, targetYear: number) {
-    // Core rule: seniority bonus is 1 day per 5 completed years.
-    const yearsOfService = Math.max(0, targetYear - joinedAt.getFullYear());
-    return Math.floor(yearsOfService / 5);
-  }
-
   private toNonNegative(value: number) {
     return Math.max(0, Number(value.toFixed(2)));
   }
@@ -112,13 +89,20 @@ export class LeaveBalancesService {
       await this.systemSettingService.getLeaveBasePerYear();
     const joinedAt = user.createdAt ?? new Date();
 
-    const baseDays = this.getProratedBaseDays(leaveBasePerYear, joinedAt, year);
-    const seniorityDays = this.getSeniorityDays(joinedAt, year);
+    const entitlement = calculateLeaveEntitlement({
+      basePerYear: leaveBasePerYear,
+      joinedAt,
+      targetYear: year,
+    });
+
+    const baseDays = entitlement.baseDays;
+    const effectiveBaseDays = entitlement.effectiveBaseDays;
+    const seniorityDays = entitlement.seniorityDays;
     const adjustedDays = Number(adjustedDaysInput);
     const usedDays = this.toNonNegative(Number(usedDaysInput));
 
     const totalDays = this.toNonNegative(
-      baseDays + seniorityDays + adjustedDays,
+      effectiveBaseDays + seniorityDays + adjustedDays,
     );
     const remainingDays = this.toNonNegative(totalDays - usedDays);
 

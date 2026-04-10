@@ -74,7 +74,13 @@ export class SystemSettingService implements OnModuleInit {
   async getLeaveBasePerYear() {
     // Single source of truth used by leave-balance calculation service.
     const setting = await this.findOneByKey('LEAVE_BASE_PER_YEAR');
-    return Number(setting?.value ?? 12);
+    const parsed = Number(setting?.value ?? 12);
+
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return 12;
+    }
+
+    return Number(parsed.toFixed(2));
   }
 
   remove(id: string) {

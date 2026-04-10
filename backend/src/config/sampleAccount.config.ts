@@ -54,7 +54,7 @@ const extraManagerEmployeePairs: SampleAccountSeed[] = [
     positionName: 'TL',
     joinedAt: '2011-06-15',
     adjustedDays: 2,
-    usedDays: 6,
+    usedDays: 1,
   },
   {
     key: 'emp-tech-001',
@@ -64,7 +64,7 @@ const extraManagerEmployeePairs: SampleAccountSeed[] = [
     managerKey: 'mgr-tech-001',
     joinedAt: '2019-03-20',
     adjustedDays: 1,
-    usedDays: 3,
+    usedDays: 1,
   },
   {
     key: 'mgr-rnd-001',
@@ -73,7 +73,7 @@ const extraManagerEmployeePairs: SampleAccountSeed[] = [
     positionName: 'RDL',
     joinedAt: '2009-09-10',
     adjustedDays: 3,
-    usedDays: 8,
+    usedDays: 2,
   },
   {
     key: 'emp-rnd-001',
@@ -83,7 +83,7 @@ const extraManagerEmployeePairs: SampleAccountSeed[] = [
     managerKey: 'mgr-rnd-001',
     joinedAt: '2017-11-01',
     adjustedDays: 1,
-    usedDays: 4,
+    usedDays: 1,
   },
   {
     key: 'mgr-mkt-001',
@@ -92,7 +92,7 @@ const extraManagerEmployeePairs: SampleAccountSeed[] = [
     positionName: 'MKL',
     joinedAt: '2013-02-18',
     adjustedDays: 2,
-    usedDays: 5,
+    usedDays: 1,
   },
   {
     key: 'emp-mkt-001',
@@ -102,7 +102,27 @@ const extraManagerEmployeePairs: SampleAccountSeed[] = [
     managerKey: 'mgr-mkt-001',
     joinedAt: '2022-07-05',
     adjustedDays: 0,
-    usedDays: 1,
+    usedDays: 0,
+  },
+  {
+    key: 'emp-tech-new-2026-01',
+    roleName: 'EMPLOYEE',
+    departmentCode: 'TECH',
+    positionName: 'SWE',
+    managerKey: 'mgr-tech-001',
+    joinedAt: '2026-02-10',
+    adjustedDays: 0,
+    usedDays: 0,
+  },
+  {
+    key: 'emp-rnd-new-2026-04',
+    roleName: 'EMPLOYEE',
+    departmentCode: 'RND',
+    positionName: 'RE',
+    managerKey: 'mgr-rnd-001',
+    joinedAt: '2026-04-18',
+    adjustedDays: 0,
+    usedDays: 0,
   },
 ];
 

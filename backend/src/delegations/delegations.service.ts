@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,9 +11,15 @@ import { Model } from 'mongoose';
 import { Delegation } from './delegations.schema';
 import { QueryDelegationDto } from './dto/query-delegation.dto';
 import { paginate } from '../common/utils/pagination.util';
+import { normalizeIdLike } from '../common/utils/id-normalizer.util';
 import { User } from '../users/users.schema';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Counter } from '../counters/counters.schema';
+
+type DelegationActor = {
+  _id?: unknown;
+  roleId?: unknown;
+};
 
 @Injectable()
 export class DelegationsService {
@@ -30,7 +37,16 @@ export class DelegationsService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  async create(createDelegationDto: CreateDelegationDto) {
+  async create(
+    createDelegationDto: CreateDelegationDto,
+    actor: DelegationActor,
+  ) {
+    this.assertActorCanManageDelegation(
+      actor,
+      createDelegationDto.fromUserId,
+      'Bạn chỉ có thể tạo ủy quyền cho chính mình',
+    );
+
     this.validateCreateOrUpdate(createDelegationDto);
     await this.validateHierarchyDelegation(
       createDelegationDto.fromUserId,
@@ -60,7 +76,12 @@ export class DelegationsService {
     return created;
   }
 
-  findAll(queryDelegationDto: QueryDelegationDto) {
+  findAll(queryDelegationDto: QueryDelegationDto, actor: DelegationActor) {
+    const actorId = normalizeIdLike(actor?._id) ?? '';
+    if (!actorId) {
+      throw new ForbiddenException('Không xác định được người thao tác');
+    }
+
     const filter: Record<string, any> = {};
 
     if (queryDelegationDto.fromUserId) {
@@ -88,27 +109,73 @@ export class DelegationsService {
       ];
     }
 
+    if (!this.isAdminActor(actor)) {
+      filter.$and = [
+        ...(Array.isArray(filter.$and) ? filter.$and : []),
+        {
+          $or: [{ fromUserId: actorId }, { toUserId: actorId }],
+        },
+      ];
+    }
+
     return paginate(this.delegationModel, queryDelegationDto, filter, {
       sort: { createdAt: -1 },
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, actor: DelegationActor) {
+    const actorId = normalizeIdLike(actor?._id) ?? '';
+    if (!actorId) {
+      throw new ForbiddenException('Không xác định được người thao tác');
+    }
+
     const delegation = await this.delegationModel.findById(id);
 
     if (!delegation) {
       throw new NotFoundException(`Delegation ${id} not found`);
     }
 
+    if (!this.isAdminActor(actor)) {
+      const fromUserId = normalizeIdLike(delegation.fromUserId);
+      const toUserId = normalizeIdLike(delegation.toUserId);
+      if (actorId !== fromUserId && actorId !== toUserId) {
+        throw new ForbiddenException(
+          'Bạn không có quyền xem bản ghi ủy quyền này',
+        );
+      }
+    }
+
     return delegation;
   }
 
-  async update(id: string, updateDelegationDto: UpdateDelegationDto) {
+  async update(
+    id: string,
+    updateDelegationDto: UpdateDelegationDto,
+    actor: DelegationActor,
+  ) {
     this.validateCreateOrUpdate(updateDelegationDto);
 
     const existingDelegation = await this.delegationModel.findById(id).lean();
     if (!existingDelegation) {
       throw new NotFoundException(`Delegation ${id} not found`);
+    }
+
+    const existingFromUserId = String(existingDelegation.fromUserId);
+    this.assertActorCanManageDelegation(
+      actor,
+      existingFromUserId,
+      'Bạn chỉ có thể cập nhật ủy quyền của chính mình',
+    );
+
+    const actorIsAdmin = this.isAdminActor(actor);
+    if (
+      updateDelegationDto.fromUserId &&
+      updateDelegationDto.fromUserId !== existingFromUserId &&
+      !actorIsAdmin
+    ) {
+      throw new ForbiddenException(
+        'Bạn không thể đổi người ủy quyền của bản ghi này',
+      );
     }
 
     const fromUserId = String(
@@ -147,7 +214,23 @@ export class DelegationsService {
     return updated;
   }
 
-  async remove(id: string) {
+  async remove(id: string, actor: DelegationActor) {
+    const existingDelegation = await this.delegationModel
+      .findById(id)
+      .select('fromUserId')
+      .lean<{ fromUserId?: unknown }>()
+      .exec();
+
+    if (!existingDelegation) {
+      throw new NotFoundException(`Delegation ${id} not found`);
+    }
+
+    this.assertActorCanManageDelegation(
+      actor,
+      String(existingDelegation.fromUserId),
+      'Bạn chỉ có thể xóa ủy quyền của chính mình',
+    );
+
     const deleted = await this.delegationModel.findByIdAndDelete(id);
 
     if (!deleted) {
@@ -356,6 +439,31 @@ export class DelegationsService {
 
   private normalizeRoleName(roleName: string): string {
     return String(roleName ?? '').toUpperCase();
+  }
+
+  private isAdminActor(actor: DelegationActor): boolean {
+    const roleName = this.extractRoleName(actor?.roleId);
+    return this.normalizeRoleName(roleName) === 'ADMIN';
+  }
+
+  private assertActorCanManageDelegation(
+    actor: DelegationActor,
+    ownerUserId: string,
+    message: string,
+  ): void {
+    const actorId = normalizeIdLike(actor?._id) ?? '';
+
+    if (!actorId) {
+      throw new ForbiddenException('Không xác định được người thao tác');
+    }
+
+    if (this.isAdminActor(actor)) {
+      return;
+    }
+
+    if (actorId !== String(ownerUserId)) {
+      throw new ForbiddenException(message);
+    }
   }
 
   private async generateDisplayId(): Promise<string> {
