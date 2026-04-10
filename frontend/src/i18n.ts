@@ -374,7 +374,7 @@ const resources = {
                 approvalWorkflow: "Approval Workflow",
                 system: "System",
                 reportsAndAnalytics: "Reports & Analytics",
-                systemAuditLogs: "System Audit Logs",
+                systemAuditLogs: "Audit Logs",
                 accessControl: "Access Control",
                 assignManager: "Assign Manager",
                 positionManagement: "Position Management",
@@ -513,7 +513,7 @@ const resources = {
                         noManagerFound: "Not assigned",
                         noResults: "No results found",
                         noData: "No data available",
-                        placeholder: "Select both employee and manager to see confirmation"
+                        placeholder: "Select both employee and manager to see confirmation",
                     },
                     table: {
                         title: "Employee List",
@@ -532,14 +532,14 @@ const resources = {
                         stats: {
                             total: "Total",
                             withManager: "With Manager",
-                            noManager: "No Manager"
+                            noManager: "No Manager",
                         },
                         pagination: {
                             showing: "Showing <1>{{count}}</1> / {{total}} employees",
                             clearFilter: "Clear filters",
                             prev: "Prev",
-                            next: "Next"
-                        }
+                            next: "Next",
+                        },
                     },
                     dialogs: {
                         override: {
@@ -548,22 +548,22 @@ const resources = {
                             current: "Current",
                             new: "New",
                             replaceBy: "Replace by",
-                            confirm: "Confirm Replace"
+                            confirm: "Confirm Replace",
                         },
                         unassign: {
                             title: "Confirm Unassign?",
                             desc: "Are you sure you want to remove the direct manager from employee <1>{{name}}</1>?",
                             managerToBeRemoved: "Manager to be removed",
-                            confirm: "Agree to Unassign"
-                        }
+                            confirm: "Agree to Unassign",
+                        },
                     },
                     messages: {
                         assignSuccess: "Assigned {{manager}} as manager of {{employee}}",
                         assignError: "Assignment failed, please try again",
                         unassignSuccess: "Removed manager from {{employee}}",
                         unassignError: "Failed to remove manager, please try again",
-                        empIdNotFound: "Employee ID not found"
-                    }
+                        empIdNotFound: "Employee ID not found",
+                    },
                 },
                 assignLeaveBalance: {
                     title: "Assign Leave Balance",
@@ -579,9 +579,8 @@ const resources = {
                     adjustedHint: "Positive for adding, negative for deducting",
                     usedDays: "Used Days",
                     submit: "Assign Balance",
-                    placeholder: "Please select an employee from the left panel to continue"
+                    placeholder: "Please select an employee from the left panel to continue",
                 },
-
             },
             admin: {
                 dashboard: {
@@ -755,7 +754,7 @@ const resources = {
                         pdfWait: "Please wait for the PDF Preview to finish loading",
                         download: "Download",
                         error: "Error during export",
-                        missingLib: "Please install: npm install xlsx"
+                        missingLib: "Please install: npm install xlsx",
                     },
                 },
                 employeeManagement: {
@@ -943,11 +942,11 @@ const resources = {
                             saveError: "Unable to save department",
                             deleteError: "Unable to delete department",
                             required: "Please fill in all required department fields",
-                            confirmDelete: "Delete department \"{{name}}\"?",
+                            confirmDelete: 'Delete department "{{name}}"?',
                         },
                         deleteDialog: {
                             title: "Delete Department",
-                            description: "Are you sure you want to delete department \"{{name}}\"? This action cannot be undone.",
+                            description: 'Are you sure you want to delete department "{{name}}"? This action cannot be undone.',
                             confirm: "Delete Department",
                         },
                         table: {
@@ -985,12 +984,12 @@ const resources = {
                             saveError: "Unable to save position",
                             deleteError: "Unable to delete position",
                             required: "Please fill in all required position fields",
-                            confirmDelete: "Delete position \"{{name}}\"?",
+                            confirmDelete: 'Delete position "{{name}}"?',
                             invalidLevel: "Please enter a valid level",
                         },
                         deleteDialog: {
                             title: "Delete Position",
-                            description: "Are you sure you want to delete position \"{{name}}\"? This action cannot be undone.",
+                            description: 'Are you sure you want to delete position "{{name}}"? This action cannot be undone.',
                             confirm: "Delete Position",
                         },
                         table: {
@@ -2396,7 +2395,7 @@ const resources = {
                         noManagerFound: "Chưa phân công",
                         noResults: "Không tìm thấy kết quả",
                         noData: "Không có dữ liệu",
-                        placeholder: "Chọn đủ nhân viên và quản lý để xem xác nhận"
+                        placeholder: "Chọn đủ nhân viên và quản lý để xem xác nhận",
                     },
                     table: {
                         title: "Danh sách nhân viên",
@@ -2415,14 +2414,14 @@ const resources = {
                         stats: {
                             total: "Nhân viên",
                             withManager: "Có QL",
-                            noManager: "Chưa có"
+                            noManager: "Chưa có",
                         },
                         pagination: {
                             showing: "Hiển thị <1>{{count}}</1> / {{total}} nhân viên",
                             clearFilter: "Xóa lọc",
                             prev: "Trước",
-                            next: "Sau"
-                        }
+                            next: "Sau",
+                        },
                     },
                     dialogs: {
                         override: {
@@ -2431,22 +2430,22 @@ const resources = {
                             current: "Hiện tại",
                             new: "Mới",
                             replaceBy: "Thay bởi",
-                            confirm: "Xác nhận thay thế"
+                            confirm: "Xác nhận thay thế",
                         },
                         unassign: {
                             title: "Xác nhận gỡ quản lý?",
                             desc: "Bạn có chắc chắn muốn gỡ quản lý trực tiếp khỏi nhân viên <1>{{name}}</1>?",
                             managerToBeRemoved: "Quản lý sẽ bị gỡ",
-                            confirm: "Đồng ý gỡ"
-                        }
+                            confirm: "Đồng ý gỡ",
+                        },
                     },
                     messages: {
                         assignSuccess: "Đã gán {{manager}} làm quản lý của {{employee}}",
                         assignError: "Phân công thất bại, vui lòng thử lại",
                         unassignSuccess: "Đã gỡ quản lý khỏi {{employee}}",
                         unassignError: "Gỡ quản lý thất bại, vui lòng thử lại",
-                        empIdNotFound: "Không tìm thấy mã nhân viên"
-                    }
+                        empIdNotFound: "Không tìm thấy mã nhân viên",
+                    },
                 },
                 assignLeaveBalance: {
                     title: "Điều chỉnh số ngày nghỉ",
@@ -2462,9 +2461,8 @@ const resources = {
                     adjustedHint: "Số dương để thêm, số âm để trừ",
                     usedDays: "Số ngày đã sử dụng",
                     submit: "Điều chỉnh số ngày nghỉ",
-                    placeholder: "Vui lòng chọn nhân viên từ bảng bên trái để tiếp tục"
+                    placeholder: "Vui lòng chọn nhân viên từ bảng bên trái để tiếp tục",
                 },
-
             },
             admin: {
                 dashboard: {
@@ -2638,7 +2636,7 @@ const resources = {
                         pdfWait: "Vui lòng đợi PDF Preview tải xong",
                         download: "Tải xuống",
                         error: "Có lỗi xảy ra khi xuất báo cáo",
-                        missingLib: "Vui lòng cài đặt: npm install xlsx"
+                        missingLib: "Vui lòng cài đặt: npm install xlsx",
                     },
                 },
                 employeeManagement: {
@@ -2826,11 +2824,11 @@ const resources = {
                             saveError: "Không thể lưu phòng ban",
                             deleteError: "Không thể xóa phòng ban",
                             required: "Vui lòng điền đầy đủ các trường bắt buộc của phòng ban",
-                            confirmDelete: "Xóa phòng ban \"{{name}}\"?",
+                            confirmDelete: 'Xóa phòng ban "{{name}}"?',
                         },
                         deleteDialog: {
                             title: "Xóa phòng ban",
-                            description: "Bạn có chắc muốn xóa phòng ban \"{{name}}\" không? Hành động này không thể hoàn tác.",
+                            description: 'Bạn có chắc muốn xóa phòng ban "{{name}}" không? Hành động này không thể hoàn tác.',
                             confirm: "Xóa phòng ban",
                         },
                         table: {
@@ -2868,12 +2866,12 @@ const resources = {
                             saveError: "Không thể lưu vị trí",
                             deleteError: "Không thể xóa vị trí",
                             required: "Vui lòng điền đầy đủ các trường bắt buộc của vị trí",
-                            confirmDelete: "Xóa vị trí \"{{name}}\"?",
+                            confirmDelete: 'Xóa vị trí "{{name}}"?',
                             invalidLevel: "Vui lòng nhập cấp bậc hợp lệ",
                         },
                         deleteDialog: {
                             title: "Xóa vị trí",
-                            description: "Bạn có chắc muốn xóa vị trí \"{{name}}\" không? Hành động này không thể hoàn tác.",
+                            description: 'Bạn có chắc muốn xóa vị trí "{{name}}" không? Hành động này không thể hoàn tác.',
                             confirm: "Xóa vị trí",
                         },
                         table: {
@@ -3246,7 +3244,7 @@ const resources = {
                         notifications: "Notifications",
                         security: "Security",
                         localization: "Localization",
-                    }
+                    },
                 },
             },
             etc: {

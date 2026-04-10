@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch"
 import { useFormBuilder } from "@/hooks/useFormBuilder"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
@@ -17,7 +17,7 @@ import { SidebarItem } from "../components/SidebarItem"
 import DroppableArea from "../components/DroppableAreaFormBuilder"
 import { SortableField } from "../components/SortableField"
 import { SortableContainer } from "../components/SortableContainer"
-import { GripVerticalIcon, PlusIcon, SlidersHorizontalIcon, XIcon, ChevronLeft, Eye, Save, Send, Workflow, Plus, Clock, Trash2 } from "lucide-react"
+import { GripVerticalIcon, PlusIcon, SlidersHorizontalIcon, XIcon, ChevronLeft, Eye, Save, Send, Workflow, Plus, Clock, Trash2, Sparkles } from "lucide-react"
 import CToolTip from "@/components/etc/CToolTip"
 import CSelectOptionsTable from "@/components/etc/CSelectOptionsTable"
 import { useNavigate } from "react-router-dom"
@@ -25,8 +25,10 @@ import FormPreviewField from "../components/FormPreviewField"
 import formTemplateService from "@/services/formTemplateService"
 import LoadingUI from "@/components/etc/LoadingUI"
 import CSelectSpecificUser from "@/components/etc/CSelectSpecificUser"
-import { Textarea } from "@/components/ui/textarea"
-
+import { GoogleGenAI } from "@google/genai"
+import { optimizePromptFormBuilderConfig } from "@/config/optmizePromptFormBuilder"
+import type { Field } from "@/types/form-template"
+import { formBuilderResponseSchema } from "@/features/admin/pages/configuration/formBuilderResponseSchema"
 interface Step {
     id: string
     idx: number
@@ -45,6 +47,7 @@ export default function CreateFormBuilderPage() {
         queryFn: () => formTemplateService.getById(id),
         enabled: !!id,
     })
+    const genAI = new GoogleGenAI({ apiKey: import.meta.env.VITE_AI_KEY })
     useEffect(() => {
         if (id && data?.fields) {
             setFields(data.fields)
@@ -68,6 +71,131 @@ export default function CreateFormBuilderPage() {
     const [isShowAddStep, setIsShowAddStep] = useState(false)
     const [tab, setTab] = useState<"properties" | "workflow">("properties")
     const [chat, setChat] = useState("")
+    const [loadingAI, setLoadingAI] = useState(false)
+    const aiRequestSequenceRef = useRef(0)
+    const isAIProcessKilledRef = useRef(false)
+    const allowedFieldTypes = new Set(["text", "number", "date", "textarea", "select", "radio", "checkbox", "file", "container", "confirm", "signature", "label"])
+
+    const parseJsonFromAIText = (raw: string) => {
+        const cleaned = raw.trim()
+        try {
+            return JSON.parse(cleaned)
+        } catch {
+            const firstBrace = cleaned.indexOf("{")
+            const lastBrace = cleaned.lastIndexOf("}")
+            if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
+                throw new Error("AI did not return valid JSON object")
+            }
+            return JSON.parse(cleaned.slice(firstBrace, lastBrace + 1))
+        }
+    }
+
+    const normalizeStateData = (input: any) => {
+        const fallback = {
+            vieName: "Đơn Xin Nghỉ Bệnh",
+            engName: "Sick Leave Application Form",
+            code: "SICK_LEAVE",
+            submitButtonText: "Gửi yêu cầu",
+            maxDays: 1,
+            requireAttachment: true,
+            autoApprove: false,
+            isActive: true,
+            isReductible: false,
+        }
+
+        const parsedMaxDays = Number(input?.maxDays)
+        const rawCode = String(input?.code ?? fallback.code)
+            .trim()
+            .replace(/\s+/g, "_")
+            .replace(/[^A-Za-z0-9_]/g, "")
+            .toUpperCase()
+
+        return {
+            vieName: String(input?.vieName ?? fallback.vieName),
+            engName: String(input?.engName ?? fallback.engName) || fallback.engName,
+            code: rawCode || fallback.code,
+            submitButtonText: String(input?.submitButtonText ?? fallback.submitButtonText),
+            maxDays: Number.isFinite(parsedMaxDays) && parsedMaxDays > 0 ? Math.floor(parsedMaxDays) : fallback.maxDays,
+            requireAttachment: Boolean(input?.requireAttachment),
+            autoApprove: Boolean(input?.autoApprove),
+            isActive: input?.isActive === undefined ? fallback.isActive : Boolean(input?.isActive),
+            isReductible: Boolean(input?.isReductible),
+        }
+    }
+
+    const normalizeFields = (items: any[]): Field[] => {
+        if (!Array.isArray(items) || items.length === 0) {
+            throw new Error("AI response must contain at least 1 field")
+        }
+
+        const normalizedRaw = items.map((field: any, index: number) => {
+            const type = allowedFieldTypes.has(field?.type) ? field.type : "text"
+            const id = String(field?.id || `${type}_${Math.random().toString(36).slice(2, 10)}`)
+
+            const isOptionField = type === "select" || type === "radio" || type === "checkbox"
+            const options = isOptionField
+                ? Array.isArray(field?.options) && field.options.length > 0
+                    ? field.options.map((opt: any, optIndex: number) => ({
+                          label: String(opt?.label ?? `Option ${optIndex + 1}`),
+                          value: String(opt?.value ?? `opt_${optIndex + 1}`),
+                      }))
+                    : [{ label: "Option 1", value: "opt_1" }]
+                : undefined
+
+            return {
+                id,
+                type,
+                label: String(field?.label ?? `New ${type}`),
+                name: String(field?.name ?? `${type}_${index + 1}`),
+                placeholder: String(field?.placeholder ?? ""),
+                note: String(field?.note ?? ""),
+                required: Boolean(field?.required),
+                readOnly: Boolean(field?.readOnly),
+                order: Number.isFinite(Number(field?.order)) ? Number(field.order) : index,
+                parentId: typeof field?.parentId === "string" && field.parentId.trim() ? field.parentId : null,
+                layout: type === "container" ? { direction: field?.layout?.direction === "col" ? "col" : "row" } : undefined,
+                options,
+            } as Field
+        })
+
+        const containerIds = new Set(normalizedRaw.filter((f) => f.type === "container").map((f) => f.id))
+
+        const normalizedParent = normalizedRaw.map((field) => ({
+            ...field,
+            parentId: field.parentId && containerIds.has(field.parentId) ? field.parentId : null,
+            layout: field.type === "container" ? field.layout || { direction: "row" } : undefined,
+        }))
+
+        return normalizedParent.sort((a, b) => a.order - b.order).map((field, index) => ({ ...field, order: index }))
+    }
+
+    const normalizeWorkflow = (items: any[]): Step[] => {
+        const allowedStepIds = new Set(defaultWorkflow.map((step) => step.id))
+        const fallback = [defaultWorkflow[0]]
+
+        if (!Array.isArray(items) || items.length === 0) {
+            return fallback
+        }
+
+        const mapped = items
+            .filter((step) => allowedStepIds.has(String(step?.id)))
+            .map((step, index) => ({
+                id: String(step.id),
+                idx: Number.isFinite(Number(step?.idx)) ? Number(step.idx) : index + 1,
+                label: String(step?.label ?? ""),
+                name: String(step?.name ?? ""),
+                specificUserId: String(step?.specificUserId ?? ""),
+                timeExpected: String(step?.timeExpected ?? "Within 24 hours"),
+            }))
+            .sort((a, b) => a.idx - b.idx)
+
+        const uniqueById = mapped.filter((step, index, arr) => arr.findIndex((item) => item.id === step.id) === index)
+        if (uniqueById.length === 0) {
+            return fallback
+        }
+
+        return uniqueById.map((step, index) => ({ ...step, idx: index + 1 }))
+    }
 
     const defaultWorkflow = [
         { id: `step_1`, idx: 1, label: "Quản lí trực tiếp", name: "Line Manager", specificUserId: "", timeExpected: "Within 24 hours" },
@@ -164,6 +292,86 @@ export default function CreateFormBuilderPage() {
         } else if (isField && active.id !== over.id) {
             moveField(active.id, over.id, targetParentId, targetIndex)
         }
+    }
+
+    const mutation = useMutation({
+        mutationFn: async ({ prompt, requestId }: { prompt: string; requestId: number }) => {
+            if (!import.meta.env.VITE_AI_KEY) {
+                throw new Error("Missing VITE_AI_KEY")
+            }
+            setLoadingAI(true)
+            const response = await genAI.models.generateContent({
+                model: "gemini-3-flash-preview",
+                contents: prompt,
+                config: {
+                    systemInstruction: optimizePromptFormBuilderConfig(),
+                    responseMimeType: "application/json",
+                    responseJsonSchema: formBuilderResponseSchema,
+                    temperature: 0.2,
+                },
+            })
+
+            if (isAIProcessKilledRef.current || requestId !== aiRequestSequenceRef.current) {
+                throw new Error("AI_PROCESS_KILLED")
+            }
+
+            const responseText = response.text?.trim()
+            if (!responseText) {
+                throw new Error("AI returned empty response")
+            }
+
+            const parsed = parseJsonFromAIText(responseText)
+            return {
+                stateData: normalizeStateData(parsed?.stateData),
+                fields: normalizeFields(parsed?.fields),
+                ruleWorkflowSequences: normalizeWorkflow(parsed?.ruleWorkflowSequences),
+            }
+        },
+        onSuccess: (result) => {
+            console.log(result)
+            setStateData(result.stateData)
+            setFields(result.fields)
+            setSteps(result.ruleWorkflowSequences)
+            setChat("")
+            toast.success("AI generated form builder data successfully")
+        },
+        onError: (error: any) => {
+            if (error?.message === "AI_PROCESS_KILLED") {
+                return
+            }
+            toast.error(error?.message || "Failed to generate form builder data from AI")
+        },
+        onSettled: () => {
+            setLoadingAI(false)
+        },
+    })
+
+    const handleCreateFormBuilderUsingAI = async () => {
+        if (!chat.trim()) {
+            toast.error("Please enter a prompt before generating")
+            return
+        }
+
+        if (loadingAI) {
+            return
+        }
+
+        const nextRequestId = aiRequestSequenceRef.current + 1
+        aiRequestSequenceRef.current = nextRequestId
+        isAIProcessKilledRef.current = false
+        mutation.mutate({ prompt: chat.trim(), requestId: nextRequestId })
+    }
+
+    const handleKillAIProcess = () => {
+        if (!loadingAI) {
+            return
+        }
+
+        isAIProcessKilledRef.current = true
+        aiRequestSequenceRef.current += 1
+        setLoadingAI(false)
+        mutation.reset()
+        toast.info("AI process has been stopped")
     }
 
     const activeField = fields.find((f) => f.id === activeFieldId)
@@ -315,8 +523,8 @@ export default function CreateFormBuilderPage() {
     return (
         <div className="">
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                <div className="flex overflow-hidden gap-3 h-screen flex-1 select-none">
-                    <aside className="w-75 bg-card rounded-md shadow-xl flex flex-col p-4 overflow-y-auto">
+                <div className="flex overflow-hidden gap-3  flex-1 select-none">
+                    <aside className="w-75  bg-card rounded-md shadow-xl flex flex-col p-4 overflow-y-auto">
                         <div className="mb-6">
                             <h2 className="font-medium text-lg tracking-tight mb-1">Form Builder</h2>
                             <p className="text-xs font-medium text-neutral-500">Drag items to build form</p>
@@ -335,7 +543,7 @@ export default function CreateFormBuilderPage() {
                         </div>
                     </aside>
 
-                    <main className="flex-1 bg-card rounded-xl shadow-xl p-5 overflow-auto flex flex-col items-center relative">
+                    <main className="flex-1 h-full bg-card rounded-xl shadow-xl p-5 overflow-auto flex flex-col items-center relative">
                         <div className="w-full max-w-4xl space-y-8">
                             <div className="space-y-4">
                                 <div className="flex gap-5">
@@ -363,6 +571,34 @@ export default function CreateFormBuilderPage() {
                                     </div>
                                 </div>
                             </div>
+                            {loadingAI && (
+                                <div className="fixed h-screen inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-md p-4 ">
+                                    <div className="bg-card/50 w-full max-w-md rounded-xl shadow-2xl overflow-hidden p-8 flex flex-col items-center text-center space-y-6">
+                                        <div className="relative flex items-center justify-center w-20 h-20">
+                                            <div className="inset-0 absolute rounded-full border-4 border-primary/10 border-t-primary animate-spin"></div>
+                                            <Sparkles className="text-primary" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <h2 className="text-xl font-bold text-on-surface">AI is crafting your form...</h2>
+                                            <p className="text-sm text-on-surface-variant leading-relaxed">
+                                                Please wait while we intelligently structure your request fields and workflow steps based on your requirements.
+                                            </p>
+                                        </div>
+                                        <div className="w-full space-y-3">
+                                            <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+                                                <div className="h-full bg-primary rounded-full animate-[progress_2s_ease-in-out_infinite]"></div>
+                                            </div>
+                                            <div className="text-[10px] font-bold uppercase tracking-widest text-outline-variant">Processing modules...</div>
+                                        </div>
+                                        <div className="text-right flex w-full items-center gap-3 justify-end text-[11px] text-red-500">
+                                            <p>Do you want to kill the process?</p>
+                                            <Button onClick={handleKillAIProcess} variant="destructive" size={"xs"}>
+                                                Kill Process
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <Card className="shadow-md">
                                 <CardContent className="">
@@ -405,15 +641,22 @@ export default function CreateFormBuilderPage() {
                                 </CardContent>
                             </Card>
                         </div>
-                        <div className="fixed bottom-0 w-full h-32 flex items-center justify-center max-w-5xl  py-5">
-                            <div className="w-full h-full flex items-center gap-5 bg-background/50 backdrop-blur-xs h-full w-full border rounded-xl shadow-md">
-                                <Textarea
+                        <div className="fixed bottom-0 w-full h-32 flex items-center justify-center max-w-4xl  py-5">
+                            <div className="w-full h-full flex items-center gap-5 bg-card  border border-neutral-300 dark:border-neutral-600 rounded-xl ">
+                                <textarea
                                     value={chat}
                                     onChange={(e) => setChat(e.target.value)}
-                                    className="p-4 resize-none bg-transparent dark:bg-transparent border-none focus:ring-0 focus:outline-0 h-full focus-within:outline-0"
-                                    placeholder="Do you want to generate form description or workflow description? Just ask in natural language and click send, AI will help you do the rest!"
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault()
+                                            handleCreateFormBuilderUsingAI()
+                                        }
+                                    }}
+                                    autoFocus
+                                    className="w-full  p-4 text-sm resize-none bg-transparent dark:bg-transparent border-none focus:ring-0 focus:outline-0 h-full focus-within:outline-0 text-neutral-600 dark:text-neutral-300"
+                                    placeholder="Do you want to generate form description or workflow description? Just ask in natural language and click send, AI will help you do the rest..."
                                 />
-                                <Button variant={"ghost"} className="mx-5">
+                                <Button variant={"ghost"} className="mx-5 " onClick={handleCreateFormBuilderUsingAI} disabled={loadingAI}>
                                     <Send />
                                 </Button>
                             </div>

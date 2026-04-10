@@ -26,7 +26,6 @@ import PayrollAndHolidayPage from "./features/admin/pages/configuration/PayrollA
 import ShiftPatternsPage from "./features/admin/pages/configuration/ShiftPatternsPage"
 import ApprovalWorkflowConfigPage from "./features/admin/pages/configuration/ApprovalWorkflowConfigPage"
 import ReportAndAnalyticsPage from "./features/admin/pages/system/ReportAndAnalyticsPage"
-import AuditLogPage from "./features/admin/pages/system/AuditLogPage"
 import AccessControlPage from "./features/admin/pages/system/AccessControlPage"
 import DashboardHomePage from "./features/general/pages/DashboardHomePage"
 import LeaveBalanceEmployeePage from "./features/admin/pages/main/LeaveBalanceEmployeePage"
@@ -46,6 +45,7 @@ import TeamRequests from "./features/approvals/pages/TeamRequests"
 import TeamManagement from "./features/approvals/pages/TeamManagement"
 import TeamRequestDetailPage from "./features/approvals/pages/TeamRequestDetailPage"
 import ErrorRequestLogPage from "./features/admin/pages/system/ErrorRequestLogPage"
+import AuditLogPage from "./features/admin/pages/system/AuditLogPage"
 
 function App() {
     return (

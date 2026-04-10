@@ -1,9 +1,15 @@
 import axiosInstance from "@/api/axiosInstance"
-import { type APIResponsePagination, type ErrorLogs, type Notification } from "@/types/etc"
+import { type APIResponsePagination, type AuditLogs, type ErrorLogs, type Notification } from "@/types/etc"
 
 class EtcService {
     async getErrorLogs({ page = 1 }: { page?: number }) {
         const response = await axiosInstance.get<APIResponsePagination<ErrorLogs[]>>("/error-log", {
+            params: { page },
+        })
+        return response.data.data
+    }
+    async getAuditLogs({ page = 1 }: { page?: number }) {
+        const response = await axiosInstance.get<APIResponsePagination<AuditLogs[]>>("/audit-logs", {
             params: { page },
         })
         return response.data.data

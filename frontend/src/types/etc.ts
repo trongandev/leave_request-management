@@ -49,3 +49,21 @@ export interface Notification {
 export interface Metadata {
     [key: string]: any
 }
+
+export interface AuditLogs {
+    _id: string
+    userId: string
+    action: string
+    module: string
+    newValue: NewValue
+    ipAddress: string
+    userAgent: string
+    description: string
+    createdAt: string
+    updatedAt: string
+    __v: number
+}
+
+interface NewValue {
+    [key: string]: any
+}

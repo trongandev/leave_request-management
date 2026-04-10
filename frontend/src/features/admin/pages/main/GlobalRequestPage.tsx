@@ -225,16 +225,18 @@ export default function GlobalRequestPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-slate-900 dark:text-white font-medium">{t("admin.globalRequests.table.days", { count: req?.values?.totalDays })}</div>
-                            <div className="text-xs text-slate-500">
-                                {format(req?.values?.startDate, "MMM dd")} - {format(req?.values?.endDate, "MMM dd")}
-                            </div>
+                            {req?.values?.startDate && (
+                                <div className="text-xs text-slate-500">
+                                    {format(req?.values?.startDate, "MMM dd")} - {format(req?.values?.endDate, "MMM dd")}
+                                </div>
+                            )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400"> {format(req?.createdAt, "MMM dd yyyy")}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                             <CRenderStatus status={req.status} />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <Link to={`/re`}>
+                            <Link to={`/approvals/team-requests//${req._id}`}>
                                 <Button variant={"outline-primary"} size={"xs"}>
                                     <Eye /> {t("admin.globalRequests.table.viewDetail")}
                                 </Button>
