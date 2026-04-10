@@ -47,7 +47,7 @@ export default function GeneralSidebar() {
                     // { name: t("sidebar.dashboard"), icon: LayoutDashboardIcon, href: "/employee" },
                     { name: t("sidebar.createNewRequest"), icon: BarChartIcon, href: "/employee/create-new-request-form" },
                     { name: t("sidebar.myRequestHistory"), icon: HistoryIcon, href: "/employee/my-request-history-list" },
-                    { name: t("sidebar.teamCalendar"), icon: CalendarDaysIcon, href: "/approvals/team-calendar" },
+                    // { name: t("sidebar.teamCalendar"), icon: CalendarDaysIcon, href: "/approvals/team-calendar" },
                 ],
             },
             {

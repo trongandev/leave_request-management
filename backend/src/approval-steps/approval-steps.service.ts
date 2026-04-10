@@ -541,7 +541,7 @@ export class ApprovalStepsService {
           populate: [
             {
               path: 'creatorId',
-              select: '_id empId name email avatar fullName positionId',
+              select: '_id empId name email avatar fullName positionId ',
               populate: {
                 path: 'positionId',
                 select: '_id fullName',
@@ -619,7 +619,7 @@ export class ApprovalStepsService {
           populate: [
             {
               path: 'creatorId',
-              select: '_id name email avatar fullName positionId departmentId',
+              // select: '_id name email avatar fullName positionId departmentId',
               populate: [
                 {
                   path: 'positionId',

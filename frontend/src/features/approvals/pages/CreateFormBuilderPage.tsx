@@ -25,6 +25,7 @@ import FormPreviewField from "../components/FormPreviewField"
 import formTemplateService from "@/services/formTemplateService"
 import LoadingUI from "@/components/etc/LoadingUI"
 import CSelectSpecificUser from "@/components/etc/CSelectSpecificUser"
+import { Textarea } from "@/components/ui/textarea"
 
 interface Step {
     id: string
@@ -66,6 +67,7 @@ export default function CreateFormBuilderPage() {
     const [isPreviewShow, setIsPreviewShow] = useState(false)
     const [isShowAddStep, setIsShowAddStep] = useState(false)
     const [tab, setTab] = useState<"properties" | "workflow">("properties")
+    const [chat, setChat] = useState("")
 
     const defaultWorkflow = [
         { id: `step_1`, idx: 1, label: "Quản lí trực tiếp", name: "Line Manager", specificUserId: "", timeExpected: "Within 24 hours" },
@@ -313,7 +315,7 @@ export default function CreateFormBuilderPage() {
     return (
         <div className="">
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                <div className="flex overflow-hidden gap-3 h-[calc(100vh-6rem)] select-none">
+                <div className="flex overflow-hidden gap-3 h-screen flex-1 select-none">
                     <aside className="w-75 bg-card rounded-md shadow-xl flex flex-col p-4 overflow-y-auto">
                         <div className="mb-6">
                             <h2 className="font-medium text-lg tracking-tight mb-1">Form Builder</h2>
@@ -333,7 +335,7 @@ export default function CreateFormBuilderPage() {
                         </div>
                     </aside>
 
-                    <main className="flex-1 bg-card rounded-xl shadow-xl p-5 overflow-auto flex flex-col items-center">
+                    <main className="flex-1 bg-card rounded-xl shadow-xl p-5 overflow-auto flex flex-col items-center relative">
                         <div className="w-full max-w-4xl space-y-8">
                             <div className="space-y-4">
                                 <div className="flex gap-5">
@@ -402,6 +404,19 @@ export default function CreateFormBuilderPage() {
                                     </div>
                                 </CardContent>
                             </Card>
+                        </div>
+                        <div className="fixed bottom-0 w-full h-32 flex items-center justify-center max-w-5xl  py-5">
+                            <div className="w-full h-full flex items-center gap-5 bg-background/50 backdrop-blur-xs h-full w-full border rounded-xl shadow-md">
+                                <Textarea
+                                    value={chat}
+                                    onChange={(e) => setChat(e.target.value)}
+                                    className="p-4 resize-none bg-transparent dark:bg-transparent border-none focus:ring-0 focus:outline-0 h-full focus-within:outline-0"
+                                    placeholder="Do you want to generate form description or workflow description? Just ask in natural language and click send, AI will help you do the rest!"
+                                />
+                                <Button variant={"ghost"} className="mx-5">
+                                    <Send />
+                                </Button>
+                            </div>
                         </div>
                     </main>
 

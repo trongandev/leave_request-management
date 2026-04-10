@@ -5,10 +5,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import approvalService from "@/services/approvalService"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { format, formatDistance } from "date-fns"
-import { Bell, Calendar, CircleCheck, Download, FileSpreadsheet, FileText, Headset, Loader2Icon, PhoneCall } from "lucide-react"
+import { Bell, Calendar, CircleCheck, Download, FileSpreadsheet, FileText, Headset, Loader2Icon, PhoneCall, Printer } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { toast } from "sonner"
-
+import { PDFDocument, rgb } from "pdf-lib"
+import fontkit from "@pdf-lib/fontkit"
 export default function ViewDetailRequestPage() {
     const location = useLocation()
     const id = location.pathname.split("/")[3]
@@ -17,9 +18,10 @@ export default function ViewDetailRequestPage() {
         queryFn: () => approvalService.getById(id),
     })
     const valueRequest: any = data?.requestId?.values || ({} as any)
+    const creatorId = data?.requestId?.creatorId
     const formTemplate = data?.requestId?.formTemplateId
     const stepFlowLogId = data?.flowLogId.steps
-
+    const originalApproverId = data?.originalApproverId
     const mutation = useMutation({
         mutationFn: (userId: string) => approvalService.notiBoss(userId, id),
         onSuccess: () => {
@@ -37,6 +39,88 @@ export default function ViewDetailRequestPage() {
         return formatDistance(startDate, endDate)
     }
 
+    const generateAndPreviewPdf = async (userData: any) => {
+        // 1. Tải file PDF mẫu từ thư mục public
+        const [existingPdfBytes, fontBytes, logoBytes] = await Promise.all([
+            fetch("/don-xin-nghi-phep-nam.pdf").then((res) => res.arrayBuffer()),
+            fetch("/fonts/Tinos-Regular.ttf").then((res) => res.arrayBuffer()),
+            fetch("/logo.png").then((res) => res.arrayBuffer()), // Tải logo từ thư mục public
+        ])
+
+        // 3. Khởi tạo PDFDocument
+        const pdfDoc = await PDFDocument.load(existingPdfBytes)
+        pdfDoc.registerFontkit(fontkit)
+        const customFont = await pdfDoc.embedFont(fontBytes)
+        const logoImage = await pdfDoc.embedPng(logoBytes)
+
+        const pages = pdfDoc.getPages()
+        const firstPage = pages[0]
+
+        const pos = [
+            { label: userData.factoryName, x: 330, y: 685 },
+            { label: userData.fullName, x: 137, y: 625 },
+            { label: userData.position, x: 129, y: 595 },
+            { label: userData.department, x: 128, y: 565 },
+            { label: userData.address, x: 130, y: 540 },
+            { label: userData.phone, x: 144, y: 510 },
+            { label: userData.totalDays, x: 118, y: 463 },
+            { label: userData.startDate, x: 235, y: 464 },
+            { label: userData.endDate, x: 334, y: 464 },
+            { label: userData.reason, x: 78, y: 408 },
+            { label: userData.province, x: 199, y: 204 },
+            { label: new Date().getDay(), x: 277, y: 204 },
+            { label: new Date().getDay(), x: 326, y: 204 },
+            { label: new Date().getDay(), x: 377, y: 204 },
+            { label: userData.manager, x: 241, y: 363 },
+            { label: userData.managerDept, x: 60, y: 349 },
+        ]
+
+        pos.forEach(({ label, x, y }) => {
+            firstPage.drawText(label.toString(), {
+                x,
+                y,
+                size: 12,
+                font: customFont,
+                color: rgb(0, 0, 0),
+            })
+        })
+        const logoDims = logoImage.scale(0.5) // Thu nhỏ 50% so với ảnh gốc
+        firstPage.drawImage(logoImage, {
+            x: 50, // Khoảng cách từ lề trái
+            y: 750, // Khoảng cách từ lề dưới (thường góc trên cùng bên trái)
+            width: logoDims.width,
+            height: logoDims.height,
+        })
+        // 5. Xuất PDF ra định dạng Blob và tạo URL để xem
+        const pdfBytes: any = await pdfDoc.save()
+        const blob = new Blob([pdfBytes], { type: "application/pdf" })
+        const url = URL.createObjectURL(blob)
+
+        return url
+    }
+
+    const modifyPdf = async () => {
+        const data = {
+            factoryName: "Công ty TNHH BOS TEAM",
+            fullName: creatorId?.fullName || "Unknown User",
+            position: creatorId?.positionId?.fullName || "Unknown Position",
+            department: creatorId?.departmentId?.originName || "Unknown Department",
+            address: "5E, Đường số 10, Phường Linh Trung, Tp Biên Hòa, Đồng Nai",
+            phone: creatorId?.phone || "0123456789",
+            totalDays: valueRequest?.totalDays || 0,
+            startDate: valueRequest?.startDate ? format(new Date(valueRequest.startDate), "dd") : "N/A",
+            endDate: valueRequest?.endDate ? format(new Date(valueRequest.endDate), "dd") : "N/A",
+            reason: "Tôi muốn nghỉ việc để tập trung phát triển dự án LRM cùng Team BOS.",
+            manager: originalApproverId?.fullName || "Unknown Manager",
+            managerDept: originalApproverId?.departmentId?.originName || "Unknown Department",
+            province: "Biên Hòa",
+        }
+
+        const url = await generateAndPreviewPdf(data)
+        // Mở PDF trong tab mới
+        window.open(url, "_blank")
+    }
+
     return (
         <div className="space-y-5">
             <Card>
@@ -48,11 +132,13 @@ export default function ViewDetailRequestPage() {
                                 <h2 className="text-lg font-bold text-primary tracking-tight">#{data?.apsDisplayId}</h2>
                             </div>
                             <h1 className="text-3xl font-bold  mb-2">{formTemplate?.engName}</h1>
-                            <p className=" text-sm font-medium flex items-center gap-2">
-                                <Calendar size={16} />
-                                {format(new Date(valueRequest?.startDate), "MMM dd, yyyy")} - {format(new Date(valueRequest?.endDate), "MMM dd, yyyy")} (
-                                {handleDistanceDate(valueRequest?.startDate, valueRequest?.endDate)})
-                            </p>
+                            {valueRequest?.startDate && (
+                                <p className=" text-sm font-medium flex items-center gap-2">
+                                    <Calendar size={16} />
+                                    {format(new Date(valueRequest?.startDate), "MMM dd, yyyy")} - {format(new Date(valueRequest?.endDate), "MMM dd, yyyy")} (
+                                    {handleDistanceDate(valueRequest?.startDate, valueRequest?.endDate)})
+                                </p>
+                            )}
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="text-right">
@@ -68,8 +154,8 @@ export default function ViewDetailRequestPage() {
                                     </span>
                                 </div>
                             </div>
-                            <Button variant={"outline-primary"} className="h-12">
-                                View Details
+                            <Button variant={"outline-primary"} className="h-12" onClick={modifyPdf}>
+                                <Printer /> Print
                             </Button>
                             <Button className="h-12">Take Action</Button>
                         </div>
