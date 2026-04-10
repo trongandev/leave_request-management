@@ -6,6 +6,7 @@ import {
   Body,
   Query,
   HttpCode,
+  Post,
 } from '@nestjs/common';
 import { ApprovalStepsService } from './approval-steps.service';
 import {
@@ -47,6 +48,18 @@ export class ApprovalStepsController {
   async getByRequestId(@Param('requestId') requestId: string) {
     // Used by detail screen/audit view to explain approval timeline.
     return this.approvalStepsService.findByRequestId(requestId);
+  }
+
+  // Get single approval step by ID
+  @Post(':id/notify-boss')
+  @RequirePermissions(Permission.READ_OWN_LEAVE)
+  notifyBoss(
+    @Param('id') id: string,
+    @Body() body: { requestId: string },
+    @CurrentUser() user: any,
+  ) {
+    this.approvalStepsService.notifyBoss(id, body.requestId, user);
+    return { message: 'Notification sent to approver!' };
   }
 
   // Get single approval step by ID

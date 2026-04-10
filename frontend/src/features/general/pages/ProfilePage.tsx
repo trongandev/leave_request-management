@@ -12,6 +12,7 @@ import { format } from "date-fns"
 import requestService from "@/services/requestService"
 import CRenderStatus from "@/components/etc/CRenderStatus"
 import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
 
 export default function ProfilePage() {
     const { t, i18n } = useTranslation()
@@ -32,9 +33,9 @@ export default function ProfilePage() {
     ]
 
     return (
-        <main className="max-w-7xl mx-auto w-full px-8 py-8 ">
-            <div className="flex gap-8 items-start">
-                <aside className="w-[300px] shrink-0 flex flex-col gap-6">
+        <main className="w-full md:max-w-7xl mx-auto md:p-8 ">
+            <div className="flex gap-8 items-start flex-col md:flex-row">
+                <aside className="w-full md:w-[300px] shrink-0 flex flex-col gap-6">
                     <Card className="p-0! overflow-hidden">
                         <CardContent className="p-0!">
                             <div className="h-24 bg-gradient-to-r from-primary to-blue-400" data-alt="Abstract blue gradient background pattern"></div>
@@ -97,7 +98,7 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
                 </aside>
-                <Card>
+                <Card className="w-full">
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <Card>
@@ -168,9 +169,9 @@ export default function ProfilePage() {
                         <div className="mt-8">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t("general.profile.activity.title")}</h3>
-                                <button className="text-slate-500 text-sm font-medium flex items-center gap-1 hover:text-primary transition-colors">
-                                    {t("general.profile.activity.viewLog")} <ChevronRight />
-                                </button>
+                                <Button variant={"ghost"}>
+                                    {t("general.profile.activity.viewLog")} <ChevronRight size={16} />
+                                </Button>
                             </div>
                             <CTable columns={columns} data={data || []} isLoading={isLoading} classNameNoData="h-32!">
                                 {data &&
@@ -184,7 +185,8 @@ export default function ProfilePage() {
                                             </td>
                                             {request?.values && (
                                                 <td className="px-4 py-4 text-slate-500">
-                                                    {format(new Date(request?.values?.startDate), "MMM dd, yyyy")} - {format(new Date(request?.values?.endDate), "MMM dd, yyyy")}
+                                                    {format(new Date(request?.values?.startDate || new Date()), "MMM dd, yyyy")} -{" "}
+                                                    {format(new Date(request?.values?.endDate || new Date()), "MMM dd, yyyy")}
                                                 </td>
                                             )}
 

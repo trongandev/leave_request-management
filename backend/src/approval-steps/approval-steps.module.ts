@@ -16,6 +16,7 @@ import {
 import { NotificationsModule } from '../notifications/notifications.module';
 import { Counter, CounterSchema } from '../counters/counters.schema';
 import { ApprovalStepsFlowLogModule } from '../approval-steps-flow-log/approval-steps-flow-log.module';
+import { PushNotiModule } from 'src/push-noti/push-noti.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ApprovalStepsFlowLogModule } from '../approval-steps-flow-log/approval-
       { name: FormTemplate.name, schema: FormTemplateSchema },
       { name: Counter.name, schema: CounterSchema },
     ]),
+    PushNotiModule,
   ],
   controllers: [ApprovalStepsController],
   providers: [ApprovalStepsService],

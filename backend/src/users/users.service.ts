@@ -36,14 +36,14 @@ export class UsersService {
     private pushNotiGateway: PushNotiGateway,
   ) {}
 
-  pushNotiToUser(user: any) {
-    const managerId = user?.managerId?._id;
-    if (!managerId) {
-      throw new NotFoundException('User does not have a manager to notify');
-      return;
-    }
+  pushNotiToUser(id: string, user: any) {
+    // const managerId = user?.managerId?._id;
+    // if (!managerId) {
+    //   throw new NotFoundException('User does not have a manager to notify');
+    //   return;
+    // }
 
-    this.pushNotiGateway.sendNotificationToUser(managerId, {
+    this.pushNotiGateway.sendNotificationToUser(id, {
       content: `Nhân viên ${user._id} vừa nộp một đơn. Vui lòng kiểm tra!`,
       requestId: 'ID_DON_VUA_TAO',
       type: 'LEAVE_REQUEST',
@@ -271,9 +271,9 @@ export class UsersService {
   ) {
     const roleNames = ['EMPLOYEE', 'MANAGER', 'HR'];
     const roleName = roleNames[index % roleNames.length];
-    const role = roleMap.get(roleName) || roleMap.get('EMPLOYEE');
+    const role =
+      department.code === 'HR' ? roleMap.get('HR') : roleMap.get(roleName);
     const positionId = position ? String(position._id) : undefined;
-
     const fullName = faker.person.fullName();
     const nameParts = removeVietnameseTones(fullName)
       .toLowerCase()

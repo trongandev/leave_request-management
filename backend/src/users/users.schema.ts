@@ -29,7 +29,7 @@ export class User extends Document {
   })
   email!: string;
 
-  @Prop({ unique: true })
+  @Prop()
   @ApiProperty({
     example: '0901234567',
     description: 'Số điện thoại (unique)',

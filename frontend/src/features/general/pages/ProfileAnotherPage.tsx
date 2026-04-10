@@ -30,9 +30,9 @@ export default function ProfileAnotherPage() {
         t("general.profile.activity.columns.status", "STATUS"),
     ]
     return (
-        <main className="max-w-7xl mx-auto w-full px-8 py-8">
-            <div className="flex gap-8 items-start">
-                <aside className="w-[300px] shrink-0 flex flex-col gap-6">
+        <main className="max-w-7xl mx-auto w-full md:p-8">
+            <div className="flex gap-8 items-start flex-col md:flex-row">
+                <aside className="w-full md:w-[300px] shrink-0 flex flex-col gap-6">
                     <Card className="p-0! overflow-hidden">
                         <CardContent className="p-0!">
                             <div className="h-24 bg-gradient-to-r from-primary to-blue-400" data-alt="Abstract blue gradient background pattern"></div>
@@ -95,7 +95,7 @@ export default function ProfileAnotherPage() {
                         </CardContent>
                     </Card>
                 </aside>
-                <Card>
+                <Card className="w-full">
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <Card>
@@ -115,7 +115,11 @@ export default function ProfileAnotherPage() {
                             <Card>
                                 <CardContent>
                                     <h4 className="font-bold text-slate-900 dark:text-white mb-3">{t("general.profile.details.lineManager")}</h4>
-                                    {user?.managerId ? <CAvatarName user={user?.managerId} /> : <div className="text-xs text-foreground">{t("general.profile.details.noManager")}</div>}
+                                    {user?.managerId ? (
+                                        <CAvatarName user={user?.managerId} isLinkActiveAnother />
+                                    ) : (
+                                        <div className="text-xs text-foreground">{t("general.profile.details.noManager")}</div>
+                                    )}
                                 </CardContent>
                             </Card>
                             <Card>
@@ -138,7 +142,7 @@ export default function ProfileAnotherPage() {
                         <div className="mt-8">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t("general.profile.timeOff.title")}</h3>
-                                <button className="text-primary text-sm font-bold hover:underline">{t("general.profile.timeOff.request")}</button>
+                                {/* <button className="text-primary text-sm font-bold hover:underline">{t("general.profile.timeOff.request")}</button> */}
                             </div>
                             <div className="">
                                 <Card>
@@ -162,9 +166,6 @@ export default function ProfileAnotherPage() {
                         <div className="mt-8">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t("general.profile.activity.title")}</h3>
-                                <button className="text-slate-500 text-sm font-medium flex items-center gap-1 hover:text-primary transition-colors">
-                                    {t("general.profile.activity.viewLog")} <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                                </button>
                             </div>
                             <CTable columns={columns} data={data?.rq} isLoading={isLoading} classNameNoData="h-32!">
                                 {data?.rq?.map((request) => (
@@ -175,21 +176,16 @@ export default function ProfileAnotherPage() {
                                                 <span className="font-medium">{request.title}</span>
                                             </div>
                                         </td>
+                                        {request?.values && (
+                                            <td className="px-4 py-4 text-slate-500">
+                                                {format(new Date(request?.values?.startDate || new Date()), "MMM dd, yyyy")} -{" "}
+                                                {format(new Date(request?.values?.endDate || new Date()), "MMM dd, yyyy")}
+                                            </td>
+                                        )}
+
                                         <td className="px-4 py-4 text-slate-500">
-                                            {format(new Date(request?.values?.startDate), "MMM dd, yyyy")} - {format(new Date(request?.values?.endDate), "MMM dd, yyyy")}
+                                            {t(request?.values?.totalDays > 1 ? "general.profile.activity.days" : "general.profile.activity.day", { count: request?.values?.totalDays })}
                                         </td>
-
-                                        {(() => {
-                                            const start = dayjs(request?.values?.startDate)
-                                            const end = dayjs(request?.values?.endDate)
-                                            const durationDays = start.isValid() && end.isValid() ? Math.max(end.diff(start, "day") + 1, 0) : 0
-
-                                            return (
-                                                <td className="px-4 py-4 text-slate-500">
-                                                    {t(durationDays > 1 ? "general.profile.activity.days" : "general.profile.activity.day", { count: durationDays })}
-                                                </td>
-                                            )
-                                        })()}
                                         <td className="px-4 py-4">
                                             <span className="px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold uppercase">{request.status}</span>
                                         </td>

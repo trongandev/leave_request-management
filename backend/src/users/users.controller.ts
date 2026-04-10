@@ -25,9 +25,9 @@ import { QueryUsersDto } from './dto/query-users.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('test-noti')
-  testNotification(@CurrentUser() user: any) {
-    this.usersService.pushNotiToUser(user);
+  @Get('test-noti/:id')
+  testNotification(@Param('id') id: string, @CurrentUser() user: any) {
+    this.usersService.pushNotiToUser(id, user);
     return { message: 'Notification sent to manager!' };
   }
 

@@ -70,11 +70,9 @@ export default function GeneralLayout() {
 
                 const notification = new Notification(data.title, options)
 
-                // Khi click vào thông báo thì mở App hoặc chuyển hướng
                 notification.onclick = (event) => {
                     event.preventDefault()
                     window.focus()
-                    // An có thể điều hướng tới trang chi tiết đơn:
                     window.location.href = data.link
                 }
             }
@@ -131,7 +129,7 @@ export default function GeneralLayout() {
             </div>
             <div className={`flex-1 ${isSidebarOpen ? "ml-64" : "ml-0"} flex flex-col min-h-screen overflow-hidden transition-all duration-300  `}>
                 <GeneralHeader />
-                <div className="w-full p-8">
+                <div className="w-full p-3 md:p-8">
                     <Outlet />
                 </div>
             </div>

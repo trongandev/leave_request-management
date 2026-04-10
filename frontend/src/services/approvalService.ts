@@ -8,6 +8,13 @@ class ApprovalService {
         return response.data.data
     }
 
+    async notiBoss(requestId: string, id: string) {
+        const response = await axiosInstance.post(`/approval-steps/${id}/notify-boss`, {
+            requestId: requestId,
+        })
+        return response.data
+    }
+
     async getPending() {
         const response = await axiosInstance.get<APIResponsePagination<ApprovalStep[]>>(`/approval-steps/my-pending`)
         return response.data.data

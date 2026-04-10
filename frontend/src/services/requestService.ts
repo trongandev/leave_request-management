@@ -1,11 +1,10 @@
 import axiosInstance from "@/api/axiosInstance"
 import { type APIResponse, type APIResponsePagination } from "../types/etc"
-import type { FormTemplate } from "@/types/form-template"
 import type { Request } from "@/types/request"
 
 class RequestService {
     async getAll({ page = 1 }: { page?: number }) {
-        const response = await axiosInstance.get<APIResponsePagination<FormTemplate[]>>(`/form-template?page=${page}`)
+        const response = await axiosInstance.get<APIResponsePagination<Request[]>>(`/requests?page=${page}`)
         return response.data.data
     }
 

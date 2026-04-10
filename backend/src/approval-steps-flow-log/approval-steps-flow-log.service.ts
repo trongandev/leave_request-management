@@ -22,6 +22,8 @@ export class ApprovalStepsFlowLogService {
       postition: string;
       performer?: string;
       signedAt?: string;
+      avatar?: string;
+      userId?: string;
     }>;
   }): Promise<ApprovalStepsFlowLog> {
     const sortedApprovalSteps = [...params.approvalSteps].sort(
@@ -37,10 +39,10 @@ export class ApprovalStepsFlowLogService {
         label: 'Register Request',
         postition: params.requesterPosition ?? 'System',
         reason,
+        avatar: params.approvalSteps[0]?.avatar ?? '',
+        userId: params.approvalSteps[0]?.userId ?? '',
         performer: params.requesterName || 'System',
-        status: hasApprovalSteps
-          ? FlowLogStatus.PROCESSING
-          : FlowLogStatus.APPROVED,
+        status: FlowLogStatus.APPROVED,
         signedAt: nowIso,
       },
       ...sortedApprovalSteps.map((step) => ({
@@ -48,6 +50,8 @@ export class ApprovalStepsFlowLogService {
         label: step.label,
         postition: step.postition || 'System',
         reason,
+        avatar: step.avatar || '',
+        userId: step.userId || '',
         performer: step.performer || 'System',
         status: FlowLogStatus.PROCESSING,
         signedAt: step.signedAt ?? '',
@@ -147,6 +151,8 @@ export class ApprovalStepsFlowLogService {
         label: 'Hoàn tất',
         postition: 'System',
         reason: '',
+        avatar: '',
+        userId: '',
         performer: performerName || 'System',
         status: FlowLogStatus.APPROVED,
         signedAt: nowIso,

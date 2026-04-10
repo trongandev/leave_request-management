@@ -21,6 +21,7 @@ import { Counter, CounterSchema } from '../counters/counters.schema';
 import { ApprovalStepsFlowLogModule } from '../approval-steps-flow-log/approval-steps-flow-log.module';
 import { User, UserSchema } from '../users/users.schema';
 import { Position, PositionSchema } from '../positions/positions.schema';
+import { PushNotiModule } from 'src/push-noti/push-noti.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { Position, PositionSchema } from '../positions/positions.schema';
       { name: User.name, schema: UserSchema },
       { name: Position.name, schema: PositionSchema },
     ]),
+    PushNotiModule,
   ],
   controllers: [RequestsController],
   providers: [RequestsService],

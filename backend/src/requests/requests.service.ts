@@ -21,6 +21,7 @@ import { Counter } from '../counters/counters.schema';
 import { ApprovalStepsFlowLogService } from '../approval-steps-flow-log/approval-steps-flow-log.service';
 import { User } from '../users/users.schema';
 import { Position } from 'src/positions/positions.schema';
+import { PushNotiGateway } from 'src/push-noti/push-noti.gateway';
 
 type RequestActor = {
   _id?: string;
@@ -42,7 +43,9 @@ type ResolvedApprover = {
   approverId: string;
   approverName: string;
   label: string;
+  avatar: string;
   postition: string;
+  userId: string;
 };
 
 @Injectable()
@@ -70,6 +73,7 @@ export class RequestsService {
     private readonly usersService: UsersService,
     private readonly approvalStepsService: ApprovalStepsService,
     private readonly approvalStepsFlowLogService: ApprovalStepsFlowLogService,
+    private pushNotiGateway: PushNotiGateway,
   ) {}
 
   async create(createRequestDto: CreateRequestDto, user: any) {
@@ -136,6 +140,8 @@ export class RequestsService {
           label: step.label,
           postition: step.postition,
           performer: step.approverName,
+          avatar: step.avatar,
+          userId: step.approverId,
         })),
       });
 
@@ -150,6 +156,16 @@ export class RequestsService {
         isFinalStep: index === workflowContext.approvers.length - 1,
         requiredAll: true,
       })),
+    );
+    workflowContext.approvers.map((step) =>
+      this.pushNotiGateway.sendNotificationToUser(step.approverId, {
+        title: `${user.fullName}`,
+        content: `Vừa tạo đơn xin nghỉ phép. Vui lòng kiểm tra!`,
+        link: `/approvals/team-requests/${String(request._id)}`,
+        requestId: String(request._id),
+        avatar: user?.avatar,
+        type: 'LEAVE_REQUEST',
+      }),
     );
 
     return request;
@@ -218,6 +234,8 @@ export class RequestsService {
           label: step.label,
           postition: step.postition,
           performer: step.approverName,
+          avatar: step.avatar,
+          userId: step.approverId,
         })),
       });
 
@@ -252,6 +270,16 @@ export class RequestsService {
     const filter = await this.buildAccessibleFilter(queryRequestsDto, user);
 
     return paginate(this.requestModel, queryRequestsDto, filter, {
+      populate: [
+        {
+          path: 'creatorId',
+          select: 'fullName avatar',
+          populate: {
+            path: 'positionId',
+            select: 'fullName',
+          },
+        },
+      ],
       sort: { createdAt: -1 },
     });
   }
@@ -570,9 +598,9 @@ export class RequestsService {
     requesterPosition: string;
     approvers: ResolvedApprover[];
   }> {
-    const requesterProfile = await this.userModel
+    const requesterProfile: any = await this.userModel
       .findById(requesterId)
-      .select('fullName managerId departmentId positionId')
+      .select('_id avatar email fullName managerId departmentId positionId')
       .populate({
         path: 'managerId',
         select: 'fullName managerId',
@@ -585,24 +613,6 @@ export class RequestsService {
         path: 'positionId',
         select: 'fullName name',
       })
-      .lean<{
-        _id?: unknown;
-        fullName?: string;
-        managerId?: {
-          _id?: unknown;
-          fullName?: string;
-          managerId?: {
-            _id?: unknown;
-            fullName?: string;
-          };
-        };
-        positionId?: {
-          _id?: unknown;
-          fullName?: string;
-          name?: string;
-        };
-        departmentId?: unknown;
-      }>()
       .exec();
 
     if (!requesterProfile) {
@@ -614,11 +624,9 @@ export class RequestsService {
       'Requester',
     );
     const requesterPosition = this.toSafeText(
-      requesterProfile.positionId?.fullName ??
-        requesterProfile.positionId?.name,
+      requesterProfile.positionId?.name,
       'Position not specified',
     );
-
     const fallback = await this.resolveRequesterManagerContext(requesterId);
 
     const directManagerId =
@@ -723,6 +731,8 @@ export class RequestsService {
         approverName: selectedApprover.name,
         label: displayContext.label,
         postition: displayContext.postition,
+        avatar: requesterProfile.avatar,
+        userId: requesterProfile._id,
       });
     }
 
@@ -735,6 +745,8 @@ export class RequestsService {
         approverName: fallback.managerName,
         label: displayContext.label,
         postition: displayContext.postition,
+        avatar: requesterProfile.avatar,
+        userId: requesterProfile._id,
       });
     }
 

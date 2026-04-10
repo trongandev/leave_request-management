@@ -39,6 +39,9 @@ export interface Step {
     order: number
     label: string
     postition: string
+    status: string
+    userId: string
+    avatar: string
     reason: string
     performer: string
     signedAt: string

@@ -1,7 +1,23 @@
-import { useTranslation } from "react-i18next";
+import CRenderStatus from "@/components/etc/CRenderStatus"
+import CTable from "@/components/etc/CTable"
+import { Button } from "@/components/ui/button"
+import requestService from "@/services/requestService"
+import { useQuery } from "@tanstack/react-query"
+import { format } from "date-fns"
+import { Eye } from "lucide-react"
+import { useState } from "react"
+import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 
 export default function GlobalRequestPage() {
-    const { t } = useTranslation();
+    const { t } = useTranslation()
+    const [page, setPage] = useState(1)
+    const { data, isLoading } = useQuery({
+        queryKey: ["globalRequests", page],
+        queryFn: () => requestService.getAll({ page }),
+    })
+    console.log(data)
+    const columns = ["ID", "Employee", "Type", "Duration", "Applied Date", "Status", "Actions"]
     return (
         <main className="">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -20,7 +36,7 @@ export default function GlobalRequestPage() {
                     </button>
                 </div>
             </div>
-            <div className="bg-white dark:bg-neutral-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            {/* <div className="bg-white dark:bg-neutral-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="relative">
@@ -188,7 +204,45 @@ export default function GlobalRequestPage() {
                         <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-800">{t("admin.globalRequests.pagination.next")}</button>
                     </div>
                 </div>
-            </div>
+            </div> */}
+            <CTable isLoading={isLoading} data={data} columns={columns} handlePageChange={setPage}>
+                {data?.data.map((req) => (
+                    <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" key={req.reqDisplayId}>
+                        <td className="px-6 py-4 whitespace-nowrap">{req.reqDisplayId}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                                <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 shrink-0 flex items-center justify-center overflow-hidden">
+                                    <img alt="Employee" className="w-full h-full object-cover" src={req.creatorId.avatar} />
+                                </div>
+                                <div className="ml-3">
+                                    <div className="text-sm font-medium text-slate-900 dark:text-white">{req.creatorId?.fullName}</div>
+                                    <div className="text-xs text-slate-500">{req?.creatorId?.positionId?.fullName}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="text-sm text-slate-600 dark:text-slate-400">{req.code}</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-slate-900 dark:text-white font-medium">{t("admin.globalRequests.table.days", { count: req?.values?.totalDays })}</div>
+                            <div className="text-xs text-slate-500">
+                                {format(req?.values?.startDate, "MMM dd")} - {format(req?.values?.endDate, "MMM dd")}
+                            </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400"> {format(req?.createdAt, "MMM dd yyyy")}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                            <CRenderStatus status={req.status} />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <Link to={`/re`}>
+                                <Button variant={"outline-primary"} size={"xs"}>
+                                    <Eye /> {t("admin.globalRequests.table.viewDetail")}
+                                </Button>
+                            </Link>
+                        </td>
+                    </tr>
+                ))}
+            </CTable>
         </main>
     )
 }

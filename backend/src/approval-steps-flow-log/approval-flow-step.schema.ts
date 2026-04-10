@@ -27,7 +27,10 @@ export class ApprovalFlowStep {
     default: FlowLogStatus.PROCESSING,
   })
   status!: FlowLogStatus;
-
+  @Prop()
+  avatar!: string;
+  @Prop()
+  userId!: string;
   @Prop({ default: '' })
   signedAt!: string;
 }

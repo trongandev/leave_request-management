@@ -27,6 +27,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { Counter } from '../counters/counters.schema';
 import { ApprovalStepsFlowLogService } from '../approval-steps-flow-log/approval-steps-flow-log.service';
 import { paginate } from 'src/common/utils/pagination.util';
+import { PushNotiGateway } from 'src/push-noti/push-noti.gateway';
 
 type RequestActor = {
   _id?: string;
@@ -63,6 +64,7 @@ export class ApprovalStepsService {
     private readonly delegationsService: DelegationsService,
     private readonly notificationsService: NotificationsService,
     private readonly approvalStepsFlowLogService: ApprovalStepsFlowLogService,
+    private pushNotiGateway: PushNotiGateway,
   ) {}
 
   // Get all approval steps
@@ -70,7 +72,16 @@ export class ApprovalStepsService {
     return this.approvalStepModel.find().sort({ createdAt: -1 }).exec();
   }
 
-  // Create approval step for a request
+  notifyBoss(id: string, requestId: string, user: any) {
+    this.pushNotiGateway.sendNotificationToUser(requestId, {
+      title: `${user.fullName}`,
+      content: `Vừa gửi thông báo nhắc nhở duyệt đơn xin nghỉ phép. Vui lòng kiểm tra!`,
+      link: `/approvals/team-requests/${String(id)}`,
+      requestId: String(id),
+      avatar: user?.avatar,
+      type: 'LEAVE_REQUEST',
+    });
+  }
 
   async create(
     createApprovalStepDto: CreateApprovalStepDto,
@@ -242,7 +253,7 @@ export class ApprovalStepsService {
   async approve(
     stepId: string,
     approveDto: ApproveApprovalStepDto,
-    actor: RequestActor,
+    actor: any,
   ): Promise<ApprovalStep> {
     return this.handleStepAction(stepId, 'approve', approveDto, actor);
   }
@@ -268,7 +279,7 @@ export class ApprovalStepsService {
   async delegate(
     stepId: string,
     delegateDto: DelegateApprovalStepDto,
-    actor: RequestActor,
+    actor: any,
   ): Promise<ApprovalStep> {
     return this.handleStepAction(stepId, 'delegate', delegateDto, actor);
   }
@@ -281,7 +292,7 @@ export class ApprovalStepsService {
       | RejectApprovalStepDto
       | ReturnApprovalStepDto
       | DelegateApprovalStepDto,
-    actor: RequestActor,
+    actor: any,
   ): Promise<ApprovalStep> {
     const detail = await this.findById(stepId);
     const step = detail?.appStep;
@@ -311,7 +322,14 @@ export class ApprovalStepsService {
       actor,
     );
     await this.syncRequestStatus(requestId);
-
+    this.pushNotiGateway.sendNotificationToUser(actor._id, {
+      title: `${actor.fullName}`,
+      content: `Vừa tạo đơn xin nghỉ phép. Vui lòng kiểm tra!`,
+      link: `/employee/view-detail-request/${String(stepId)}`,
+      requestId: String(stepId),
+      avatar: actor?.avatar,
+      type: 'LEAVE_REQUEST',
+    });
     return savedStep;
   }
 
@@ -531,6 +549,9 @@ export class ApprovalStepsService {
             },
           ],
         },
+        {
+          path: 'flowLogId',
+        },
       ])
       .exec();
 
@@ -615,6 +636,9 @@ export class ApprovalStepsService {
               // select: '_id name code values',
             },
           ],
+        },
+        {
+          path: 'flowLogId',
         },
       ])
       .sort({ stepOrder: 1 })

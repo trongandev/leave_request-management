@@ -2,18 +2,14 @@
 import LoadingUI from "@/components/etc/LoadingUI"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-
 import approvalService from "@/services/approvalService"
-
-import type { User } from "@/types/user"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { format, formatDistance } from "date-fns"
-import { Calendar, CircleCheck, Download, FileSpreadsheet, FileText, Headset, Loader2Icon, PhoneCall } from "lucide-react"
+import { Bell, Calendar, CircleCheck, Download, FileSpreadsheet, FileText, Headset, Loader2Icon, PhoneCall } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
-import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
 export default function ViewDetailRequestPage() {
-    const { i18n } = useTranslation()
     const location = useLocation()
     const id = location.pathname.split("/")[3]
     const { data, isLoading } = useQuery({
@@ -22,8 +18,15 @@ export default function ViewDetailRequestPage() {
     })
     const valueRequest: any = data?.requestId?.values || ({} as any)
     const formTemplate = data?.requestId?.formTemplateId
-    const creatorId: User = data?.requestId?.creatorId || ({} as User)
-    const originalApprover: User = data?.originalApproverId || ({} as User)
+    const stepFlowLogId = data?.flowLogId.steps
+
+    const mutation = useMutation({
+        mutationFn: (userId: string) => approvalService.notiBoss(userId, id),
+        onSuccess: () => {
+            toast.success("Action taken successfully!")
+        },
+    })
+
     if (isLoading) {
         return <LoadingUI />
     }
@@ -82,68 +85,49 @@ export default function ViewDetailRequestPage() {
                             <p className="text-xs ">Detailed audit trail and workflow progression.</p>
                         </div>
                         <div className="space-y-0">
-                            <div className="flex gap-6">
-                                <div className="flex flex-col items-center">
-                                    <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600  z-10">
-                                        <CircleCheck />
+                            {stepFlowLogId?.map((step, index) => (
+                                <div className="flex gap-6">
+                                    <div className="flex flex-col items-center">
+                                        {step.status === "approved" ? (
+                                            <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600  z-10">
+                                                <CircleCheck />
+                                            </div>
+                                        ) : (
+                                            <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-500  z-10">
+                                                <Loader2Icon className="animate-spin" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="pb-10">
+                                        <p className="text-[11px] font-bold text-neutral-500  uppercase  mb-1">
+                                            {step?.signedAt ? format(step.signedAt || new Date(), "MMM dd, yyyy • hh:mm a") : "In Progress"}
+                                        </p>
+                                        <h4 className="text-lg font-bold  mb-1">{step.label}</h4>
+                                        <div className="flex items-center gap-2">
+                                            <img
+                                                alt="User"
+                                                className="w-6 h-6 rounded-full"
+                                                data-alt="Portrait of HUA NGUYEN PHUC, a focused Asian professional in a light grey business shirt."
+                                                src={step?.avatar}
+                                            />
+                                            <Link to={`/profile/${step.userId}`} className="text-sm font-medium ">
+                                                {step?.performer} / <span className="text-[10px] bg-surface-container px-1.5 py-0.5 rounded ">{step.postition}</span>
+                                            </Link>
+                                        </div>
+                                        {step.status === "approved" && (
+                                            <div className="mt-3 bg-surface-container-low px-4 py-2 rounded-lg inline-block border border-outline/20">
+                                                <p className="text-xs  italic">{step?.reason || "No reason provided."}</p>
+                                            </div>
+                                        )}
+                                        {step.status !== "approved" && index !== 0 && (
+                                            <Button variant={"outline-primary"} className="mt-3" size={"xs"} onClick={() => mutation.mutate(step.userId)}>
+                                                <Bell /> Nhắc nhở duyệt đơn
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="pb-10">
-                                    <p className="text-[11px] font-bold text-neutral-500  uppercase  mb-1">{format(data?.requestId?.createdAt || new Date(), "MMM dd, yyyy • hh:mm a")}</p>
-                                    <h4 className="text-lg font-bold  mb-1">Register Request</h4>
-                                    <div className="flex items-center gap-2">
-                                        <img
-                                            alt="User"
-                                            className="w-6 h-6 rounded-full"
-                                            data-alt="Portrait of HUA NGUYEN PHUC, a focused Asian professional in a light grey business shirt."
-                                            src={creatorId?.avatar}
-                                        />
-                                        <span className="text-sm font-medium ">
-                                            {creatorId.fullName} /{" "}
-                                            <span className="text-[10px] bg-surface-container px-1.5 py-0.5 rounded ">
-                                                {i18n.language === "en"
-                                                    ? creatorId.positionId?.originName || creatorId.positionId?.name
-                                                    : creatorId.positionId?.name || creatorId.positionId?.originName || "Position not specified"}
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <div className="mt-3 bg-surface-container-low px-4 py-2 rounded-lg inline-block border border-outline/20">
-                                        <p className="text-xs  italic">{valueRequest?.reason || "No reason provided."}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex gap-6">
-                                <div className="flex flex-col items-center">
-                                    <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-500  z-10">
-                                        <Loader2Icon className="animate-spin" />
-                                    </div>
-                                </div>
-                                <div className="pb-10 pt-1">
-                                    <p className="text-[11px] font-bold text-neutral-500 uppercase  mb-1">In Progress</p>
-                                    <h4 className="text-lg font-bold  mb-1">
-                                        Dept{" "}
-                                        {i18n.language === "en"
-                                            ? originalApprover?.departmentId?.originName || originalApprover?.departmentId?.name
-                                            : originalApprover?.departmentId?.name || originalApprover?.departmentId?.originName || "Department not specified"}
-                                    </h4>
-                                    <div className="flex items-center gap-2">
-                                        <img
-                                            alt="Manager"
-                                            className="w-6 h-6 rounded-full"
-                                            data-alt="Portrait of Sarah Miller, a senior manager with professional demeanor and warm lighting."
-                                            src={originalApprover?.avatar}
-                                        />
-                                        <Link to={`/profile/${originalApprover._id}`} className="text-sm font-medium hover:underline">
-                                            {originalApprover?.fullName || "Manager"} /{" "}
-                                            <span className="text-[10px] bg-surface-container px-1.5 py-0.5 rounded ">
-                                                {i18n.language === "en"
-                                                    ? originalApprover?.positionId?.originName || originalApprover?.positionId?.name
-                                                    : originalApprover?.positionId?.name || originalApprover?.positionId?.originName || "Position not specified"}
-                                            </span>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
+                            ))}
+
                             {/* <div className="flex gap-6">
                                 <div className="flex flex-col items-center">
                                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 border-2 border-blue-700 z-10 shadow-[0_0_15px_rgba(0,82,204,0.3)]">
