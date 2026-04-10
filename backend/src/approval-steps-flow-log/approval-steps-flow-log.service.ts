@@ -143,22 +143,7 @@ export class ApprovalStepsFlowLogService {
       flowLog.steps[nextIndex].status = FlowLogStatus.PROCESSING;
       flowLog.currentStepOrder = nextOrder;
     } else {
-      // Last approval is complete; add final "Hoàn tất" (Completed) step automatically
-      const maxOrder = Math.max(...flowLog.steps.map((s) => s.order), 0);
-      const finalStepOrder = maxOrder + 1;
-      const completedStep = {
-        order: finalStepOrder,
-        label: 'Hoàn tất',
-        postition: 'System',
-        reason: '',
-        avatar: '',
-        userId: '',
-        performer: performerName || 'System',
-        status: FlowLogStatus.APPROVED,
-        signedAt: nowIso,
-      };
-      flowLog.steps.push(completedStep);
-      flowLog.currentStepOrder = finalStepOrder;
+      // No more approval steps left; mark the flow as completed without adding a synthetic step.
       flowLog.status = FlowLogStatus.APPROVED;
     }
 
