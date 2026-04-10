@@ -22,6 +22,7 @@ import { Request } from 'src/requests/requests.schema';
 import { LeaveBalance } from 'src/leave-balances/leave-balances.schema';
 import { Counter } from 'src/counters/counters.schema';
 import { SystemSetting } from 'src/system-setting/system-setting.schema';
+import { calculateLeaveEntitlement } from 'src/common/utils/leave-balance-calculator.util';
 
 @Injectable()
 export class DatabaseSeeder implements OnApplicationBootstrap {
@@ -254,14 +255,16 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       const adjustedDays = Number(seed?.adjustedDays ?? 0);
       const usedDays = this.toNonNegative(Number(seed?.usedDays ?? 0));
 
-      const baseDays = this.getProratedBaseDays(
-        leaveBasePerYear,
+      const entitlement = calculateLeaveEntitlement({
+        basePerYear: leaveBasePerYear,
         joinedAt,
-        currentYear,
-      );
-      const seniorityDays = this.getSeniorityDays(joinedAt, currentYear);
+        targetYear: currentYear,
+      });
+      const baseDays = entitlement.baseDays;
+      const effectiveBaseDays = entitlement.effectiveBaseDays;
+      const seniorityDays = entitlement.seniorityDays;
       const totalDays = this.toNonNegative(
-        baseDays + seniorityDays + adjustedDays,
+        effectiveBaseDays + seniorityDays + adjustedDays,
       );
       const remainingDays = this.toNonNegative(totalDays - usedDays);
 
@@ -292,27 +295,6 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
 
     const parsed = Number(setting?.value ?? 12);
     return Number.isFinite(parsed) ? parsed : 12;
-  }
-
-  private getProratedBaseDays(
-    basePerYear: number,
-    joinedAt: Date,
-    targetYear: number,
-  ): number {
-    const joinMonth = joinedAt.getMonth() + 1;
-    const joinYear = joinedAt.getFullYear();
-
-    if (targetYear === joinYear) {
-      const prorated = (basePerYear / 12) * (12 - joinMonth + 1);
-      return Number(prorated.toFixed(2));
-    }
-
-    return Number(basePerYear.toFixed(2));
-  }
-
-  private getSeniorityDays(joinedAt: Date, targetYear: number): number {
-    const yearsOfService = Math.max(0, targetYear - joinedAt.getFullYear());
-    return Math.floor(yearsOfService / 5);
   }
 
   private toNonNegative(value: number): number {
@@ -545,6 +527,11 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
         p.code === 'CREATE_LEAVE' ||
         p.code === 'APPROVE_LEAVE' ||
         p.code === 'REJECT_LEAVE' ||
+        p.code === 'FORWARD_LEAVE' ||
+        p.code === 'CREATE_DELEGATION' ||
+        p.code === 'READ_OWN_DELEGATION' ||
+        p.code === 'UPDATE_OWN_DELEGATION' ||
+        p.code === 'DELETE_OWN_DELEGATION' ||
         p.code === 'READ_DEPARTMENT_LEAVE' ||
         p.code === 'ASSIGN_MANAGER',
     );
@@ -558,6 +545,11 @@ export class DatabaseSeeder implements OnApplicationBootstrap {
       (p) =>
         p.code.includes('OWN') ||
         p.code === 'CREATE_LEAVE' ||
+        p.code === 'FORWARD_LEAVE' ||
+        p.code === 'CREATE_DELEGATION' ||
+        p.code === 'READ_OWN_DELEGATION' ||
+        p.code === 'UPDATE_OWN_DELEGATION' ||
+        p.code === 'DELETE_OWN_DELEGATION' ||
         p.code === 'VIEW_REPORT' ||
         p.code === 'READ_ALL_LEAVE' ||
         p.code === 'MANAGE_LEAVE_TYPES' ||
