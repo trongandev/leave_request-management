@@ -17,6 +17,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { Counter, CounterSchema } from '../counters/counters.schema';
 import { ApprovalStepsFlowLogModule } from '../approval-steps-flow-log/approval-steps-flow-log.module';
 import { PushNotiModule } from 'src/push-noti/push-noti.module';
+import { MailService } from '../mail/mail.service';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { PushNotiModule } from 'src/push-noti/push-noti.module';
     PushNotiModule,
   ],
   controllers: [ApprovalStepsController],
-  providers: [ApprovalStepsService],
+  providers: [ApprovalStepsService, MailService],
   exports: [ApprovalStepsService, MongooseModule],
 })
 export class ApprovalStepsModule {}

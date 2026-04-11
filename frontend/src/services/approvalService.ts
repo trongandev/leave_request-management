@@ -8,10 +8,8 @@ class ApprovalService {
         return response.data.data
     }
 
-    async notiBoss(requestId: string, id: string) {
-        const response = await axiosInstance.post(`/approval-steps/${id}/notify-boss`, {
-            requestId: requestId,
-        })
+    async notiBoss(id: string) {
+        const response = await axiosInstance.get(`/approval-steps/${id}/notify-boss`)
         return response.data
     }
 

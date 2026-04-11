@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea"
 import approvalService from "@/services/approvalService"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { Calendar1, Check, Download, FileSpreadsheet, Gavel, Info, Loader2, Printer, Share2, Verified, X } from "lucide-react"
+import { Calendar1, Check, CircleCheck, Download, FileSpreadsheet, Gavel, Info, Loader2Icon, Printer, Share2, Verified, X } from "lucide-react"
 import { useState } from "react"
 import { useLocation } from "react-router-dom"
 import { toast } from "sonner"
@@ -23,7 +23,7 @@ export default function TeamRequestDetailPage() {
     const lb = data?.lb
     const creatorId = approvalStep?.requestId?.creatorId
     const requestId = approvalStep?.requestId
-    // const flowLogId = approvalStep?.requestId
+    const flowLogId = approvalStep?.flowLogId
 
     const mutation = useMutation({
         mutationFn: (variables: { comment: string; type: "approve" | "reject" }) => {
@@ -42,26 +42,6 @@ export default function TeamRequestDetailPage() {
             toast.success(variables.type === "approve" ? "Request approved successfully!" : "Request rejected successfully!")
         },
     })
-
-    const timeline = [
-        {
-            title: "Request Submitted",
-            status: "submitted",
-            description: `By ${creatorId?.fullName}`,
-            datetime: approvalStep?.createdAt || "",
-        },
-        {
-            title: approvalStep?.status === "approved" ? "Review Completed" : "Review Started",
-            status: approvalStep?.status,
-            description: approvalStep?.status === "approved" ? `Approved by ${approvalStep?.originalApproverId?.fullName}` : "In Progress",
-            datetime: approvalStep?.status === "approved" ? approvalStep?.signedAt : "waiting",
-        },
-    ]
-    const colors: any = {
-        submitted: "bg-blue-100 text-blue-500",
-        pending: "bg-yellow-100 text-yellow-500",
-        approved: "bg-green-100 text-green-500",
-    }
 
     if (isLoading) {
         return <LoadingUI />
@@ -222,21 +202,33 @@ export default function TeamRequestDetailPage() {
                     <Card>
                         <CardContent>
                             <h3 className="font-semibold text-slate-900 dark:text-white mb-4 text-sm uppercase tracking-wide">Request Timeline</h3>
-                            {timeline.map((item, index) => (
+                            {flowLogId?.steps?.map((item, index) => (
                                 <div key={index} className="relative pb-8">
-                                    {index !== timeline.length - 1 && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200 dark:bg-slate-700"></span>}
+                                    {index !== flowLogId.steps.length - 1 && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200 dark:bg-slate-700"></span>}
 
                                     <div className="relative flex space-x-3">
-                                        <div className={`h-10 w-10 rounded-full ${colors[item.status || ""]} flex items-center justify-center `}>
-                                            {item.status === "approved" || item.status === "submitted" ? <Check /> : <Loader2 className="animate-spin" />}
-                                        </div>
+                                        {item.status === "approved" && (
+                                            <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600  z-10">
+                                                <CircleCheck />
+                                            </div>
+                                        )}
+                                        {item.status === "processing" && (
+                                            <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-500  z-10">
+                                                <Loader2Icon className="animate-spin" />
+                                            </div>
+                                        )}
+                                        {item.status === "rejected" && (
+                                            <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500  z-10">
+                                                <X />
+                                            </div>
+                                        )}
                                         <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                                             <div>
-                                                <p className="text-sm text-slate-900 dark:text-slate-200 font-medium">{item.title}</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
+                                                <p className="text-sm text-slate-900 dark:text-slate-200 font-medium">{item.label}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">{item.performer}</p>
                                             </div>
                                             <div className="whitespace-nowrap text-right text-xs text-slate-500 dark:text-slate-400">
-                                                <time dateTime={item.datetime}>{item.datetime !== "waiting" ? format(item.datetime || "", "MMM dd") : "Waiting"}</time>
+                                                <time dateTime={item.signedAt}>{item.signedAt ? format(item.signedAt || "", "MMM dd") : "Waiting"}</time>
                                             </div>
                                         </div>
                                     </div>

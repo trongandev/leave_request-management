@@ -5,11 +5,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import approvalService from "@/services/approvalService"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { format, formatDistance } from "date-fns"
-import { Bell, Calendar, CircleCheck, Download, FileSpreadsheet, FileText, Headset, Loader2Icon, PhoneCall, Printer } from "lucide-react"
+import { Bell, Calendar, CircleCheck, Download, FileSpreadsheet, FileText, Headset, Loader2Icon, PhoneCall, Printer, X } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { toast } from "sonner"
 import { PDFDocument, rgb } from "pdf-lib"
 import fontkit from "@pdf-lib/fontkit"
+import dayjs from "dayjs"
 export default function ViewDetailRequestPage() {
     const location = useLocation()
     const id = location.pathname.split("/")[3]
@@ -23,7 +24,7 @@ export default function ViewDetailRequestPage() {
     const stepFlowLogId = data?.flowLogId.steps
     const originalApproverId = data?.originalApproverId
     const mutation = useMutation({
-        mutationFn: (userId: string) => approvalService.notiBoss(userId, id),
+        mutationFn: () => approvalService.notiBoss(id),
         onSuccess: () => {
             toast.success("Action taken successfully!")
         },
@@ -68,9 +69,9 @@ export default function ViewDetailRequestPage() {
             { label: userData.endDate, x: 334, y: 464 },
             { label: userData.reason, x: 78, y: 408 },
             { label: userData.province, x: 199, y: 204 },
-            { label: new Date().getDay(), x: 277, y: 204 },
-            { label: new Date().getDay(), x: 326, y: 204 },
-            { label: new Date().getDay(), x: 377, y: 204 },
+            { label: dayjs().date(), x: 277, y: 204 },
+            { label: dayjs().month() + 1, x: 326, y: 204 },
+            { label: dayjs().year(), x: 377, y: 204 },
             { label: userData.manager, x: 241, y: 363 },
             { label: userData.managerDept, x: 60, y: 349 },
         ]
@@ -174,13 +175,19 @@ export default function ViewDetailRequestPage() {
                             {stepFlowLogId?.map((step, index) => (
                                 <div className="flex gap-6">
                                     <div className="flex flex-col items-center">
-                                        {step.status === "approved" ? (
+                                        {step.status === "approved" && (
                                             <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600  z-10">
                                                 <CircleCheck />
                                             </div>
-                                        ) : (
+                                        )}
+                                        {step.status === "processing" && (
                                             <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-500  z-10">
                                                 <Loader2Icon className="animate-spin" />
+                                            </div>
+                                        )}
+                                        {step.status === "rejected" && (
+                                            <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500  z-10">
+                                                <X />
                                             </div>
                                         )}
                                     </div>
@@ -200,13 +207,13 @@ export default function ViewDetailRequestPage() {
                                                 {step?.performer} / <span className="text-[10px] bg-surface-container px-1.5 py-0.5 rounded ">{step.postition}</span>
                                             </Link>
                                         </div>
-                                        {step.status === "approved" && (
+                                        {step.status !== "processing" && (
                                             <div className="mt-3 bg-surface-container-low px-4 py-2 rounded-lg inline-block border border-outline/20">
                                                 <p className="text-xs  italic">{step?.reason || "No reason provided."}</p>
                                             </div>
                                         )}
-                                        {step.status !== "approved" && index !== 0 && (
-                                            <Button variant={"outline-primary"} className="mt-3" size={"xs"} onClick={() => mutation.mutate(step.userId)}>
+                                        {step.status === "processing" && index !== 0 && (
+                                            <Button variant={"outline-primary"} className="mt-3" size={"xs"} onClick={() => mutation.mutate()}>
                                                 <Bell /> Nhắc nhở duyệt đơn
                                             </Button>
                                         )}

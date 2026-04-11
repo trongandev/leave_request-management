@@ -88,7 +88,7 @@ export default function TeamManagement() {
                 </CardContent>
             </Card>
             <CTable data={data} columns={columns} handlePageChange={handlePageChange} isLoading={isLoading}>
-                {data?.teamMember.map((item, index) => (
+                {data?.teamMember?.map((item, index) => (
                     <tr key={index} className="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
                         <td className="py-4 px-6">
                             <Link to={`/profile/${item._id}`} className="flex items-center justify-left gap-3">

@@ -6,7 +6,6 @@ import {
   Body,
   Query,
   HttpCode,
-  Post,
 } from '@nestjs/common';
 import { ApprovalStepsService } from './approval-steps.service';
 import {
@@ -51,14 +50,10 @@ export class ApprovalStepsController {
   }
 
   // Get single approval step by ID
-  @Post(':id/notify-boss')
+  @Get(':id/notify-boss')
   @RequirePermissions(Permission.READ_OWN_LEAVE)
-  notifyBoss(
-    @Param('id') id: string,
-    @Body() body: { requestId: string },
-    @CurrentUser() user: any,
-  ) {
-    this.approvalStepsService.notifyBoss(id, body.requestId, user);
+  notifyBoss(@Param('id') id: string) {
+    this.approvalStepsService.notifyBoss(id);
     return { message: 'Notification sent to approver!' };
   }
 

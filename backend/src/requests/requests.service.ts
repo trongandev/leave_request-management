@@ -157,15 +157,18 @@ export class RequestsService {
         requiredAll: true,
       })),
     );
-    workflowContext.approvers.map((step) =>
-      this.pushNotiGateway.sendNotificationToUser(step.approverId, {
-        title: `${user.fullName}`,
+    // workflowContext.approvers.map((step) =>
+    // );
+    this.pushNotiGateway.sendNotificationToUser(
+      workflowContext.approvers[0].approverId,
+      {
+        title: `${user?.fullName}`,
         content: `Vừa tạo đơn xin nghỉ phép. Vui lòng kiểm tra!`,
-        link: `/approvals/team-requests/${String(request._id)}`,
-        requestId: String(request._id),
+        link: `/approvals/team-requests/${String(request?._id)}`,
+        requestId: String(request?._id),
         avatar: user?.avatar,
         type: 'LEAVE_REQUEST',
-      }),
+      },
     );
 
     return request;

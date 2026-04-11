@@ -28,6 +28,7 @@ import { Counter } from '../counters/counters.schema';
 import { ApprovalStepsFlowLogService } from '../approval-steps-flow-log/approval-steps-flow-log.service';
 import { paginate } from 'src/common/utils/pagination.util';
 import { PushNotiGateway } from 'src/push-noti/push-noti.gateway';
+import { MailService } from '../mail/mail.service';
 
 type RequestActor = {
   _id?: string;
@@ -65,6 +66,7 @@ export class ApprovalStepsService {
     private readonly notificationsService: NotificationsService,
     private readonly approvalStepsFlowLogService: ApprovalStepsFlowLogService,
     private pushNotiGateway: PushNotiGateway,
+    private readonly mailService: MailService,
   ) {}
 
   // Get all approval steps
@@ -72,15 +74,27 @@ export class ApprovalStepsService {
     return this.approvalStepModel.find().sort({ createdAt: -1 }).exec();
   }
 
-  notifyBoss(id: string, requestId: string, user: any) {
-    this.pushNotiGateway.sendNotificationToUser(requestId, {
-      title: `${user.fullName}`,
+  async notifyBoss(requestId: string) {
+    const result: any = await this.findByRequestId(requestId);
+    if (!result) {
+      throw new NotFoundException('Request not found');
+    }
+
+    const creatorId = result.requestId?.creatorId;
+    this.pushNotiGateway.sendNotificationToUser(creatorId._id, {
+      title: `${creatorId.fullName}`,
       content: `Vừa gửi thông báo nhắc nhở duyệt đơn xin nghỉ phép. Vui lòng kiểm tra!`,
-      link: `/approvals/team-requests/${String(id)}`,
-      requestId: String(id),
-      avatar: user?.avatar,
+      link: `/approvals/team-requests/${String(requestId)}`,
+      requestId: String(requestId),
+      avatar: creatorId?.avatar,
       type: 'LEAVE_REQUEST',
     });
+    await this.mailService.sendManagerReminder(
+      result.apsDisplayId,
+      creatorId,
+      result.originalApproverId,
+      result.requestId,
+    );
   }
 
   async create(
@@ -307,7 +321,7 @@ export class ApprovalStepsService {
         'Only assigned approver, delegated approver or ADMIN can approve this step',
       );
     }
-
+    console.log(payload);
     this.assertActionAllowedByStatus(action, step.status);
     this.applyStepAction(step, action, payload, actor);
 

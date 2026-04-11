@@ -65,6 +65,7 @@ export default function FormPreviewFieldWithValue({
                         data={child.options || []}
                         placeholder={child.placeholder}
                         valueKey="value"
+                        displayKey="label"
                         readOnly={child.readOnly}
                         value={stateValueData[child.name]}
                         onChange={(value) => handleChangeValue && handleChangeValue(child.name, value)}

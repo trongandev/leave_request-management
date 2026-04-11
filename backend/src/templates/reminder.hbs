@@ -1,0 +1,253 @@
+<html lang='en' xmlns='http://www.w3.org/1999/xhtml'>
+  <head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta name='x-apple-disable-message-reformatting' />
+    <title>LRM Reminder</title>
+  </head>
+  <body style='margin:0; padding:0; background-color:#f3f6fb;'>
+    <table
+      role='presentation'
+      cellpadding='0'
+      cellspacing='0'
+      border='0'
+      width='100%'
+      style='background-color:#f3f6fb; margin:0; padding:0;'
+    >
+      <tr>
+        <td align='center' style='padding:24px 12px;'>
+          <table
+            role='presentation'
+            cellpadding='0'
+            cellspacing='0'
+            border='0'
+            width='640'
+            style='width:100%; max-width:640px; background-color:#ffffff; border:1px solid #e5eaf2; border-radius:12px; overflow:hidden;'
+          >
+            <tr>
+              <td
+                style='padding:20px 24px; background-color:#f8fbff; border-bottom:1px solid #e5eaf2; font-family:Arial, Helvetica, sans-serif;'
+              >
+                <table
+                  role='presentation'
+                  width='100%'
+                  cellpadding='0'
+                  cellspacing='0'
+                  border='0'
+                >
+                  <tr>
+                    <td
+                      style='font-size:22px; line-height:28px; font-weight:700; color:#0f3e9b;'
+                    >LRM</td>
+                    <td
+                      align='right'
+                      style='font-size:12px; color:#64748b;'
+                    >Approval Reminder</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style='padding:28px 24px 12px 24px; font-family:Arial, Helvetica, sans-serif;'
+              >
+                <p
+                  style='margin:0 0 8px 0; font-size:12px; line-height:16px; letter-spacing:0.8px; color:#0f5bd6; font-weight:700; text-transform:uppercase;'
+                >
+                  Action Required
+                </p>
+                <h1
+                  style='margin:0; font-size:24px; line-height:32px; color:#0f172a; font-weight:700;'
+                >
+                  Approval for Annual Leave -
+                  {{apsDisplayId}}
+                  ({{employeeName}})
+                </h1>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style='padding:12px 24px 0 24px; font-family:Arial, Helvetica, sans-serif;'
+              >
+                <p
+                  style='margin:0; font-size:15px; line-height:24px; color:#334155;'
+                >
+                  Dear
+                  <strong>{{managerName}}</strong>,
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style='padding:12px 24px 0 24px; font-family:Arial, Helvetica, sans-serif;'
+              >
+                <p
+                  style='margin:0; font-size:15px; line-height:24px; color:#334155;'
+                >
+                  An employee from your direct reporting line has submitted a
+                  leave request that requires your review. Please check the
+                  request details below and provide your decision.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td style='padding:20px 24px 0 24px;'>
+                <table
+                  role='presentation'
+                  width='100%'
+                  cellpadding='0'
+                  cellspacing='0'
+                  border='0'
+                  style='border:1px solid #dbe7ff; border-radius:10px; background-color:#f8fbff;'
+                >
+                  <tr>
+                    <td
+                      style='padding:16px 16px 8px 16px; font-family:Arial, Helvetica, sans-serif;'
+                    >
+                      <p
+                        style='margin:0; font-size:12px; line-height:16px; color:#64748b; text-transform:uppercase; letter-spacing:0.6px; font-weight:700;'
+                      >
+                        Request Summary
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style='padding:8px 16px 16px 16px;'>
+                      <table
+                        role='presentation'
+                        width='100%'
+                        cellpadding='0'
+                        cellspacing='0'
+                        border='0'
+                      >
+                        <tr>
+                          <td
+                            width='72'
+                            valign='top'
+                            style='padding-right:12px;'
+                          >
+                            <img
+                              src='{{employeeAvatar}}'
+                              alt='{{employeeName}}'
+                              width='56'
+                              height='56'
+                              style='display:block; width:56px; height:56px; border-radius:50%; border:0; object-fit:cover;'
+                            />
+                          </td>
+                          <td
+                            valign='top'
+                            style='font-family:Arial, Helvetica, sans-serif;'
+                          >
+                            <p
+                              style='margin:0; font-size:12px; line-height:16px; color:#64748b;'
+                            >{{employeePosition}}</p>
+                            <p
+                              style='margin:2px 0 0 0; font-size:16px; line-height:24px; color:#0f172a; font-weight:700;'
+                            >{{employeeName}}</p>
+                            <p
+                              style='margin:8px 0 0 0; font-size:13px; line-height:20px; color:#334155;'
+                            >
+                              <strong>Dates:</strong>
+                              {{startDate}}
+                              to
+                              {{endDate}}
+                            </p>
+                            <p
+                              style='margin:2px 0 0 0; font-size:13px; line-height:20px; color:#334155;'
+                            >
+                              <strong>Total Days:</strong>
+                              {{totalDays}}
+                            </p>
+                            <p
+                              style='margin:2px 0 0 0; font-size:13px; line-height:20px; color:#334155;'
+                            >
+                              <strong>Reason:</strong>
+                              {{leaveReason}}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style='padding:20px 24px 0 24px; font-family:Arial, Helvetica, sans-serif;'
+              >
+                <table
+                  role='presentation'
+                  cellpadding='0'
+                  cellspacing='0'
+                  border='0'
+                  style='border-collapse:separate;'
+                >
+                  <tr>
+                    <td
+                      align='center'
+                      bgcolor='#0052cc'
+                      style='border-radius:8px;'
+                    >
+                      <a
+                        href='{{approvalLink}}'
+                        style='display:inline-block; padding:12px 22px; font-size:15px; line-height:20px; color:#ffffff; text-decoration:none; font-weight:700; font-family:Arial, Helvetica, sans-serif;'
+                      >
+                        Approve or View Details
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p
+                  style='margin:10px 0 0 0; font-size:12px; line-height:18px; color:#64748b;'
+                >
+                  If the button does not work, open this link:
+                  <a
+                    href='{{approvalLink}}'
+                    style='color:#0f5bd6; text-decoration:underline;'
+                  >{{approvalLink}}</a>
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style='padding:24px; font-family:Arial, Helvetica, sans-serif;'
+              >
+                <table
+                  role='presentation'
+                  width='100%'
+                  cellpadding='0'
+                  cellspacing='0'
+                  border='0'
+                >
+                  <tr>
+                    <td style='border-top:1px solid #e5eaf2; padding-top:16px;'>
+                      <p
+                        style='margin:0; font-size:12px; line-height:18px; color:#64748b;'
+                      >
+                        This is an automated notification from LRM Enterprise.
+                        Please do not reply directly to this email.
+                      </p>
+                      <p
+                        style='margin:8px 0 0 0; font-size:11px; line-height:16px; color:#94a3b8;'
+                      >
+                        © 2026 LRM Enterprise. All rights reserved.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

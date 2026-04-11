@@ -27,7 +27,7 @@ export default function FormPreviewField({ child, field }: { child: any; field?:
                 {child.type === "text" && <Input placeholder={child.placeholder} readOnly={child.readOnly} />}
                 {child.type === "number" && <Input type="number" placeholder={child.placeholder} readOnly={child.readOnly} />}
                 {child.type === "textarea" && <Textarea placeholder={child.placeholder} readOnly={child.readOnly} />}
-                {child.type === "select" && <CSelectOptions data={child.options || []} placeholder={child.placeholder} valueKey="value" readOnly={child.readOnly} />}
+                {child.type === "select" && <CSelectOptions data={child.options || []} placeholder={child.placeholder} valueKey="value" displayKey="label" readOnly={child.readOnly} />}
                 {child.type === "date" && <DatePicker className="" />}
                 {child.type === "file" && (
                     <div className="border-2 border-dashed hover:text-primary text-gray-400 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 cursor-pointer h-24 text-center text-sm rounded-md bg-card flex items-center justify-center gap-2">

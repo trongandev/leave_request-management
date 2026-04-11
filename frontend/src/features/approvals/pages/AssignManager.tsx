@@ -12,6 +12,7 @@ import CAvatarProfile from "@/components/etc/CAvatarProfile"
 import { useTranslation, Trans } from "react-i18next"
 import { toast } from "sonner"
 import { Link } from "react-router-dom"
+import { roleMapColor } from "@/config/mapColor"
 
 function UserCombobox({
     label,
@@ -564,6 +565,7 @@ export default function AssignManager() {
                                         <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             {t("approvals.assignManager.table.colManager")}
                                         </th>
+                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ROLE</th>
                                         <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             {t("approvals.assignManager.table.colStatus")}
                                         </th>
@@ -575,7 +577,7 @@ export default function AssignManager() {
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                                     {filteredTableUsers.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="py-16 text-center">
+                                            <td colSpan={7} className="py-16 text-center">
                                                 <div className="flex flex-col items-center gap-2">
                                                     <div className="size-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                                                         <Users className="size-5 text-slate-400" />
@@ -649,6 +651,13 @@ export default function AssignManager() {
                                                                 {t("approvals.assignManager.table.noManager")}
                                                             </span>
                                                         )}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span
+                                                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold border ${roleMapColor(user?.roleId?.name || "")} tracking-wide`}
+                                                        >
+                                                            {user?.roleId?.name || t("admin.employeeManagement.common.user")}
+                                                        </span>
                                                     </td>
                                                     <td className="px-4 py-3 text-right">
                                                         <button

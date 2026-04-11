@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -32,9 +33,41 @@ import { ApprovalStepsFlowLogModule } from './approval-steps-flow-log/approval-s
 import { PushNotiModule } from './push-noti/push-noti.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuditInterceptor } from './common/dto/interceptors/audit.interceptor';
-
+import { join } from 'path';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 @Module({
   imports: [
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        transport: {
+          service: 'gmail',
+          auth: {
+            type: 'OAuth2',
+            user: configService.get<string>('MAIL_SERVER') as string,
+            clientId: configService.get<string>('MAIL_CLIENT_ID') as string,
+            clientSecret: configService.get<string>(
+              'MAIL_CLIENT_SECRET',
+            ) as string,
+            refreshToken: configService.get<string>(
+              'MAIL_REFRESH_TOKEN',
+            ) as string,
+          },
+        },
+        defaults: {
+          from: '"LRM System" <noreply@lrm-bos.com>',
+        },
+        template: {
+          dir: join(__dirname, 'templates'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
+    }),
     ConfigModule.forRoot({
       validationSchema: envValidationSchema,
       isGlobal: true,
@@ -49,45 +82,24 @@ import { AuditInterceptor } from './common/dto/interceptors/audit.interceptor';
       }),
     }),
     UsersModule,
-
-    ErrorLogModule,
-
     AuthModule,
-
     RolesModule,
-
     DatabaseModule,
-
     PermissionModule,
-
     ProfileModule,
-
     CountersModule,
-
     DepartmentsModule,
-
     PositionsModule,
-
     ErrorLogModule,
-
     LeaveBalancesModule,
-
     SystemSettingModule,
-
     FormTemplateModule,
-
     RequestsModule,
-
     ApprovalStepsModule,
-
     DelegationsModule,
-
     NotificationsModule,
-
     AuditLogsModule,
-
     ApprovalStepsFlowLogModule,
-
     PushNotiModule,
   ],
   controllers: [AppController],

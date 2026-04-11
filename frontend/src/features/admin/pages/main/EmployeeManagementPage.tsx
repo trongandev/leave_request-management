@@ -22,7 +22,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
-import { appConfig } from "@/config/appConfig"
 import { formatString, getFirstName, getLastDigits, normalizeForPassword } from "@/utils/format"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
@@ -726,29 +725,27 @@ export default function EmployeeManagementPage() {
                 </DialogContent>
             </Dialog>
 
-            {appConfig.isDevelopment && (
-                <Dialog open={isFakeOpen} onOpenChange={setIsFakeOpen}>
-                    <DialogContent className="sm:max-w-md dark:border-white/10 dark:bg-[#10151d]">
-                        <DialogHeader>
-                            <DialogTitle>{t("admin.employeeManagement.fakeDialog.title")}</DialogTitle>
-                            <DialogDescription>{t("admin.employeeManagement.fakeDialog.description")}</DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-2 py-2">
-                            <Label htmlFor="fake-count">{t("admin.employeeManagement.fakeDialog.fields.count")}</Label>
-                            <Input id="fake-count" type="number" min={1} max={100} value={fakeCount} onChange={(event) => setFakeCount(event.target.value)} />
-                            <p className="text-xs text-neutral-500">{t("admin.employeeManagement.fakeDialog.hint")}</p>
-                        </div>
-                        <DialogFooter>
-                            <Button variant={"outline"} onClick={() => setIsFakeOpen(false)}>
-                                {t("admin.employeeManagement.common.cancel")}
-                            </Button>
-                            <Button isLoading={isCreatingFakeUsers} onClick={handleCreateFakeUsers}>
-                                <Sparkles /> {t("admin.employeeManagement.actions.createFake")}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            )}
+            <Dialog open={isFakeOpen} onOpenChange={setIsFakeOpen}>
+                <DialogContent className="sm:max-w-md dark:border-white/10 dark:bg-[#10151d]">
+                    <DialogHeader>
+                        <DialogTitle>{t("admin.employeeManagement.fakeDialog.title")}</DialogTitle>
+                        <DialogDescription>{t("admin.employeeManagement.fakeDialog.description")}</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-2 py-2">
+                        <Label htmlFor="fake-count">{t("admin.employeeManagement.fakeDialog.fields.count")}</Label>
+                        <Input id="fake-count" type="number" min={1} max={100} value={fakeCount} onChange={(event) => setFakeCount(event.target.value)} />
+                        <p className="text-xs text-neutral-500">{t("admin.employeeManagement.fakeDialog.hint")}</p>
+                    </div>
+                    <DialogFooter>
+                        <Button variant={"outline"} onClick={() => setIsFakeOpen(false)}>
+                            {t("admin.employeeManagement.common.cancel")}
+                        </Button>
+                        <Button isLoading={isCreatingFakeUsers} onClick={handleCreateFakeUsers}>
+                            <Sparkles /> {t("admin.employeeManagement.actions.createFake")}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <DialogContent className="sm:max-w-2xl dark:border-white/10 dark:bg-[#10151d]">
