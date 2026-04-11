@@ -54,6 +54,33 @@ export const PERMISSIONS_METADATA = [
     module: 'APPROVAL',
   },
 
+  // MODULE UY QUYEN
+  {
+    code: 'CREATE_DELEGATION',
+    description: 'Tạo bản ghi ủy quyền',
+    module: 'DELEGATION',
+  },
+  {
+    code: 'READ_OWN_DELEGATION',
+    description: 'Xem danh sách ủy quyền liên quan đến bản thân',
+    module: 'DELEGATION',
+  },
+  {
+    code: 'READ_ALL_DELEGATION',
+    description: 'Xem toàn bộ bản ghi ủy quyền trong hệ thống',
+    module: 'DELEGATION',
+  },
+  {
+    code: 'UPDATE_OWN_DELEGATION',
+    description: 'Cập nhật bản ghi ủy quyền của chính mình',
+    module: 'DELEGATION',
+  },
+  {
+    code: 'DELETE_OWN_DELEGATION',
+    description: 'Xóa bản ghi ủy quyền của chính mình',
+    module: 'DELEGATION',
+  },
+
   // MODULE CẤU HÌNH & BÁO CÁO
   {
     code: 'VIEW_REPORT',
