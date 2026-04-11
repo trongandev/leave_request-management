@@ -565,10 +565,11 @@ export default function AssignManager() {
                                         <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             {t("approvals.assignManager.table.colManager")}
                                         </th>
-                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ROLE</th>
+
                                         <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             {t("approvals.assignManager.table.colStatus")}
                                         </th>
+                                        <th className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ROLE</th>
                                         <th className="px-4 py-3 text-right text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             {t("approvals.assignManager.table.colAction")}
                                         </th>
