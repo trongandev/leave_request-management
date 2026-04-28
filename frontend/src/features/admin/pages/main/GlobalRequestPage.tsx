@@ -8,16 +8,45 @@ import { Eye } from "lucide-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+import { Checkbox } from "@/components/ui/checkbox"
+import { BulkApprovalDialog } from "../../../approvals/components/BulkApprovalDialog"
 
 export default function GlobalRequestPage() {
     const { t } = useTranslation()
     const [page, setPage] = useState(1)
+    const [selectedIds, setSelectedIds] = useState<string[]>([])
+    const [isBulkApprovalOpen, setIsBulkApprovalOpen] = useState(false)
+
     const { data, isLoading } = useQuery({
         queryKey: ["globalRequests", page],
         queryFn: () => requestService.getAll({ page }),
     })
-    console.log(data)
-    const columns = ["ID", "Employee", "Type", "Duration", "Applied Date", "Status", "Actions"]
+
+    const toggleSelectAll = () => {
+        if (selectedIds.length === data?.data.length) {
+            setSelectedIds([])
+        } else {
+            setSelectedIds(data?.data.map((r: any) => r._id) || [])
+        }
+    }
+
+    const toggleSelect = (id: string) => {
+        if (selectedIds.includes(id)) {
+            setSelectedIds(selectedIds.filter(i => i !== id))
+        } else {
+            setSelectedIds([...selectedIds, id])
+        }
+    }
+
+    const columns = [
+        <Checkbox 
+            key="select-all"
+            checked={selectedIds.length === data?.data.length && data?.data.length > 0}
+            onCheckedChange={toggleSelectAll}
+            className="border-slate-300"
+        />,
+        "ID", "Employee", "Type", "Duration", "Applied Date", "Status", "Actions"
+    ]
     return (
         <main className="">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -26,6 +55,16 @@ export default function GlobalRequestPage() {
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("admin.globalRequests.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
+                    <button
+                        onClick={() => setIsBulkApprovalOpen(true)}
+                        className="px-4 py-2 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 rounded-lg text-sm font-semibold transition-all shadow-sm flex items-center gap-2"
+                    >
+                        <span className="material-icons text-[18px]">auto_awesome</span>
+                        {t("admin.globalRequests.autoApprove", "Duyệt Tự Động")}
+                        <span className="flex items-center justify-center w-5 h-5 bg-primary text-white rounded-full text-[10px]">
+                            {selectedIds.length}
+                        </span>
+                    </button>
                     <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">download</span>
                         {t("admin.globalRequests.export")}
@@ -206,8 +245,15 @@ export default function GlobalRequestPage() {
                 </div>
             </div> */}
             <CTable isLoading={isLoading} data={data} columns={columns} handlePageChange={setPage}>
-                {data?.data.map((req) => (
-                    <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" key={req.reqDisplayId}>
+                {data?.data.map((req: any) => (
+                    <tr className={`transition-colors ${selectedIds.includes(req._id) ? "bg-primary/5 dark:bg-primary/10" : "hover:bg-slate-50 dark:hover:bg-slate-800/50"}`} key={req.reqDisplayId}>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <Checkbox
+                                checked={selectedIds.includes(req._id)}
+                                onCheckedChange={() => toggleSelect(req._id)}
+                                className="border-slate-300"
+                            />
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">{req.reqDisplayId}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -220,10 +266,10 @@ export default function GlobalRequestPage() {
                                 </div>
                             </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
                             <span className="text-sm text-slate-600 dark:text-slate-400">{req.code}</span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
                             <div className="text-sm text-slate-900 dark:text-white font-medium">{t("admin.globalRequests.table.days", { count: req?.values?.totalDays })}</div>
                             {req?.values?.startDate && (
                                 <div className="text-xs text-slate-500">
@@ -231,8 +277,8 @@ export default function GlobalRequestPage() {
                                 </div>
                             )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400"> {format(req?.createdAt, "MMM dd yyyy")}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 text-center"> {format(req?.createdAt, "MMM dd yyyy")}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
                             <CRenderStatus status={req.status} />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -245,6 +291,15 @@ export default function GlobalRequestPage() {
                     </tr>
                 ))}
             </CTable>
+            <BulkApprovalDialog
+                isOpen={isBulkApprovalOpen}
+                onOpenChange={setIsBulkApprovalOpen}
+                selectedCount={selectedIds.length}
+                onSubmit={(data) => {
+                    console.log("Bulk approval data:", data)
+                    setSelectedIds([])
+                }}
+            />
         </main>
     )
 }

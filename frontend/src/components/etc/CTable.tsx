@@ -3,7 +3,7 @@ import PaginationUI from "./PaginationUI"
 
 interface Props {
     data?: any
-    columns?: string[]
+    columns?: React.ReactNode[]
     handlePageChange?: (page: number) => void
     isLoading?: boolean
     children?: React.ReactNode
@@ -19,8 +19,8 @@ export default function CTable({ data, columns, handlePageChange, isLoading, chi
                         <tr className="bg-neutral-50 dark:bg-neutral-800/50 border-b border-neutral-200 dark:border-neutral-700">
                             {columns ? (
                                 <>
-                                    {columns?.map((column) => (
-                                        <th key={column} className="py-5 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-center">
+                                    {columns?.map((column, index) => (
+                                        <th key={index} className="py-5 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-center">
                                             {column}
                                         </th>
                                     ))}

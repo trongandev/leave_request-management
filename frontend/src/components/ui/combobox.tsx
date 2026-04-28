@@ -8,41 +8,45 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "
 
 const Combobox = ComboboxPrimitive.Root
 
-function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props) {
+const ComboboxValue = ({ ...props }: ComboboxPrimitive.Value.Props) => {
     return <ComboboxPrimitive.Value data-slot="combobox-value" {...props} />
 }
 
-function ComboboxTrigger({ className, children, ...props }: ComboboxPrimitive.Trigger.Props) {
+const ComboboxTrigger = React.forwardRef<HTMLButtonElement, ComboboxPrimitive.Trigger.Props>(({ className, children, ...props }, ref) => {
     return (
-        <ComboboxPrimitive.Trigger data-slot="combobox-trigger" className={cn("[&_svg:not([class*='size-'])]:size-4", className)} {...props}>
+        <ComboboxPrimitive.Trigger ref={ref} data-slot="combobox-trigger" className={cn("[&_svg:not([class*='size-'])]:size-4", className)} {...props}>
             {children}
             <ChevronDownIcon data-slot="combobox-trigger-icon" className="text-muted-foreground pointer-events-none size-4" />
         </ComboboxPrimitive.Trigger>
     )
-}
+})
+ComboboxTrigger.displayName = "ComboboxTrigger"
 
-function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
+const ComboboxClear = React.forwardRef<HTMLButtonElement, ComboboxPrimitive.Clear.Props>(({ className, ...props }, ref) => {
     return (
-        <ComboboxPrimitive.Clear data-slot="combobox-clear" render={<InputGroupButton variant="ghost" size="icon-xs" />} className={cn(className)} {...props}>
+        <ComboboxPrimitive.Clear
+            ref={ref}
+            data-slot="combobox-clear"
+            render={<InputGroupButton variant="ghost" size="icon-xs" />}
+            className={cn(className)}
+            {...props}
+        >
             <XIcon className="pointer-events-none" />
         </ComboboxPrimitive.Clear>
     )
-}
+})
+ComboboxClear.displayName = "ComboboxClear"
 
-function ComboboxInput({
-    className,
-    children,
-    disabled = false,
-    showTrigger = true,
-    showClear = false,
-    ...props
-}: ComboboxPrimitive.Input.Props & {
-    showTrigger?: boolean
-    showClear?: boolean
-}) {
+const ComboboxInput = React.forwardRef<
+    HTMLInputElement,
+    ComboboxPrimitive.Input.Props & {
+        showTrigger?: boolean
+        showClear?: boolean
+    }
+>(({ className, children, disabled = false, showTrigger = true, showClear = false, ...props }, ref) => {
     return (
         <InputGroup className={cn("w-auto", className)}>
-            <ComboboxPrimitive.Input render={<InputGroupInput disabled={disabled} />} {...props} />
+            <ComboboxPrimitive.Input ref={ref} render={<InputGroupInput disabled={disabled} />} {...props} />
             <InputGroupAddon align="inline-end">
                 {showTrigger && (
                     <InputGroupButton
@@ -61,21 +65,18 @@ function ComboboxInput({
             {children}
         </InputGroup>
     )
-}
+})
+ComboboxInput.displayName = "ComboboxInput"
 
-function ComboboxContent({
-    className,
-    side = "bottom",
-    sideOffset = 6,
-    align = "start",
-    alignOffset = 0,
-    anchor,
-    ...props
-}: ComboboxPrimitive.Popup.Props & Pick<ComboboxPrimitive.Positioner.Props, "side" | "align" | "sideOffset" | "alignOffset" | "anchor">) {
+const ComboboxContent = React.forwardRef<
+    HTMLDivElement,
+    ComboboxPrimitive.Popup.Props & Pick<ComboboxPrimitive.Positioner.Props, "side" | "align" | "sideOffset" | "alignOffset" | "anchor">
+>(({ className, side = "bottom", sideOffset = 6, align = "start", alignOffset = 0, anchor, ...props }, ref) => {
     return (
         <ComboboxPrimitive.Portal>
-            <ComboboxPrimitive.Positioner side={side} sideOffset={sideOffset} align={align} alignOffset={alignOffset} anchor={anchor} className="isolate z-50">
+            <ComboboxPrimitive.Positioner side={side} sideOffset={sideOffset} align={align} alignOffset={alignOffset} anchor={anchor} className="isolate z-[100]">
                 <ComboboxPrimitive.Popup
+                    ref={ref}
                     data-slot="combobox-content"
                     data-chips={!!anchor}
                     className={cn(
@@ -87,21 +88,25 @@ function ComboboxContent({
             </ComboboxPrimitive.Positioner>
         </ComboboxPrimitive.Portal>
     )
-}
+})
+ComboboxContent.displayName = "ComboboxContent"
 
-function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+const ComboboxList = React.forwardRef<HTMLDivElement, ComboboxPrimitive.List.Props>(({ className, ...props }, ref) => {
     return (
         <ComboboxPrimitive.List
+            ref={ref}
             data-slot="combobox-list"
             className={cn("max-h-[min(calc(--spacing(96)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto p-1 data-empty:p-0", className)}
             {...props}
         />
     )
-}
+})
+ComboboxList.displayName = "ComboboxList"
 
-function ComboboxItem({ className, children, ...props }: ComboboxPrimitive.Item.Props) {
+const ComboboxItem = React.forwardRef<HTMLDivElement, ComboboxPrimitive.Item.Props>(({ className, children, ...props }, ref) => {
     return (
         <ComboboxPrimitive.Item
+            ref={ref}
             data-slot="combobox-item"
             className={cn(
                 "data-highlighted:bg-accent data-highlighted:text-accent-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -115,43 +120,51 @@ function ComboboxItem({ className, children, ...props }: ComboboxPrimitive.Item.
             </ComboboxPrimitive.ItemIndicator>
         </ComboboxPrimitive.Item>
     )
-}
+})
+ComboboxItem.displayName = "ComboboxItem"
 
-function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
-    return <ComboboxPrimitive.Group data-slot="combobox-group" className={cn(className)} {...props} />
-}
+const ComboboxGroup = React.forwardRef<HTMLDivElement, ComboboxPrimitive.Group.Props>(({ className, ...props }, ref) => {
+    return <ComboboxPrimitive.Group ref={ref} data-slot="combobox-group" className={cn(className)} {...props} />
+})
+ComboboxGroup.displayName = "ComboboxGroup"
 
-function ComboboxLabel({ className, ...props }: ComboboxPrimitive.GroupLabel.Props) {
+const ComboboxLabel = React.forwardRef<HTMLDivElement, ComboboxPrimitive.GroupLabel.Props>(({ className, ...props }, ref) => {
     return (
         <ComboboxPrimitive.GroupLabel
+            ref={ref}
             data-slot="combobox-label"
             className={cn("text-muted-foreground px-2 py-1.5 text-xs pointer-coarse:px-3 pointer-coarse:py-2 pointer-coarse:text-sm", className)}
             {...props}
         />
     )
-}
+})
+ComboboxLabel.displayName = "ComboboxLabel"
 
-function ComboboxCollection({ ...props }: ComboboxPrimitive.Collection.Props) {
+const ComboboxCollection = ({ ...props }: ComboboxPrimitive.Collection.Props) => {
     return <ComboboxPrimitive.Collection data-slot="combobox-collection" {...props} />
 }
 
-function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
+const ComboboxEmpty = React.forwardRef<HTMLDivElement, ComboboxPrimitive.Empty.Props>(({ className, ...props }, ref) => {
     return (
         <ComboboxPrimitive.Empty
+            ref={ref}
             data-slot="combobox-empty"
             className={cn("text-muted-foreground hidden w-full justify-center py-2 text-center text-sm group-data-empty/combobox-content:flex", className)}
             {...props}
         />
     )
-}
+})
+ComboboxEmpty.displayName = "ComboboxEmpty"
 
-function ComboboxSeparator({ className, ...props }: ComboboxPrimitive.Separator.Props) {
-    return <ComboboxPrimitive.Separator data-slot="combobox-separator" className={cn("bg-border -mx-1 my-1 h-px", className)} {...props} />
-}
+const ComboboxSeparator = React.forwardRef<HTMLDivElement, ComboboxPrimitive.Separator.Props>(({ className, ...props }, ref) => {
+    return <ComboboxPrimitive.Separator ref={ref} data-slot="combobox-separator" className={cn("bg-border -mx-1 my-1 h-px", className)} {...props} />
+})
+ComboboxSeparator.displayName = "ComboboxSeparator"
 
-function ComboboxChips({ className, ...props }: React.ComponentPropsWithRef<typeof ComboboxPrimitive.Chips> & ComboboxPrimitive.Chips.Props) {
+const ComboboxChips = React.forwardRef<HTMLDivElement, ComboboxPrimitive.Chips.Props>(({ className, ...props }, ref) => {
     return (
         <ComboboxPrimitive.Chips
+            ref={ref}
             data-slot="combobox-chips"
             className={cn(
                 "dark:bg-input/30 border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border bg-transparent bg-clip-padding px-2.5 py-1.5 text-sm shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] has-aria-invalid:ring-[3px] has-data-[slot=combobox-chip]:px-1.5",
@@ -160,18 +173,13 @@ function ComboboxChips({ className, ...props }: React.ComponentPropsWithRef<type
             {...props}
         />
     )
-}
+})
+ComboboxChips.displayName = "ComboboxChips"
 
-function ComboboxChip({
-    className,
-    children,
-    showRemove = true,
-    ...props
-}: ComboboxPrimitive.Chip.Props & {
-    showRemove?: boolean
-}) {
+const ComboboxChip = React.forwardRef<HTMLDivElement, ComboboxPrimitive.Chip.Props & { showRemove?: boolean }>(({ className, children, showRemove = true, ...props }, ref) => {
     return (
         <ComboboxPrimitive.Chip
+            ref={ref}
             data-slot="combobox-chip"
             className={cn(
                 "bg-muted text-foreground flex h-[calc(--spacing(5.5))] w-fit items-center justify-center gap-1 rounded-sm px-1.5 text-xs font-medium whitespace-nowrap has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50 has-data-[slot=combobox-chip-remove]:pr-0",
@@ -187,11 +195,13 @@ function ComboboxChip({
             )}
         </ComboboxPrimitive.Chip>
     )
-}
+})
+ComboboxChip.displayName = "ComboboxChip"
 
-function ComboboxChipsInput({ className, children, ...props }: ComboboxPrimitive.Input.Props) {
-    return <ComboboxPrimitive.Input data-slot="combobox-chip-input" className={cn("min-w-16 flex-1 outline-none", className)} {...props} />
-}
+const ComboboxChipsInput = React.forwardRef<HTMLInputElement, ComboboxPrimitive.Input.Props>(({ className, children, ...props }, ref) => {
+    return <ComboboxPrimitive.Input ref={ref} data-slot="combobox-chip-input" className={cn("min-w-16 flex-1 outline-none", className)} {...props} />
+})
+ComboboxChipsInput.displayName = "ComboboxChipsInput"
 
 function useComboboxAnchor() {
     return React.useRef<HTMLDivElement | null>(null)

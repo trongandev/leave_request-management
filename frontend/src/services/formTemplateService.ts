@@ -12,6 +12,11 @@ class FormTemplateService {
         const response = await axiosInstance.get<APIResponse<FormTemplate>>(`/form-template/${id}`)
         return response.data.data
     }
+
+    async getReasons() {
+        const response = await axiosInstance.get<APIResponse<any[]>>(`/form-template/reason`)
+        return response.data.data
+    }
 }
 
 export default new FormTemplateService()

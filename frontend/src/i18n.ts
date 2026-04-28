@@ -408,6 +408,18 @@ const resources = {
                     pagination: {
                         showing: "Showing <1>{{from}}</1> to <3>{{to}}</3> of <5>{{total}}</5> results",
                     },
+                    bulkApproval: {
+                        btn: "Bulk Approve",
+                        title: "AI Bulk Approval",
+                        desc: "The system will use AI to approve selected requests based on provided reasons.",
+                        totalSelected: "Total selected requests",
+                        reasonLabel: "Pick a leave reason",
+                        reasonPlaceholder: "Select reasons...",
+                        manualReasonLabel: "Custom Reason",
+                        manualReasonPlaceholder: "Enter custom reason...",
+                        submitBtn: "Confirm AI Approval",
+                        cancelBtn: "Cancel",
+                    },
                 },
                 details: {
                     header: {
@@ -858,6 +870,7 @@ const resources = {
                     subtitle: "Review and manage all employee leave and administrative requests.",
                     export: "Export",
                     newRequest: "New Request",
+                    autoApprove: "Auto Approve",
                     searchPlaceholder: "Search employee...",
                     filters: {
                         searchPlaceholder: "Search employee...",
@@ -2290,6 +2303,18 @@ const resources = {
                     pagination: {
                         showing: "Hiển thị từ <1>{{from}}</1> đến <3>{{to}}</3> của <5>{{total}}</5> kết quả",
                     },
+                    bulkApproval: {
+                        btn: "Duyệt nhiều đơn",
+                        title: "Duyệt nhiều đơn tự động (AI)",
+                        desc: "Hệ thống sẽ sử dụng AI để duyệt các đơn đã chọn dựa trên lý do được cung cấp.",
+                        totalSelected: "Tổng số đơn hiện tại",
+                        reasonLabel: "Chọn lý do nghỉ",
+                        reasonPlaceholder: "Chọn lý do...",
+                        manualReasonLabel: "Lý do khác",
+                        manualReasonPlaceholder: "Nhập lý do...",
+                        submitBtn: "Xác nhận duyệt",
+                        cancelBtn: "Hủy",
+                    },
                 },
                 details: {
                     header: {
@@ -2740,6 +2765,7 @@ const resources = {
                     subtitle: "Xem xét và quản lý tất cả các yêu cầu hành chính và nghỉ phép của nhân viên.",
                     export: "Xuất",
                     newRequest: "Yêu cầu mới",
+                    autoApprove: "Duyệt Tự Động",
                     searchPlaceholder: "Tìm kiếm nhân viên...",
                     filters: {
                         searchPlaceholder: "Tìm kiếm nhân viên...",
