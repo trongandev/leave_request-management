@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsDateString, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsDateString,
+  IsBoolean,
+  IsArray,
+  ArrayNotEmpty,
+} from 'class-validator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 export class ApproveApprovalStepDto {
@@ -89,4 +96,11 @@ export class QueryPendingApprovalStepsDto extends PaginationDto {
   take?: number;
   @IsOptional()
   skip?: number;
+}
+
+export class BatchApproveApprovalStepsDto {
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  arrRequest!: string[];
 }

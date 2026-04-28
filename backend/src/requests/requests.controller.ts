@@ -61,6 +61,15 @@ export class RequestsController {
     return this.requestsService.findAllAccessible(queryRequestsDto, user);
   }
 
+  @Get('no-pag')
+  @RequirePermissions(Permission.READ_OWN_LEAVE)
+  findAllNoPag(
+    @Query() queryRequestsDto: QueryRequestsDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.requestsService.findAllNoPag(queryRequestsDto, user);
+  }
+
   // Detail endpoint follows the same scope rules as list endpoint.
   @Get(':id')
   @RequirePermissions(Permission.READ_OWN_LEAVE)

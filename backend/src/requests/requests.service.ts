@@ -465,6 +465,23 @@ export class RequestsService {
     });
   }
 
+  async findAllNoPag(queryRequestsDto: QueryRequestsDto, user: any) {
+    const filter = await this.buildAccessibleFilter(queryRequestsDto, user);
+
+    return paginate(this.requestModel, queryRequestsDto, filter, {
+      populate: [
+        {
+          path: 'creatorId',
+          select: 'fullName avatar',
+          populate: {
+            path: 'positionId',
+            select: 'fullName',
+          },
+        },
+      ],
+      sort: { createdAt: -1 },
+    });
+  }
   async findOneAccessible(id: string, user: any) {
     const filter = await this.buildAccessibleFilter(undefined, user);
     const request = await this.requestModel
