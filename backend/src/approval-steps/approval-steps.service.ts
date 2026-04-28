@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Injectable,
   BadRequestException,
@@ -31,6 +30,7 @@ import { paginate } from 'src/common/utils/pagination.util';
 import { normalizeIdLike } from '../common/utils/id-normalizer.util';
 import { PushNotiGateway } from 'src/push-noti/push-noti.gateway';
 import { MailService } from '../mail/mail.service';
+import { removeVietnameseTones } from 'src/common/utils/utils';
 
 type RequestActor = {
   _id?: string;
@@ -45,6 +45,23 @@ type ApprovalStepDetailResponse = {
 };
 
 type ApprovalActionType = 'approve' | 'reject' | 'return' | 'delegate';
+
+type BatchHumanApprovalItem = {
+  requestId: string;
+  stepId?: string;
+  requestTitle?: string;
+  reason?: string;
+  totalDays?: number;
+  matchedKeywords: string[];
+  aiScore: number;
+  aiDecision: 'approve' | 'review';
+  aiReason: string;
+};
+
+type BatchHumanApprovalResult = {
+  approved: BatchHumanApprovalItem[];
+  needReview: BatchHumanApprovalItem[];
+};
 
 @Injectable()
 export class ApprovalStepsService {
@@ -304,6 +321,96 @@ export class ApprovalStepsService {
     actor: any,
   ): Promise<ApprovalStep> {
     return this.handleStepAction(stepId, 'delegate', delegateDto, actor);
+  }
+
+  async batchHumanApprove(
+    arrRequest: string[],
+    actor: RequestActor,
+  ): Promise<BatchHumanApprovalResult> {
+    console.log(arrRequest);
+    if (!Array.isArray(arrRequest) || arrRequest.length === 0) {
+      throw new BadRequestException('arrRequest is required');
+    }
+
+    const uniqueRequestIds = [
+      ...new Set(arrRequest.filter(Boolean).map(String)),
+    ];
+    console.log(uniqueRequestIds);
+    const requests = await this.requestModel
+      .find({ _id: { $in: uniqueRequestIds } })
+      .select('_id title code values creatorId')
+      .lean()
+      .exec();
+
+    const requestMap = new Map(
+      requests.map((request) => [String(request._id), request]),
+    );
+    console.log(requestMap);
+    const pendingSteps = await this.approvalStepModel
+      .find({
+        requestId: { $in: uniqueRequestIds },
+        status: {
+          $in: [ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED],
+        },
+      })
+      .sort({ stepOrder: 1 })
+      .exec();
+    console.log(pendingSteps);
+    const stepMap = new Map<string, ApprovalStep>();
+    for (const step of pendingSteps) {
+      const key = String(step.requestId);
+      if (!stepMap.has(key)) {
+        stepMap.set(key, step);
+      }
+    }
+    console.log(stepMap);
+    const approved: BatchHumanApprovalItem[] = [];
+    const needReview: BatchHumanApprovalItem[] = [];
+
+    for (const requestId of uniqueRequestIds) {
+      const request = requestMap.get(requestId);
+      const step = stepMap.get(requestId);
+
+      if (!request || !step) {
+        needReview.push({
+          requestId,
+          stepId: step?._id ? String(step._id) : undefined,
+          requestTitle: request?.title,
+          reason: this.extractReason(request?.values),
+          totalDays: this.extractApprovalAmount(request?.values),
+          matchedKeywords: [],
+          aiScore: 0,
+          aiDecision: 'review',
+          aiReason: 'Thiếu request hoặc approval step đang chờ duyệt',
+        });
+        continue;
+      }
+
+      const analysis = this.analyzeHumanApproval(
+        request.values as Record<string, unknown> | undefined,
+      );
+
+      const candidate: BatchHumanApprovalItem = {
+        requestId,
+        stepId: String(step._id),
+        requestTitle: request.title,
+        reason: analysis.reason,
+        totalDays: analysis.totalDays,
+        matchedKeywords: analysis.matchedKeywords,
+        aiScore: analysis.score,
+        aiDecision: analysis.decision,
+        aiReason: analysis.reasonText,
+      };
+
+      if (analysis.decision === 'approve') {
+        await this.approve(String(step._id), {}, actor);
+        approved.push(candidate);
+      } else {
+        needReview.push(candidate);
+      }
+    }
+
+    return { approved, needReview };
   }
 
   private async handleStepAction(
@@ -897,6 +1004,15 @@ export class ApprovalStepsService {
     return undefined;
   }
 
+  private extractReason(values?: Record<string, unknown>): string {
+    if (!values || typeof values !== 'object') {
+      return '';
+    }
+
+    const reason = values.reason;
+    return typeof reason === 'string' ? reason : '';
+  }
+
   private resolveLeaveBalanceYear(values?: Record<string, unknown>): number {
     const dateCandidate =
       values?.fromDate ?? values?.startDate ?? values?.submissionDate;
@@ -1035,6 +1151,70 @@ export class ApprovalStepsService {
     }
 
     return false;
+  }
+
+  private analyzeHumanApproval(values?: Record<string, unknown>): {
+    reason: string;
+    totalDays: number | undefined;
+    matchedKeywords: string[];
+    score: number;
+    decision: 'approve' | 'review';
+    reasonText: string;
+  } {
+    const reason = this.extractReason(values);
+    const normalizedReason = removeVietnameseTones(
+      String(reason ?? '').toLowerCase(),
+    );
+    const totalDays = this.extractApprovalAmount(values);
+
+    const keywordGroups = [
+      'nghi phep',
+      'phep nam',
+      'om',
+      'bi benh',
+      'benh',
+      'ba me bi benh',
+      'bo mat',
+      'me mat',
+      'gia dinh co dam tang',
+      'con trai cuoi vo',
+      'con gai cuoi chong',
+      'nha co dam gio',
+      'viec gia dinh',
+      've que',
+    ];
+
+    const matchedKeywords = keywordGroups.filter((keyword) =>
+      normalizedReason.includes(keyword),
+    );
+
+    let score = 0;
+    if (matchedKeywords.length > 0) score += 45;
+    if (typeof totalDays === 'number' && totalDays <= 2) score += 35;
+    if (typeof totalDays === 'number' && totalDays > 2) score -= 15;
+    if (normalizedReason.includes('mat')) score += 10;
+    if (
+      normalizedReason.includes('om') ||
+      normalizedReason.includes('bi benh')
+    ) {
+      score += 10;
+    }
+
+    const decision: 'approve' | 'review' = score >= 60 ? 'approve' : 'review';
+
+    const reasonText =
+      decision === 'approve'
+        ? 'Đơn khớp các quy tắc nhân đạo / nghỉ phép thông thường'
+        : 'Đơn cần người duyệt xem xét thêm do điều kiện chưa đủ rõ hoặc vượt ngưỡng cứng';
+
+    return {
+      reason,
+      totalDays,
+      matchedKeywords,
+      score,
+      decision,
+      reasonText,
+    };
   }
 
   private async generateDisplayId(): Promise<string> {

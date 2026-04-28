@@ -1,5 +1,6 @@
 import {
   Controller,
+  Post,
   Patch,
   Get,
   Param,
@@ -14,6 +15,7 @@ import {
   ReturnApprovalStepDto,
   DelegateApprovalStepDto,
   QueryPendingApprovalStepsDto,
+  BatchApproveApprovalStepsDto,
 } from './dto/approve-approval-step.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
@@ -53,7 +55,7 @@ export class ApprovalStepsController {
   @Get(':id/notify-boss')
   @RequirePermissions(Permission.READ_OWN_LEAVE)
   notifyBoss(@Param('id') id: string) {
-    this.approvalStepsService.notifyBoss(id);
+    void this.approvalStepsService.notifyBoss(id);
     return { message: 'Notification sent to approver!' };
   }
 
@@ -110,5 +112,15 @@ export class ApprovalStepsController {
     @CurrentUser() user: any,
   ) {
     return this.approvalStepsService.delegate(id, delegateDto, user);
+  }
+
+  @Post('batch-human-approve')
+  @HttpCode(200)
+  @RequirePermissions(Permission.APPROVE_LEAVE)
+  async batchHumanApprove(
+    @Body() dto: BatchApproveApprovalStepsDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.approvalStepsService.batchHumanApprove(dto.arrRequest, user);
   }
 }
