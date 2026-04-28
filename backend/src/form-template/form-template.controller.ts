@@ -31,6 +31,11 @@ export class FormTemplateController {
     return this.formTemplateService.findAll(paginationDto);
   }
 
+  @Get('reason')
+  findAllReasons() {
+    return this.formTemplateService.findAllReasons();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.formTemplateService.findOne(id);

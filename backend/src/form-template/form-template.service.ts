@@ -43,6 +43,13 @@ export class FormTemplateService {
     );
   }
 
+  async findAllReasons() {
+    return this.formTemplateModel
+      .find({ isActive: true })
+      .select('code engName vieName')
+      .exec();
+  }
+
   async findOne(id: string) {
     return this.formTemplateModel.findById(id).exec();
   }
