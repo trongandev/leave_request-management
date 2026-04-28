@@ -18,10 +18,19 @@ class ApprovalService {
         return response.data.data;
     }
 
-    async getDetailPending(id: string) {
-        const response = await axiosInstance.get<APIResponse<ApprovalStepDetail>>(`/approval-steps/${id}`);
-        return response.data.data;
-    }
+	async getAllPending() {
+		const response = await axiosInstance.get<
+			APIResponsePagination<ApprovalStep[]>
+		>(`/approval-steps/my-pending?limit=10000`);
+		return response.data.data;
+	}
+
+	async getDetailPending(id: string) {
+		const response = await axiosInstance.get<APIResponse<ApprovalStepDetail>>(
+			`/approval-steps/${id}`,
+		);
+		return response.data.data;
+	}
 
     async approve(id: string, data: { comment: string }) {
         const response = await axiosInstance.patch(`/approval-steps/${id}/approve`, data);
