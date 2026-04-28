@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function ApprovalWorkflowConfigPage() {
     const { t } = useTranslation();
@@ -11,35 +12,45 @@ export default function ApprovalWorkflowConfigPage() {
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("admin.configuration.approvalWorkflow.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-button text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+                    <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-border text-slate-700 dark:text-slate-300 rounded-button text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
                         {t("admin.configuration.approvalWorkflow.exportConfig")}
                     </button>
-                    <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-button text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+                    <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-button text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">add</span>
                         {t("admin.configuration.approvalWorkflow.createNew")}
                     </button>
                 </div>
             </div>
-            <div className="mb-8 flex items-center gap-4 bg-white dark:bg-neutral-dark p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+            <div className="mb-8 flex items-center gap-4 bg-card p-4 rounded-lg border border-border">
                 <div className="flex-1 max-w-xs">
                     <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t("admin.configuration.approvalWorkflow.filters.department")}</label>
-                    <select className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-button text-sm focus:ring-primary focus:border-primary">
-                        <option>{t("admin.configuration.approvalWorkflow.filters.allDepts")}</option>
-                        <option>{t("admin.configuration.approvalWorkflow.filters.engineering")}</option>
-                        <option>{t("admin.configuration.approvalWorkflow.filters.hr")}</option>
-                        <option>{t("admin.configuration.approvalWorkflow.filters.sales")}</option>
-                        <option>{t("admin.configuration.approvalWorkflow.filters.finance")}</option>
-                    </select>
+                    <Select defaultValue={t("admin.configuration.approvalWorkflow.filters.allDepts")}>
+                        <SelectTrigger className="w-full bg-slate-50 dark:bg-slate-800 border-border rounded-button h-[38px]">
+                            <SelectValue placeholder={t("admin.configuration.approvalWorkflow.filters.department")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.allDepts")}>{t("admin.configuration.approvalWorkflow.filters.allDepts")}</SelectItem>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.engineering")}>{t("admin.configuration.approvalWorkflow.filters.engineering")}</SelectItem>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.hr")}>{t("admin.configuration.approvalWorkflow.filters.hr")}</SelectItem>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.sales")}>{t("admin.configuration.approvalWorkflow.filters.sales")}</SelectItem>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.finance")}>{t("admin.configuration.approvalWorkflow.filters.finance")}</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
                 <div className="flex-1 max-w-xs">
                     <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t("admin.configuration.approvalWorkflow.filters.requestType")}</label>
-                    <select className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-button text-sm focus:ring-primary focus:border-primary">
-                        <option>{t("admin.configuration.approvalWorkflow.filters.allTypes")}</option>
-                        <option>{t("admin.configuration.approvalWorkflow.filters.annualLeave")}</option>
-                        <option>{t("admin.configuration.approvalWorkflow.filters.sickLeave")}</option>
-                        <option>{t("admin.configuration.approvalWorkflow.filters.remoteWork")}</option>
-                        <option>{t("admin.configuration.approvalWorkflow.filters.overtime")}</option>
-                    </select>
+                    <Select defaultValue={t("admin.configuration.approvalWorkflow.filters.allTypes")}>
+                        <SelectTrigger className="w-full bg-slate-50 dark:bg-slate-800 border-border rounded-button h-[38px]">
+                            <SelectValue placeholder={t("admin.configuration.approvalWorkflow.filters.requestType")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.allTypes")}>{t("admin.configuration.approvalWorkflow.filters.allTypes")}</SelectItem>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.annualLeave")}>{t("admin.configuration.approvalWorkflow.filters.annualLeave")}</SelectItem>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.sickLeave")}>{t("admin.configuration.approvalWorkflow.filters.sickLeave")}</SelectItem>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.remoteWork")}>{t("admin.configuration.approvalWorkflow.filters.remoteWork")}</SelectItem>
+                            <SelectItem value={t("admin.configuration.approvalWorkflow.filters.overtime")}>{t("admin.configuration.approvalWorkflow.filters.overtime")}</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
                 <div className="ml-auto flex items-center gap-2 text-slate-400 italic text-sm">
                     <span className="material-icons text-[18px]">info</span>
@@ -47,8 +58,8 @@ export default function ApprovalWorkflowConfigPage() {
                 </div>
             </div>
             <div className="space-y-6">
-                <div className="bg-white dark:bg-neutral-dark rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                    <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between">
+                <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
+                    <div className="p-5 border-b border-border bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center">
                                 <span className="material-icons">engineering</span>
@@ -59,10 +70,10 @@ export default function ApprovalWorkflowConfigPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button className="p-2 text-slate-400 hover:text-primary transition-colors">
+                            <button className="p-2 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                 <span className="material-icons text-[20px]">edit</span>
                             </button>
-                            <button className="p-2 text-slate-400 hover:text-rose-500 transition-colors">
+                            <button className="p-2 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
                                 <span className="material-icons text-[20px]">delete</span>
                             </button>
                         </div>
@@ -118,8 +129,8 @@ export default function ApprovalWorkflowConfigPage() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-neutral-dark rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                    <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between">
+                <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
+                    <div className="p-5 border-b border-border bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center">
                                 <span className="material-icons">payments</span>
@@ -130,10 +141,10 @@ export default function ApprovalWorkflowConfigPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button className="p-2 text-slate-400 hover:text-primary transition-colors">
+                            <button className="p-2 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                 <span className="material-icons text-[20px]">edit</span>
                             </button>
-                            <button className="p-2 text-slate-400 hover:text-rose-500 transition-colors">
+                            <button className="p-2 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
                                 <span className="material-icons text-[20px]">delete</span>
                             </button>
                         </div>

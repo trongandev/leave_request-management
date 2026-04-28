@@ -46,6 +46,7 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+    --color-neutral-dark: var(--neutral-dark);
 }
 
 :root {
@@ -115,6 +116,7 @@
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --neutral-dark: #ffffff;
 }
 .dark {
     --background: #1f1f1f;
@@ -167,6 +169,7 @@
     --sidebar-ring: oklch(0.45 0.03 240);
 
     --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
+    --neutral-dark: oklch(26.9% 0 0);
 }
 
 @layer base {
@@ -222,6 +225,47 @@
         background-image: radial-gradient(circle, #c3c6d6 1px, transparent 1px);
         background-size: 12px 12px;
     }
+
+    /* Ghost Tags for Status */
+    .ghost-tag-pending {
+        @apply bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-500;
+    }
+    .ghost-tag-approved,
+    .ghost-tag-success {
+        @apply bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-500;
+    }
+    .ghost-tag-danger,
+    .ghost-tag-delete,
+    .ghost-tag-error {
+        @apply bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-500;
+    }
+    .ghost-tag-neutral,
+    .ghost-tag-info {
+        @apply bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-400;
+    }
+    .ghost-tag-primary,
+    .ghost-tag-workflow,
+    .ghost-tag-balance,
+    .ghost-tag-security,
+    .ghost-tag-admin,
+    .ghost-tag-config {
+        @apply bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400;
+    }
+
+    /* Table Styles */
+    .striped-table tbody tr:nth-child(even) {
+        @apply bg-slate-50/50 dark:bg-slate-800/20;
+    }
+}
+
+@utility rounded-button {
+    @apply rounded-lg;
+}
+@utility rounded-input {
+    @apply rounded-lg;
+}
+@utility rounded-card {
+    @apply rounded-xl;
 }
 
 @keyframes shake {

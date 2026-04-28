@@ -17,19 +17,19 @@ export default function ReportAndAnalyticsPage() {
                         <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">{t("admin.auditLogsPage.subtitle")}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 rounded-button border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 dark:border-slate-600 dark:bg-neutral-dark dark:text-slate-300 dark:hover:bg-slate-800">
+                        <button className="flex items-center gap-2 rounded-button border border-border bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 dark:bg-neutral-dark dark:text-slate-300 dark:hover:bg-slate-800">
                             <span className="material-symbols-outlined !text-[18px]">cloud_download</span>
                             {t("admin.auditLogsPage.export")}
                         </button>
-                        <button className="flex items-center gap-2 rounded-button bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary-hover">
+                        <button className="flex items-center gap-2 rounded-button bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90">
                             <span className="material-symbols-outlined !text-[18px]">sync</span>
                             {t("admin.auditLogsPage.refresh")}
                         </button>
                     </div>
                 </div>
 
-                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-neutral-dark">
-                    <div className="border-b border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-800/30">
+                <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                    <div className="border-b border-border bg-slate-50/50 p-4 dark:bg-slate-800/30">
                         <div className="flex flex-wrap items-center gap-4">
                             <div className="relative min-w-[320px] flex-1">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
@@ -42,11 +42,11 @@ export default function ReportAndAnalyticsPage() {
                             <div className="flex items-center gap-3">
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 !text-[18px] text-slate-400">calendar_month</span>
-                                    <div className="cursor-pointer rounded-button border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                    <div className="cursor-pointer rounded-button border border-border bg-white py-2 pl-10 pr-4 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 dark:bg-slate-800 dark:text-slate-300">
                                         {t("admin.auditLogsPage.dateRange")}
                                     </div>
                                 </div>
-                                <select className="rounded-button border-slate-200 bg-white py-2 pl-4 pr-10 text-sm font-medium text-slate-600 focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                <select className="rounded-button border border-border bg-white py-2 pl-4 pr-10 text-sm font-medium text-slate-600 focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-slate-800 dark:text-slate-300">
                                     <option>{t("admin.auditLogsPage.filters.all")}</option>
                                     <option>{t("admin.auditLogsPage.filters.workflow")}</option>
                                     <option>{t("admin.auditLogsPage.filters.balance")}</option>
@@ -62,8 +62,8 @@ export default function ReportAndAnalyticsPage() {
 
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[960px] border-collapse">
-                            <thead className="bg-white dark:bg-neutral-dark">
-                                <tr className="border-b border-slate-200 dark:border-slate-800">
+                            <thead className="bg-card">
+                                <tr className="border-b border-border">
                                     <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{t("admin.auditLogsPage.table.timestamp")}</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{t("admin.auditLogsPage.table.user")}</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{t("admin.auditLogsPage.table.action")}</th>
@@ -245,28 +245,28 @@ export default function ReportAndAnalyticsPage() {
                         </table>
                     </div>
 
-                    <div className="flex flex-col gap-4 border-t border-slate-200 bg-slate-50/70 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/30 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                    <div className="flex flex-col gap-4 border-t border-border bg-slate-50/70 px-5 py-4 dark:bg-slate-900/30 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                             {t("admin.auditLogsPage.pagination.showing")} <span className="font-semibold text-slate-800 dark:text-slate-200">1</span> {t("admin.auditLogsPage.pagination.to")}{" "}
                             <span className="font-semibold text-slate-800 dark:text-slate-200">6</span> {t("admin.auditLogsPage.pagination.of")}{" "}
                             <span className="font-semibold text-slate-800 dark:text-slate-200">2,412</span> {t("admin.auditLogsPage.pagination.entries")}
                         </p>
                         <div className="flex items-center gap-2 self-start sm:self-auto">
-                            <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition-colors hover:bg-white hover:text-slate-600 dark:border-slate-700 dark:hover:bg-slate-800">
+                            <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-slate-400 transition-colors hover:bg-white hover:text-slate-600 dark:hover:bg-slate-800">
                                 <span className="material-icons text-[18px]">chevron_left</span>
                             </button>
                             <button className="flex h-9 min-w-9 items-center justify-center rounded-lg bg-primary px-3 text-xs font-semibold text-white">1</button>
-                            <button className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 transition-colors hover:bg-white dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                            <button className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-border px-3 text-xs font-semibold text-slate-600 transition-colors hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800">
                                 2
                             </button>
-                            <button className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 transition-colors hover:bg-white dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                            <button className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-border px-3 text-xs font-semibold text-slate-600 transition-colors hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800">
                                 3
                             </button>
                             <span className="px-1 text-slate-400">...</span>
-                            <button className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 transition-colors hover:bg-white dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                            <button className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-border px-3 text-xs font-semibold text-slate-600 transition-colors hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800">
                                 402
                             </button>
-                            <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition-colors hover:bg-white hover:text-slate-600 dark:border-slate-700 dark:hover:bg-slate-800">
+                            <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-slate-400 transition-colors hover:bg-white hover:text-slate-600 dark:hover:bg-slate-800">
                                 <span className="material-icons text-[18px]">chevron_right</span>
                             </button>
                         </div>
@@ -274,7 +274,7 @@ export default function ReportAndAnalyticsPage() {
                 </div>
 
                 <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-neutral-dark">
+                    <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/20">
                             <span className="material-symbols-outlined">description</span>
                         </div>
@@ -283,7 +283,7 @@ export default function ReportAndAnalyticsPage() {
                             <p className="text-lg font-bold leading-none text-slate-900 dark:text-white">18,492</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-neutral-dark">
+                    <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-amber-600 dark:bg-amber-900/20">
                             <span className="material-symbols-outlined">warning</span>
                         </div>
@@ -292,7 +292,7 @@ export default function ReportAndAnalyticsPage() {
                             <p className="text-lg font-bold leading-none text-slate-900 dark:text-white">42</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-neutral-dark">
+                    <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20">
                             <span className="material-symbols-outlined">verified_user</span>
                         </div>

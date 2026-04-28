@@ -11,14 +11,14 @@ export default function ShiftPatternsPage() {
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("admin.configuration.shiftPattern.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+                    <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">add</span>
                         {t("admin.configuration.shiftPattern.create")}
                     </button>
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-neutral-dark shift-card shadow-sm rounded-xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full">
+                <div className="bg-card shift-card shadow-sm rounded-xl border border-border p-6 flex flex-col h-full">
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                             <span className="material-icons text-primary">corporate_fare</span>
@@ -49,7 +49,7 @@ export default function ShiftPatternsPage() {
                                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">60 {t("admin.configuration.shiftPattern.cards.minutes")}</p>
                             </div>
                         </div>
-                        <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <div className="pt-4 border-t border-border">
                             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{t("admin.configuration.shiftPattern.cards.activeDays")}</p>
                             <div className="flex gap-2">
                                 <div className="day-badge day-active">{t("admin.configuration.shiftPattern.days.mon")}</div>
@@ -72,7 +72,7 @@ export default function ShiftPatternsPage() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-neutral-dark shift-card shadow-sm rounded-xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full">
+                <div className="bg-card shift-card shadow-sm rounded-xl border border-border p-6 flex flex-col h-full">
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
                             <span className="material-icons text-amber-600">light_mode</span>
@@ -103,7 +103,7 @@ export default function ShiftPatternsPage() {
                                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">45 {t("admin.configuration.shiftPattern.cards.minutes")}</p>
                             </div>
                         </div>
-                        <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <div className="pt-4 border-t border-border">
                             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{t("admin.configuration.shiftPattern.cards.activeDays")}</p>
                             <div className="flex gap-2">
                                 <div className="day-badge day-active">{t("admin.configuration.shiftPattern.days.mon")}</div>
@@ -126,7 +126,7 @@ export default function ShiftPatternsPage() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-neutral-dark shift-card shadow-sm rounded-xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-full">
+                <div className="bg-card shift-card shadow-sm rounded-xl border border-border p-6 flex flex-col h-full">
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                             <span className="material-icons text-indigo-600">dark_mode</span>
@@ -157,7 +157,7 @@ export default function ShiftPatternsPage() {
                                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">30 {t("admin.configuration.shiftPattern.cards.minutes")}</p>
                             </div>
                         </div>
-                        <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <div className="pt-4 border-t border-border">
                             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{t("admin.configuration.shiftPattern.cards.activeDays")}</p>
                             <div className="flex gap-2">
                                 <div className="day-badge day-active">{t("admin.configuration.shiftPattern.days.mon")}</div>

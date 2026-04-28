@@ -19,7 +19,6 @@ export default function AuditLogPage() {
         queryFn: () => etcService.getAuditLogs({ page }),
     })
     const [detailError, setDetailError] = useState<AuditLogs | null>(null)
-    const columns = ["User ID", "action", "module", "user agent", "created at", "Actions"]
 
     const handleGetAction = (method: string) => {
         switch (method) {
@@ -55,8 +54,8 @@ export default function AuditLogPage() {
                 <CardContent>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Error Logs</h1>
-                            <p className="text-sm text-neutral-500 mt-1">View and manage error logs</p>
+                            <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Audit Logs</h1>
+                            <p className="text-sm text-neutral-500 mt-1">View and manage system audit logs</p>
                         </div>
                         <div className="flex gap-3 flex-wrap">
                             <Button className="h-10" variant={"outline"}>
@@ -66,27 +65,19 @@ export default function AuditLogPage() {
                     </div>
                 </CardContent>
             </Card>
-            <CTable data={data} isLoading={isLoading} handlePageChange={setPage} columns={columns}>
+            <CTable data={data} isLoading={isLoading} handlePageChange={setPage} columns={["User ID", "Action", "Module", "User Agent", "Created At", "Actions"]}>
                 {data?.data.map((log, index) => (
                     <tr key={index} className="text-secondary-foreground">
-                        <td className="py-3 px-5">{log.userId}</td>
-                        <td className={`py-3 px-5`}>
+                        <td className="py-3 px-5 text-center">{log.userId}</td>
+                        <td className={`py-3 px-5 text-center`}>
                             <CBadge className={handleGetAction(log.action)}>{log.action}</CBadge>
                         </td>
-                        <td className={`py-3 px-5`}>
+                        <td className={`py-3 px-5 text-center`}>
                             <CBadge className={handleGetModule(log.module)}>{log.module}</CBadge>
                         </td>
-                        <td className="py-3 px-5 line-clamp-1">{log.userAgent}</td>
-                        <td className="py-3 px-5">{format(new Date(log.createdAt), "yyyy-MM-dd HH:mm:ss")}</td>
-                        {/* <td className="py-3 px-5">
-                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${handleGetBadgeMethodColor(log.method)}`}>{log.method}</span>
-                        </td>
-                        <td className="py-3 px-5">
-                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${handleGetBadgeStatusColor(log.statusCode)}`}>{log.statusCode}</span>
-                        </td>
-                        <td className="py-3 px-5 line-clamp-3">{log.message}</td>
-                        <td className="py-3 px-5">{log.createdAt}</td> */}
-                        <td className="py-3 px-5">
+                        <td className="py-3 px-5 whitespace-normal break-words max-w-xs">{log.userAgent}</td>
+                        <td className="py-3 px-5 text-center">{format(new Date(log.createdAt), "yyyy-MM-dd HH:mm:ss")}</td>
+                        <td className="py-3 px-5 text-center">
                             <Button variant="outline-primary" size="xs" onClick={() => setDetailError(log)}>
                                 View Details
                             </Button>
