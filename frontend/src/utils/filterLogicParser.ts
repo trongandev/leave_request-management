@@ -227,9 +227,8 @@ class Parser {
         return this.tokens[this.position] || { type: "EOF", value: null, position: 0 };
     }
 
-    private peekToken(offset: number = 1): Token {
-        return this.tokens[this.position + offset] || { type: "EOF", value: null, position: 0 };
-    }
+    // peekToken kept for future use
+    // private peekToken(offset: number = 1): Token { ... }
 
     private advance(): void {
         this.position++;
@@ -364,7 +363,7 @@ class Parser {
 
 // ============ Evaluator ============
 class Evaluator {
-    evaluate(node: ParsedNode, context: Record<string, any>): any {
+    evaluate(node: ASTNode, context: Record<string, any>): any {
         if (node.type === "BinaryOp") {
             const binNode = node as BinaryOpNode;
             const left = this.evaluate(binNode.left, context);
@@ -487,7 +486,7 @@ export function getAST(formula: string): ParsedNode {
 }
 
 // Helper function to pretty print AST
-export function printAST(node: ParsedNode, indent: number = 0): string {
+export function printAST(node: ASTNode, indent: number = 0): string {
     const prefix = "  ".repeat(indent);
 
     if (node.type === "BinaryOp") {

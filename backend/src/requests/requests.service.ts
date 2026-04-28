@@ -175,105 +175,6 @@ export class RequestsService {
 
     return request;
   }
-
-  async create(createRequestDto: CreateRequestDto, user: any) {
-    let status = createRequestDto.status ?? RequestStatus.PENDING;
-    const normalizedValues = this.normalizeRequestValues(
-      createRequestDto.values,
-    );
-
-    let autoRejectedReason = '';
-
-    if (status !== RequestStatus.DRAFT) {
-      try {
-        await this.ensureSufficientLeaveBalance(
-          String(user?._id),
-          String(createRequestDto.code),
-          String(createRequestDto.formTemplateId),
-          normalizedValues,
-        );
-      } catch (error) {
-        status = RequestStatus.RETURNED;
-        autoRejectedReason =
-          error instanceof BadRequestException
-            ? String(error.message)
-            : 'Không đủ điều kiện nghỉ phép';
-      }
-    }
-
-    const createNewRequest = new this.requestModel({
-      ...createRequestDto,
-      reqDisplayId: await this.generateDisplayId(),
-      values: {
-        ...normalizedValues,
-        ...(autoRejectedReason ? { autoRejectedReason } : {}),
-      },
-      creatorId: user?._id,
-      status,
-      currentStepOrder:
-        status === RequestStatus.DRAFT || status === RequestStatus.RETURNED
-          ? 0
-          : (createRequestDto.currentStepOrder ?? 0),
-    });
-
-    const request = await createNewRequest.save();
-
-    if (status === RequestStatus.DRAFT || status === RequestStatus.RETURNED) {
-      return request;
-    }
-
-    const workflowContext = await this.resolveWorkflowContext(
-      String(user?._id),
-      String(createRequestDto.formTemplateId),
-    );
-    const requestReason = this.extractReason(normalizedValues);
-
-    // Create flow-log first so each approval step can persist a stable flowLogId reference.
-    const flowLog =
-      await this.approvalStepsFlowLogService.createOrResetForRequest({
-        requestId: String(request._id),
-        requesterName: workflowContext.requesterName,
-        requesterPosition: workflowContext.requesterPosition,
-        reason: requestReason,
-        approvalSteps: workflowContext.approvers.map((step, index) => ({
-          order: index + 1,
-          label: step.label,
-          postition: step.postition,
-          performer: step.approverName,
-          avatar: step.avatar,
-          userId: step.approverId,
-        })),
-      });
-
-    await this.approvalStepsService.createBatch(
-      workflowContext.approvers.map((step, index) => ({
-        requestId: String(request._id),
-        flowLogId: String(flowLog._id),
-        originalApproverId: step.approverId,
-        stepOrder: index + 1,
-        stepLabel: step.label,
-        groupId: [],
-        isFinalStep: index === workflowContext.approvers.length - 1,
-        requiredAll: true,
-      })),
-    );
-    // workflowContext.approvers.map((step) =>
-    // );
-    this.pushNotiGateway.sendNotificationToUser(
-      workflowContext.approvers[0].approverId,
-      {
-        title: `${user?.fullName}`,
-        content: `Vừa tạo đơn xin nghỉ phép. Vui lòng kiểm tra!`,
-        link: `/approvals/team-requests/${String(request?._id)}`,
-        requestId: String(request?._id),
-        avatar: user?.avatar,
-        type: 'LEAVE_REQUEST',
-        isShowModel: true,
-      },
-    );
-
-    return request;
-  }
   async createRandomRequest() {
     const today = new Date();
     const start = new Date(today);
@@ -908,10 +809,11 @@ export class RequestsService {
         .populate({ path: 'managerId', select: '_id fullName' })
         .lean()
         .exec();
+      const managerField = dmDoc?.managerId as any;
       upperManagerId = this.toSafeString(
-        dmDoc?.managerId?._id || dmDoc?.managerId,
+        managerField?._id || managerField,
       );
-      upperManagerName = this.toSafeText(dmDoc?.managerId?.fullName, '');
+      upperManagerName = this.toSafeText(managerField?.fullName, '');
     }
 
     const departmentHead = await this.findDepartmentHead(
@@ -1009,11 +911,11 @@ export class RequestsService {
 
     if (approvers.length === 0) {
       const displayContext = await this.resolveApproverDisplayContext(
-        fallback.managerId,
+        directManagerId,
       );
       approvers.push({
-        approverId: fallback.managerId,
-        approverName: fallback.managerName,
+        approverId: directManagerId,
+        approverName: directManagerName || 'Direct Manager',
         label: displayContext.label,
         postition: displayContext.postition,
         avatar: requesterProfile.avatar,

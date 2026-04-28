@@ -16,7 +16,7 @@ export const markdownToHtml = (markdown: string) => {
     let inOrderedList = false;
     let inCodeBlock = false;
     let inTable = false;
-    let tableBuffer: string[] = [];
+    let tableBuffer: string[][] = [];
 
     const closeLists = () => {
         if (inUnorderedList) {
@@ -37,7 +37,7 @@ export const markdownToHtml = (markdown: string) => {
         return /^\|\s*[-:\s|]+\|$/.test(line.trim());
     };
 
-    const parseTableRow = (line: string) => {
+    const parseTableRow = (line: string): string[] => {
         const cells = line
             .split("|")
             .map((cell) => cell.trim())

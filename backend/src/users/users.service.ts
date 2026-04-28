@@ -612,7 +612,7 @@ export class UsersService {
           createdAt: { $gte: start, $lt: end },
           roleId: employeeRole._id,
           _id: { $ne: manager._id }, // Không tự gán cho chính mình
-        },
+        } as any,
         { $set: { managerId: manager._id } },
       );
 
@@ -702,7 +702,7 @@ export class UsersService {
         createdAt: { $gte: start, $lt: end },
         roleId: employeeRole._id,
         _id: { $ne: manager._id },
-      },
+      } as any,
       { $set: { managerId: manager._id } },
     );
 

@@ -57,6 +57,7 @@ const testCases: TestCase[] = [
         expectedMatching: 1,
         expectedNotMatching: 2,
     },
+    {
         name: "OR operator",
         formula: "NghiPhep == true OR SoNgay >= 5",
         data: [{ requestId: { values: { NghiPhep: true, SoNgay: 1 } } }, { requestId: { values: { NghiPhep: false, SoNgay: 10 } } }, { requestId: { values: { NghiPhep: false, SoNgay: 2 } } }],

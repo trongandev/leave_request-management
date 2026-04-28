@@ -5,7 +5,7 @@ import { promptChatAI } from "@/features/general/components/promptChatAI";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useQuery } from "@tanstack/react-query";
 import { GoogleGenAI } from "@google/genai";
-import { Expand, FoldHorizontal, Loader2, SendHorizonal, Sparkles, Trash2, UnfoldHorizontal, X } from "lucide-react";
+import { FoldHorizontal, Loader2, SendHorizonal, Sparkles, Trash2, UnfoldHorizontal, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { markdownToHtml } from "@/utils/markdown";
 
