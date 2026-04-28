@@ -2,12 +2,13 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import dayjs from "dayjs"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, PlusIcon, Search } from "lucide-react"
+import { ChevronLeft, ChevronRight, Download, PlusIcon, Search } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Link } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { useQuery } from "@tanstack/react-query"
 import userService from "@/services/userService"
+import * as XLSX from "xlsx"
 export default function TeamLeaveCalendarViewPage() {
     const { t } = useTranslation()
     const [viewDate, setViewDate] = useState(dayjs())
@@ -114,6 +115,39 @@ export default function TeamLeaveCalendarViewPage() {
             </div>
         )
     }
+
+    const handleExportExcel = () => {
+        const rows = requestAllTeamMembers
+            .map((request) => {
+                const startRaw = request?.values?.startDate
+                const endRaw = request?.values?.endDate || startRaw
+                const fullName = request?.creatorId?.fullName || "Unknown member"
+
+                if (!startRaw || !endRaw) return null
+
+                const startDate = dayjs(startRaw).startOf("day")
+                const endDate = dayjs(endRaw).startOf("day")
+
+                if (!startDate.isValid() || !endDate.isValid()) return null
+
+                const normalizedStart = startDate.isAfter(endDate) ? endDate : startDate
+                const normalizedEnd = startDate.isAfter(endDate) ? startDate : endDate
+                const totalDays = normalizedEnd.diff(normalizedStart, "day") + 1
+
+                return {
+                    "Team Member": fullName,
+                    "Start Date": normalizedStart.format("YYYY-MM-DD"),
+                    "End Date": normalizedEnd.format("YYYY-MM-DD"),
+                    "Total Leave Days": totalDays,
+                }
+            })
+            .filter(Boolean)
+
+        const worksheet = XLSX.utils.json_to_sheet(rows)
+        const workbook = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Team Leave")
+        XLSX.writeFile(workbook, `team_leave_calendar_${viewDate.format("YYYY_MM")}.xlsx`)
+    }
     return (
         <div className="bg-background flex flex-col overflow-hidden">
             <div className="flex flex-1 gap-5 overflow-hidden">
@@ -193,6 +227,9 @@ export default function TeamLeaveCalendarViewPage() {
                             </CardContent>
                         </Card>
                         <div className="flex items-center gap-3 w-full sm:w-auto">
+                            <Button className="h-12" variant={"outline-primary"} onClick={handleExportExcel}>
+                                <Download /> Export Excel
+                            </Button>
                             <Link to="/employee/create-new-request-form" className="w-full">
                                 <Button className="h-12 px-5">
                                     <PlusIcon />

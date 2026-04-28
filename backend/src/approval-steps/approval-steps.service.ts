@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Injectable,
   BadRequestException,
@@ -80,16 +81,22 @@ export class ApprovalStepsService {
     if (!result) {
       throw new NotFoundException('Request not found');
     }
-
     const creatorId = result.requestId?.creatorId;
-    this.pushNotiGateway.sendNotificationToUser(creatorId._id, {
-      title: `${creatorId.fullName}`,
-      content: `Vừa gửi thông báo nhắc nhở duyệt đơn xin nghỉ phép. Vui lòng kiểm tra!`,
-      link: `/approvals/team-requests/${String(requestId)}`,
-      requestId: String(requestId),
-      avatar: creatorId?.avatar,
-      type: 'LEAVE_REQUEST',
-    });
+    if (result.requestId?.code === 'ANNUAL_LEAVE') {
+      this.pushNotiGateway.sendNotificationToUser(
+        result.originalApproverId._id,
+        {
+          title: `${creatorId.fullName}`,
+          content: `Vừa gửi thông báo nhắc nhở duyệt đơn xin nghỉ phép. Vui lòng kiểm tra!`,
+          values: result.requestId.values,
+          link: `/approvals/team-requests/${result._id}`,
+          requestId: String(result._id),
+          avatar: creatorId?.avatar,
+          type: 'LEAVE_REQUEST',
+          isShowModel: true,
+        },
+      );
+    }
     await this.mailService.sendManagerReminder(
       result.apsDisplayId,
       creatorId,
@@ -322,7 +329,6 @@ export class ApprovalStepsService {
         'Only assigned approver, delegated approver or ADMIN can approve this step',
       );
     }
-    console.log(payload);
     this.assertActionAllowedByStatus(action, step.status);
     this.applyStepAction(step, action, payload, actor);
 
@@ -336,14 +342,16 @@ export class ApprovalStepsService {
       payload,
       actor,
     );
+    console.log(step, actor);
     await this.syncRequestStatus(requestId);
     this.pushNotiGateway.sendNotificationToUser(actor._id, {
       title: `${actor.fullName}`,
-      content: `Vừa tạo đơn xin nghỉ phép. Vui lòng kiểm tra!`,
+      content: `Đơn xin nghỉ phép của bạn đã được duyệt`,
       link: `/employee/view-detail-request/${String(stepId)}`,
       requestId: String(stepId),
       avatar: actor?.avatar,
       type: 'LEAVE_REQUEST',
+      isShowModel: false,
     });
     return savedStep;
   }

@@ -60,6 +60,7 @@ export class UsersService {
       requestId: 'ID_DON_VUA_TAO',
       avatar: user?.avatar,
       type: 'LEAVE_REQUEST',
+      isShowModel: true,
     });
   }
 
@@ -443,16 +444,17 @@ export class UsersService {
       const teamMembers = await this.userModel
         .find({ managerId: user._id })
         .select(
-          'empId fullName email avatar phone departmentId positionId status',
+          'empId fullName email avatar phone departmentId positionId status roleId',
         )
         .populate([
           {
             path: 'departmentId',
-            select: 'originName',
           },
           {
             path: 'positionId',
-            select: 'fullName',
+          },
+          {
+            path: 'roleId',
           },
         ])
         .exec();
@@ -466,7 +468,15 @@ export class UsersService {
           status: 'approved',
         })
         .select('code values createdAt creatorId')
-        .populate('creatorId', 'avatar _id fullName email')
+        .populate({
+          path: 'creatorId',
+          select: 'avatar _id fullName email roleId departmentId positionId',
+          populate: [
+            { path: 'roleId' },
+            { path: 'departmentId' },
+            { path: 'positionId' },
+          ],
+        })
         .exec();
 
       const teamMember = [...teamMembers, user];
@@ -476,32 +486,28 @@ export class UsersService {
         this.userModel
           .find({ managerId: user?.managerId?._id })
           .select(
-            'empId fullName email avatar phone departmentId positionId status',
+            'empId fullName email avatar phone departmentId positionId status roleId',
           )
           .populate([
             {
               path: 'departmentId',
-              select: 'originName',
             },
             {
               path: 'positionId',
-              select: 'fullName',
             },
           ])
           .exec(),
         this.userModel
           .findById(user?.managerId?._id)
           .select(
-            'empId fullName email avatar phone departmentId positionId status',
+            'empId fullName email avatar phone departmentId positionId status roleId',
           )
           .populate([
             {
               path: 'departmentId',
-              select: 'originName',
             },
             {
               path: 'positionId',
-              select: 'fullName',
             },
           ])
           .exec(),

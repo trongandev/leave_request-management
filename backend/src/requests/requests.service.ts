@@ -168,6 +168,7 @@ export class RequestsService {
         requestId: String(request?._id),
         avatar: user?.avatar,
         type: 'LEAVE_REQUEST',
+        isShowModel: true,
       },
     );
 

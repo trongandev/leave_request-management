@@ -3,16 +3,19 @@ import GeneralSidebar from "./GeneralSidebar"
 import GeneralHeader from "./GeneralHeader"
 import { useSidebarStore } from "@/store/useSidebarStore"
 import { useAuthStore } from "@/store/useAuthStore"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useWindowSize } from "@custom-react-hooks/use-window-size"
 import { io } from "socket.io-client"
+import ChatAI from "../components/ChatAI"
+import NotiApprovalRequest from "../components/NotiApprovalRequest"
 export default function GeneralLayout() {
     const { isSidebarOpen, setSidebarOpen } = useSidebarStore()
     const navigate = useNavigate()
     const { user, loadProfile, isAuthenticated, isLoading } = useAuthStore()
     const isLoadFirstTime = useRef(false)
     const socketRef = useRef<ReturnType<typeof io> | null>(null)
-
+    const [dataNoti, setDataNoti] = useState(null)
+    const [isOpen, setIsOpen] = useState(false)
     const requestNotificationPermission = async () => {
         // Kiểm tra xem trình duyệt có hỗ trợ Notification không
         if (!("Notification" in window)) {
@@ -76,6 +79,10 @@ export default function GeneralLayout() {
                     window.location.href = data.link
                 }
             }
+            if (data.isShowModel) {
+                setDataNoti(data)
+                setIsOpen(true)
+            }
         })
 
         return () => {
@@ -121,13 +128,15 @@ export default function GeneralLayout() {
         return null
     }
     return (
-        <div className="flex transition-all duration-300 bg-background">
+        <div className="flex transition-all duration-300 bg-background ">
             <div
                 className={` font-display text-background antialiased shrink-0 flex flex-col h-screen fixed left-0 top-0 z-50  w-64  transition-all duration-300 border-r bg-card ${isSidebarOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"}`}
             >
                 <GeneralSidebar />
             </div>
-            <div className={`flex-1 ${isSidebarOpen ? "ml-64" : "ml-0"} flex flex-col min-h-screen overflow-hidden transition-all duration-300  `}>
+            <div className={`flex-1 ${isSidebarOpen ? "ml-64" : "ml-0"} flex flex-col min-h-screen overflow-hidden transition-all duration-300 relative `}>
+                <ChatAI />
+                <NotiApprovalRequest open={isOpen} onOpenChange={setIsOpen} data={dataNoti} />
                 <GeneralHeader />
                 <div className="w-full p-3 md:p-8">
                     <Outlet />
