@@ -33,10 +33,10 @@ export default function AccessControlPage() {
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t("admin.system.accessControl.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="rounded-button border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-neutral-dark dark:text-slate-300 dark:hover:bg-slate-800">
+                    <button className="rounded-button border border-border bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:bg-neutral-dark dark:text-slate-300 dark:hover:bg-slate-800">
                         {t("admin.system.accessControl.securityAudit")}
                     </button>
-                    <button className="flex items-center gap-2 rounded-button bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover">
+                    <button className="flex items-center gap-2 rounded-button bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90">
                         <span className="material-icons text-[18px]">add</span>
                         {t("admin.system.accessControl.createRole")}
                     </button>
@@ -45,12 +45,12 @@ export default function AccessControlPage() {
 
             <div className="grid grid-cols-12 gap-8">
                 <div className="col-span-12 space-y-4 lg:col-span-4 xl:col-span-3">
-                    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-neutral-dark">
-                        <div className="border-b border-slate-100 p-4 dark:border-slate-800">
+                    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+                        <div className="border-b border-border p-4">
                             <div className="relative">
                                 <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">search</span>
                                 <input
-                                    className="w-full rounded-input border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800/50"
+                                    className="w-full rounded-input border border-border bg-slate-50 py-2 pl-10 pr-4 text-sm focus:border-primary focus:ring-primary dark:bg-slate-800/50"
                                     placeholder={t("admin.system.accessControl.searchPlaceholder")}
                                     type="text"
                                 />
@@ -91,8 +91,8 @@ export default function AccessControlPage() {
                 </div>
 
                 <div className="col-span-12 lg:col-span-8 xl:col-span-9">
-                    <div className="flex h-full flex-col rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-neutral-dark">
-                        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/30 p-5 dark:border-slate-800 dark:bg-slate-800/20">
+                    <div className="flex h-full flex-col rounded-lg border border-border bg-card shadow-sm">
+                        <div className="flex items-center justify-between border-b border-border bg-slate-50/30 p-5 dark:bg-slate-800/20">
                             <div className="flex items-center gap-4">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
                                     <span className="material-icons">security</span>
@@ -106,7 +106,7 @@ export default function AccessControlPage() {
                                 <button className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
                                     {t("admin.system.accessControl.roleDetails.discard")}
                                 </button>
-                                <button className="rounded-button bg-primary px-4 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover">
+                                <button className="rounded-button bg-primary px-4 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90">
                                     {t("admin.system.accessControl.roleDetails.save")}
                                 </button>
                             </div>
@@ -116,7 +116,7 @@ export default function AccessControlPage() {
                             <table className="w-full border-collapse text-left">
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/50">
-                                        <th className="border-b border-slate-100 px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:border-slate-800">
+                                        <th className="border-b border-border px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">
                                             {t("admin.system.accessControl.table.module")}
                                         </th>
                                         <th className="border-b border-slate-100 px-6 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:border-slate-800">
@@ -131,7 +131,7 @@ export default function AccessControlPage() {
                                         <th className="border-b border-slate-100 px-6 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:border-slate-800">
                                             {t("admin.system.accessControl.table.delete")}
                                         </th>
-                                        <th className="border-b border-slate-100 px-6 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:border-slate-800">
+                                        <th className="border-b border-border px-6 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-slate-400">
                                             {t("admin.system.accessControl.table.export")}
                                         </th>
                                     </tr>
@@ -160,7 +160,7 @@ export default function AccessControlPage() {
                             </table>
                         </div>
 
-                        <div className="mt-auto border-t border-slate-100 bg-slate-50/50 p-6 dark:border-slate-800 dark:bg-slate-800/10">
+                        <div className="mt-auto border-t border-border bg-slate-50/50 p-6 dark:bg-slate-800/10">
                             <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-slate-500">{t("admin.system.accessControl.advanced.title")}</h4>
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 {advancedItems.map((item) => (

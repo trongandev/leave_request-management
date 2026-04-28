@@ -1,4 +1,7 @@
 import { useTranslation } from "react-i18next";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { CalendarIcon, SearchIcon } from "lucide-react";
 
 export default function AttendanceTrackingPage() {
     const { t } = useTranslation();
@@ -11,54 +14,60 @@ export default function AttendanceTrackingPage() {
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("admin.attendance.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-2">
+                    <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-border text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">download</span>
                         {t("admin.attendance.exportReport")}
                     </button>
-                    <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+                    <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">add</span>
                         {t("admin.attendance.manualEntry")}
                     </button>
                 </div>
             </div>
-            <div className="bg-white dark:bg-neutral-dark p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 mb-6 flex flex-wrap items-center gap-4">
+            <div className="bg-card p-4 rounded-xl shadow-sm border border-border mb-6 flex flex-wrap items-center gap-4">
                 <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.attendance.filters.searchEmp")}</label>
-                    <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="material-icons text-slate-400 text-[18px]">search</span>
-                        </span>
-                        <input
-                            className="block w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-neutral-dark text-slate-900 dark:text-white placeholder-slate-400 focus:ring-1 focus:ring-primary focus:border-primary text-sm shadow-sm"
+                    <InputGroup className="h-10">
+                        <InputGroupAddon>
+                            <SearchIcon className="size-4 text-slate-400" />
+                        </InputGroupAddon>
+                        <InputGroupInput 
+                            className="h-10"
                             placeholder={t("admin.attendance.filters.searchPlaceholder")}
-                            type="text"
                         />
-                    </div>
+                    </InputGroup>
                 </div>
                 <div className="flex flex-col gap-1.5 min-w-[180px]">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.attendance.filters.department")}</label>
-                    <select className="block w-full pl-3 pr-10 py-2 text-sm border-slate-200 dark:border-slate-700 bg-white dark:bg-neutral-dark focus:ring-primary focus:border-primary rounded-lg shadow-sm text-slate-700 dark:text-slate-300">
-                        <option>{t("admin.attendance.filters.allDepts")}</option>
-                        <option>{t("admin.attendance.filters.engineering")}</option>
-                        <option>{t("admin.attendance.filters.marketing")}</option>
-                        <option>{t("admin.attendance.filters.sales")}</option>
-                        <option>{t("admin.attendance.filters.hr")}</option>
-                    </select>
+                    <Select defaultValue={t("admin.attendance.filters.allDepts")}>
+                        <SelectTrigger className="w-full bg-white dark:bg-neutral-dark border-border rounded-lg h-[38px]">
+                            <SelectValue placeholder={t("admin.attendance.filters.department")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={t("admin.attendance.filters.allDepts")}>{t("admin.attendance.filters.allDepts")}</SelectItem>
+                            <SelectItem value={t("admin.attendance.filters.engineering")}>{t("admin.attendance.filters.engineering")}</SelectItem>
+                            <SelectItem value={t("admin.attendance.filters.marketing")}>{t("admin.attendance.filters.marketing")}</SelectItem>
+                            <SelectItem value={t("admin.attendance.filters.sales")}>{t("admin.attendance.filters.sales")}</SelectItem>
+                            <SelectItem value={t("admin.attendance.filters.hr")}>{t("admin.attendance.filters.hr")}</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
-                <div className="flex flex-col gap-1.5 min-w-[240px]">
+                <div className="flex flex-col gap-1.5 min-w-[340px]">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("admin.attendance.filters.dateRange")}</label>
                     <div className="flex items-center gap-2">
-                        <input
-                            className="block w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-neutral-dark text-slate-700 dark:text-slate-300 focus:ring-primary focus:border-primary shadow-sm"
-                            type="date"
-                            value="2023-10-01"
-                        />
+                        <InputGroup className="h-10 flex-1">
+                            <InputGroupAddon>
+                                <CalendarIcon className="size-4 text-slate-400" />
+                            </InputGroupAddon>
+                            <InputGroupInput className="h-10" type="date" defaultValue="2023-10-01" />
+                        </InputGroup>
                         <span className="text-slate-400">{t("admin.attendance.filters.to")}</span>
-                        <input
-                            className="block w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-neutral-dark text-slate-700 dark:text-slate-300 focus:ring-primary focus:border-primary shadow-sm"
-                            type="date"
-                            value="2023-10-31"
-                        />
+                        <InputGroup className="h-10 flex-1">
+                            <InputGroupAddon>
+                                <CalendarIcon className="size-4 text-slate-400" />
+                            </InputGroupAddon>
+                            <InputGroupInput className="h-10" type="date" defaultValue="2023-10-31" />
+                        </InputGroup>
                     </div>
                 </div>
                 <div className="flex items-end h-full pt-6">
@@ -67,9 +76,9 @@ export default function AttendanceTrackingPage() {
                     </button>
                 </div>
             </div>
-            <div className="bg-white dark:bg-neutral-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700 striped-table">
+                    <table className="min-w-full divide-y divide-border striped-table">
                         <thead className="bg-slate-50 dark:bg-slate-800/50">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider" scope="col">
@@ -114,7 +123,7 @@ export default function AttendanceTrackingPage() {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                    <button className="text-slate-400 hover:text-primary transition-colors">
+                                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                         <span className="material-icons text-[18px]">more_vert</span>
                                     </button>
                                 </td>
@@ -137,7 +146,7 @@ export default function AttendanceTrackingPage() {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                    <button className="text-slate-400 hover:text-primary transition-colors">
+                                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                         <span className="material-icons text-[18px]">more_vert</span>
                                     </button>
                                 </td>
@@ -160,7 +169,7 @@ export default function AttendanceTrackingPage() {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                    <button className="text-slate-400 hover:text-primary transition-colors">
+                                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                         <span className="material-icons text-[18px]">more_vert</span>
                                     </button>
                                 </td>
@@ -183,7 +192,7 @@ export default function AttendanceTrackingPage() {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                    <button className="text-slate-400 hover:text-primary transition-colors">
+                                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                         <span className="material-icons text-[18px]">more_vert</span>
                                     </button>
                                 </td>
@@ -214,7 +223,7 @@ export default function AttendanceTrackingPage() {
                         </tbody>
                     </table>
                 </div>
-                <div className="bg-white dark:bg-neutral-dark px-4 py-3 flex items-center justify-between border-t border-slate-200 dark:border-slate-700 sm:px-6">
+                <div className="bg-white dark:bg-neutral-dark px-4 py-3 flex items-center justify-between border-t border-border sm:px-6">
                     <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p className="text-sm text-slate-700 dark:text-slate-400">
@@ -225,7 +234,7 @@ export default function AttendanceTrackingPage() {
                         <div>
                             <nav aria-label="Pagination" className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                                 <a
-                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-neutral-dark text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border bg-white dark:bg-neutral-dark text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
                                     href="#"
                                 >
                                     <span className="sr-only">{t("admin.attendance.pagination.previous")}</span>
@@ -235,19 +244,19 @@ export default function AttendanceTrackingPage() {
                                     1
                                 </a>
                                 <a
-                                    className="bg-white dark:bg-neutral-dark border-slate-300 dark:border-slate-600 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                                    className="bg-white dark:bg-neutral-dark border border-border text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 relative inline-flex items-center px-4 py-2 text-sm font-medium"
                                     href="#"
                                 >
                                     2
                                 </a>
                                 <a
-                                    className="bg-white dark:bg-neutral-dark border-slate-300 dark:border-slate-600 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                                    className="bg-white dark:bg-neutral-dark border border-border text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 relative inline-flex items-center px-4 py-2 text-sm font-medium"
                                     href="#"
                                 >
                                     3
                                 </a>
                                 <a
-                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-neutral-dark text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border bg-white dark:bg-neutral-dark text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
                                     href="#"
                                 >
                                     <span className="sr-only">{t("admin.attendance.pagination.next")}</span>
@@ -259,7 +268,7 @@ export default function AttendanceTrackingPage() {
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-                <div className="bg-white dark:bg-neutral-dark p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("admin.attendance.summary.totalPresent")}</span>
                         <span className="material-icons text-emerald-500">check_circle</span>
@@ -269,7 +278,7 @@ export default function AttendanceTrackingPage() {
                         <span className="material-icons text-[12px] mr-1">trending_up</span> {t("admin.attendance.summary.totalPresentSub")}
                     </p>
                 </div>
-                <div className="bg-white dark:bg-neutral-dark p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("admin.attendance.summary.lateArrivals")}</span>
                         <span className="material-icons text-amber-500">schedule</span>
@@ -279,7 +288,7 @@ export default function AttendanceTrackingPage() {
                         <span className="material-icons text-[12px] mr-1">trending_up</span> {t("admin.attendance.summary.lateArrivalsSub")}
                     </p>
                 </div>
-                <div className="bg-white dark:bg-neutral-dark p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("admin.attendance.summary.earlyDepartures")}</span>
                         <span className="material-icons text-rose-500">logout</span>
@@ -287,7 +296,7 @@ export default function AttendanceTrackingPage() {
                     <div className="text-2xl font-bold text-slate-900 dark:text-white">05</div>
                     <p className="text-xs text-slate-500 mt-1">{t("admin.attendance.summary.earlyDeparturesSub")}</p>
                 </div>
-                <div className="bg-white dark:bg-neutral-dark p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("admin.attendance.summary.absent")}</span>
                         <span className="material-icons text-slate-400">person_off</span>

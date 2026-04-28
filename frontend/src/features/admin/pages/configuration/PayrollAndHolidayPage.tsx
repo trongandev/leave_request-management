@@ -1,4 +1,9 @@
 import { useTranslation } from "react-i18next";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { CalendarIcon } from "lucide-react";
 
 export default function PayrollAndHolidayPage() {
     const { t } = useTranslation();
@@ -11,18 +16,18 @@ export default function PayrollAndHolidayPage() {
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t("admin.configuration.payrollHoliday.subtitle")}</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+                    <button className="px-4 py-2 bg-white dark:bg-neutral-dark border border-border text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
                         {t("admin.configuration.payrollHoliday.discard")}
                     </button>
-                    <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+                    <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
                         <span className="material-icons text-[18px]">save</span>
                         {t("admin.configuration.payrollHoliday.save")}
                     </button>
                 </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white dark:bg-neutral-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col h-fit">
-                    <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+                <div className="bg-card rounded-xl shadow-sm border border-border flex flex-col h-fit">
+                    <div className="p-6 border-b border-border">
                         <div className="flex items-center gap-2 mb-1">
                             <span className="material-icons text-primary text-[20px]">account_balance_wallet</span>
                             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t("admin.configuration.payrollHoliday.payroll.title")}</h2>
@@ -38,19 +43,29 @@ export default function PayrollAndHolidayPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-medium text-slate-500">{t("admin.configuration.payrollHoliday.payroll.payFreq")}</label>
-                                    <select className="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm focus:ring-primary">
-                                        <option>{t("admin.configuration.payrollHoliday.payroll.freqOptions.monthly")}</option>
-                                        <option>{t("admin.configuration.payrollHoliday.payroll.freqOptions.biWeekly")}</option>
-                                        <option>{t("admin.configuration.payrollHoliday.payroll.freqOptions.weekly")}</option>
-                                    </select>
+                                    <Select defaultValue={t("admin.configuration.payrollHoliday.payroll.freqOptions.monthly")}>
+                                        <SelectTrigger className="w-full rounded-lg border-border dark:bg-slate-800 text-sm h-[38px]">
+                                            <SelectValue placeholder={t("admin.configuration.payrollHoliday.payroll.payFreq")} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={t("admin.configuration.payrollHoliday.payroll.freqOptions.monthly")}>{t("admin.configuration.payrollHoliday.payroll.freqOptions.monthly")}</SelectItem>
+                                            <SelectItem value={t("admin.configuration.payrollHoliday.payroll.freqOptions.biWeekly")}>{t("admin.configuration.payrollHoliday.payroll.freqOptions.biWeekly")}</SelectItem>
+                                            <SelectItem value={t("admin.configuration.payrollHoliday.payroll.freqOptions.weekly")}>{t("admin.configuration.payrollHoliday.payroll.freqOptions.weekly")}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-medium text-slate-500">{t("admin.configuration.payrollHoliday.payroll.procDate")}</label>
-                                    <select className="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm focus:ring-primary">
-                                        <option>{t("admin.configuration.payrollHoliday.payroll.dateOptions.day25")}</option>
-                                        <option>{t("admin.configuration.payrollHoliday.payroll.dateOptions.lastDay")}</option>
-                                        <option>{t("admin.configuration.payrollHoliday.payroll.dateOptions.firstDay")}</option>
-                                    </select>
+                                    <Select defaultValue={t("admin.configuration.payrollHoliday.payroll.dateOptions.day25")}>
+                                        <SelectTrigger className="w-full rounded-lg border-border dark:bg-slate-800 text-sm h-[38px]">
+                                            <SelectValue placeholder={t("admin.configuration.payrollHoliday.payroll.procDate")} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={t("admin.configuration.payrollHoliday.payroll.dateOptions.day25")}>{t("admin.configuration.payrollHoliday.payroll.dateOptions.day25")}</SelectItem>
+                                            <SelectItem value={t("admin.configuration.payrollHoliday.payroll.dateOptions.lastDay")}>{t("admin.configuration.payrollHoliday.payroll.dateOptions.lastDay")}</SelectItem>
+                                            <SelectItem value={t("admin.configuration.payrollHoliday.payroll.dateOptions.firstDay")}>{t("admin.configuration.payrollHoliday.payroll.dateOptions.firstDay")}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                         </section>
@@ -69,10 +84,10 @@ export default function PayrollAndHolidayPage() {
                                         <p className="text-xs text-slate-500">{t("admin.configuration.payrollHoliday.payroll.allowance.housingDesc")}</p>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                                        <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                             <span className="material-icons text-[18px]">edit</span>
                                         </button>
-                                        <button className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors">
+                                        <button className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
                                             <span className="material-icons text-[18px]">delete</span>
                                         </button>
                                     </div>
@@ -83,10 +98,10 @@ export default function PayrollAndHolidayPage() {
                                         <p className="text-xs text-slate-500">{t("admin.configuration.payrollHoliday.payroll.allowance.transportDesc")}</p>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                                        <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                             <span className="material-icons text-[18px]">edit</span>
                                         </button>
-                                        <button className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors">
+                                        <button className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
                                             <span className="material-icons text-[18px]">delete</span>
                                         </button>
                                     </div>
@@ -107,27 +122,21 @@ export default function PayrollAndHolidayPage() {
                                         <p className="text-sm font-medium text-slate-900 dark:text-white">{t("admin.configuration.payrollHoliday.payroll.deduction.health")}</p>
                                         <p className="text-xs text-slate-500">{t("admin.configuration.payrollHoliday.payroll.deduction.healthDesc")}</p>
                                     </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input checked className="sr-only peer" type="checkbox" />
-                                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                                    </label>
+                                    <Switch checked />
                                 </div>
                                 <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700">
                                     <div>
                                         <p className="text-sm font-medium text-slate-900 dark:text-white">{t("admin.configuration.payrollHoliday.payroll.deduction.pension")}</p>
                                         <p className="text-xs text-slate-500">{t("admin.configuration.payrollHoliday.payroll.deduction.pensionDesc")}</p>
                                     </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input checked className="sr-only peer" type="checkbox" />
-                                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                                    </label>
+                                    <Switch checked />
                                 </div>
                             </div>
                         </section>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-neutral-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col h-fit">
-                    <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+                <div className="bg-card rounded-xl shadow-sm border border-border flex flex-col h-fit">
+                    <div className="p-6 border-b border-border">
                         <div className="flex items-center justify-between">
                             <div>
                                 <div className="flex items-center gap-2 mb-1">
@@ -137,10 +146,15 @@ export default function PayrollAndHolidayPage() {
                                 <p className="text-xs text-slate-500 uppercase font-semibold tracking-wider">{t("admin.configuration.payrollHoliday.holiday.subtitle")}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <select className="text-xs font-semibold bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-0">
-                                    <option>2024</option>
-                                    <option>2025</option>
-                                </select>
+                                <Select defaultValue="2024">
+                                    <SelectTrigger className="text-xs font-semibold bg-slate-100 dark:bg-slate-800 border-none rounded-lg h-8 w-20">
+                                        <SelectValue placeholder="Year" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="2024">2024</SelectItem>
+                                        <SelectItem value="2025">2025</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
                     </div>
@@ -151,14 +165,18 @@ export default function PayrollAndHolidayPage() {
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("admin.configuration.payrollHoliday.holiday.datePicker")}</label>
                                     <div className="relative">
-                                        <input className="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm focus:ring-primary pl-10" type="date" value="2024-02-10" />
-                                        <span className="material-icons absolute left-3 top-2 text-slate-400 text-[18px]">calendar_today</span>
+                                        <InputGroup className="h-10">
+                                            <InputGroupAddon>
+                                                <CalendarIcon className="size-4 text-slate-400" />
+                                            </InputGroupAddon>
+                                            <InputGroupInput className="h-10" type="date" defaultValue="2024-02-10" />
+                                        </InputGroup>
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("admin.configuration.payrollHoliday.holiday.holidayName")}</label>
-                                    <input
-                                        className="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm focus:ring-primary"
+                                    <Input
+                                        className="h-10 border-border dark:bg-slate-800"
                                         placeholder={t("admin.configuration.payrollHoliday.holiday.holidayPlaceholder")}
                                         type="text"
                                     />
@@ -234,7 +252,7 @@ export default function PayrollAndHolidayPage() {
                             </div>
                         </div>
                     </div>
-                    <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 text-center">
+                    <div className="p-4 border-t border-border bg-slate-50/50 dark:bg-slate-800/20 text-center">
                         <button className="text-sm font-semibold text-primary hover:underline flex items-center justify-center gap-2 mx-auto">
                             <span className="material-icons text-[18px]">download</span>
                             {t("admin.configuration.payrollHoliday.holiday.importCSV")}

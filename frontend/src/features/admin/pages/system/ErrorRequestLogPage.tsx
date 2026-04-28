@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog"
 import etcService from "@/services/etcService"
 import { type ErrorLogs } from "@/types/etc"
 import { useQuery } from "@tanstack/react-query"
+import { format } from "date-fns"
 import { Download } from "lucide-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -67,17 +68,17 @@ export default function ErrorRequestLogPage() {
             <CTable data={data} isLoading={isLoading} handlePageChange={setPage} columns={columns}>
                 {data?.data.map((log, index) => (
                     <tr key={index} className="text-secondary-foreground">
-                        <td className="py-3 px-5">{log._id}</td>
+                        <td className="py-3 px-5 text-center">{log._id}</td>
                         <td className="py-3 px-5">{log.path}</td>
-                        <td className="py-3 px-5">
+                        <td className="py-3 px-5 text-center">
                             <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${handleGetBadgeMethodColor(log.method)}`}>{log.method}</span>
                         </td>
-                        <td className="py-3 px-5">
+                        <td className="py-3 px-5 text-center">
                             <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${handleGetBadgeStatusColor(log.statusCode)}`}>{log.statusCode}</span>
                         </td>
-                        <td className="py-3 px-5 line-clamp-3">{log.message}</td>
-                        <td className="py-3 px-5">{log.createdAt}</td>
-                        <td className="py-3 px-5">
+                        <td className="py-3 px-5 whitespace-normal break-words max-w-md">{log.message}</td>
+                        <td className="py-3 px-5 text-center">{format(new Date(log.createdAt), "yyyy-MM-dd HH:mm:ss")}</td>
+                        <td className="py-3 px-5 text-center">
                             <Button variant="outline" size="sm" onClick={() => setDetailError(log)}>
                                 View Details
                             </Button>
