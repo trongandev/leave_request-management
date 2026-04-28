@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class AssignMassDto {
   @ApiProperty({
@@ -10,10 +10,10 @@ export class AssignMassDto {
   createdAt!: string;
 
   @ApiProperty({
-    example: '69d8e35e583c3716a2a8de8f',
-    description: 'manager  hoặc manager _id',
+    example: 'Nguyen Van A',
+    description: 'Tên đầy đủ để tìm user',
   })
   @IsNotEmpty()
   @IsString()
-  managerId!: string;
+  managerEmail!: string;
 }

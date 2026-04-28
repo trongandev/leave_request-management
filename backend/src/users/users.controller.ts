@@ -86,7 +86,7 @@ export class UsersController {
   @RequirePermissions('ASSIGN_MANAGER')
   assignMassManager(@Body() dto: AssignMassDto, @CurrentUser() user: any) {
     return this.usersService.assignMassManagerByDate(
-      dto.managerId,
+      dto.managerEmail,
       dto.createdAt,
       user,
     );

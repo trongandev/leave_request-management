@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Injectable,
   ForbiddenException,
@@ -293,19 +294,89 @@ export class RequestsService {
     }
 
     const reasons = [
+      // Sức khỏe
       'Bị bệnh',
+      'Ốm đột xuất',
+      'Sốt cao',
+      'Đau đầu nặng',
+      'Nhập viện',
+      'Đi khám bệnh',
+      'Đi khám bệnh định kỳ',
+      'Đi tái khám',
+      'Chăm sóc người thân bị bệnh',
+      'Người thân nhập viện',
+
+      // Cá nhân
       'Nghỉ phép cá nhân',
+      'Có việc riêng',
+      'Bận việc cá nhân',
+      'Giải quyết công việc cá nhân',
+      'Đi làm giấy tờ cá nhân',
+      'Đi ngân hàng',
+      'Đi phỏng vấn',
+      'Chuyển nhà',
+      'Sửa chữa nhà cửa',
+      'Dọn dẹp nhà cửa',
+
+      // Gia đình
       'Gia đình có đám tang',
       'Ba mất',
       'Mẹ mất',
+      'Ông mất',
+      'Bà mất',
+      'Người thân qua đời',
+      'Nhà có đám giỗ',
+      'Chăm sóc con nhỏ',
+      'Con bị ốm',
+      'Gia đình có việc gấp',
+
+      // Sự kiện gia đình
       'Con trai cưới vợ',
       'Con gái cưới chồng',
-      'Nhà có đám giỗ',
+      'Anh/chị/em cưới',
+      'Đi dự đám cưới',
+      'Tổ chức tiệc gia đình',
+      'Sinh nhật người thân',
+      'Kỷ niệm gia đình',
+
+      // Di chuyển
       'Về quê có việc gấp',
-      'Đi khám bệnh định kỳ',
+      'Về quê',
+      'Đi công tác',
+      'Kẹt xe',
+      'Xe hư',
+      'Trễ chuyến xe',
+      'Trễ chuyến bay',
+      'Thời tiết xấu không thể di chuyển',
+
+      // Học tập / công việc
+      'Đi học',
+      'Thi cử',
+      'Tham gia khóa học',
+      'Đi họp',
+      'Tham gia hội thảo',
+      'Training nội bộ',
+      'Làm việc ngoài văn phòng',
+
+      // Trường hợp đặc biệt
+      'Mất điện',
+      'Mất mạng',
+      'Thiên tai',
+      'Ngập lụt',
+      'Hỏa hoạn',
+      'Sự cố bất khả kháng',
+      'Tai nạn giao thông',
+      'Có việc khẩn cấp',
+
+      // Khác
+      'Đi du lịch',
+      'Nghỉ dưỡng',
+      'Tham gia hoạt động tình nguyện',
+      'Tham gia sự kiện',
+      'Việc riêng đột xuất',
     ];
 
-    const results = [];
+    const results: any = [];
 
     for (const user of targetUsers) {
       // Tạo ngày ngẫu nhiên trong tháng tới
@@ -317,10 +388,12 @@ export class RequestsService {
       endDate.setDate(startDate.getDate() + duration - 1);
 
       const randomReason = reasons[Math.floor(Math.random() * reasons.length)];
-
+      const findIdTemplate = await this.formTemplateModel
+        .findOne({ code: 'ANNUAL_LEAVE' })
+        .exec();
       const payload: CreateRequestDto = {
         title: 'Đơn Xin Nghỉ Phép Năm (Auto)',
-        formTemplateId: '69d8e35ecb31d2f1823b8b28', // Hardcoded template ID
+        formTemplateId: String(findIdTemplate?._id), // Hardcoded template ID
         code: 'ANNUAL_LEAVE',
         values: {
           startDate: startDate.toISOString(),

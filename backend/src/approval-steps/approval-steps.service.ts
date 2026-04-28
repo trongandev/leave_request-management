@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   Injectable,
   BadRequestException,
@@ -56,11 +57,6 @@ type BatchHumanApprovalItem = {
   aiScore: number;
   aiDecision: 'approve' | 'review';
   aiReason: string;
-};
-
-type BatchHumanApprovalResult = {
-  approved: BatchHumanApprovalItem[];
-  needReview: BatchHumanApprovalItem[];
 };
 
 @Injectable()
@@ -323,11 +319,7 @@ export class ApprovalStepsService {
     return this.handleStepAction(stepId, 'delegate', delegateDto, actor);
   }
 
-  async batchHumanApprove(
-    arrRequest: string[],
-    actor: RequestActor,
-  ): Promise<BatchHumanApprovalResult> {
-    console.log(arrRequest);
+  batchHumanApprove(arrRequest: string[], actor: RequestActor) {
     if (!Array.isArray(arrRequest) || arrRequest.length === 0) {
       throw new BadRequestException('arrRequest is required');
     }
@@ -335,82 +327,87 @@ export class ApprovalStepsService {
     const uniqueRequestIds = [
       ...new Set(arrRequest.filter(Boolean).map(String)),
     ];
-    console.log(uniqueRequestIds);
-    const requests = await this.requestModel
-      .find({ _id: { $in: uniqueRequestIds } })
-      .select('_id title code values creatorId')
-      .lean()
-      .exec();
+    console.log({ uniqueRequestIds });
+    uniqueRequestIds.forEach(async (id) => {
+      await this.approve(id, {}, actor);
+    });
+    return uniqueRequestIds;
+    // const requests = await this.requestModel
+    //   .find({ _id: { $in: uniqueRequestIds } })
+    //   .select('_id title code values creatorId')
+    //   .lean()
+    //   .exec();
+    // console.log(requests);
+    // const requestMap = new Map(
+    //   requests.map((request) => [String(request._id), request]),
+    // );
+    // console.log(requestMap);
 
-    const requestMap = new Map(
-      requests.map((request) => [String(request._id), request]),
-    );
-    console.log(requestMap);
-    const pendingSteps = await this.approvalStepModel
-      .find({
-        requestId: { $in: uniqueRequestIds },
-        status: {
-          $in: [ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED],
-        },
-      })
-      .sort({ stepOrder: 1 })
-      .exec();
-    console.log(pendingSteps);
-    const stepMap = new Map<string, ApprovalStep>();
-    for (const step of pendingSteps) {
-      const key = String(step.requestId);
-      if (!stepMap.has(key)) {
-        stepMap.set(key, step);
-      }
-    }
-    console.log(stepMap);
-    const approved: BatchHumanApprovalItem[] = [];
-    const needReview: BatchHumanApprovalItem[] = [];
+    // const pendingSteps = await this.approvalStepModel
+    //   .find({
+    //     requestId: { $in: uniqueRequestIds },
+    //     status: {
+    //       $in: [ApprovalStepStatus.PENDING, ApprovalStepStatus.DELEGATED],
+    //     },
+    //   })
+    //   .sort({ stepOrder: 1 })
+    //   .exec();
+    // console.log(pendingSteps);
+    // const stepMap = new Map<string, ApprovalStep>();
+    // for (const step of pendingSteps) {
+    //   const key = String(step.requestId);
+    //   if (!stepMap.has(key)) {
+    //     stepMap.set(key, step);
+    //   }
+    // }
+    // console.log(stepMap);
+    // const approved: BatchHumanApprovalItem[] = [];
+    // const needReview: BatchHumanApprovalItem[] = [];
 
-    for (const requestId of uniqueRequestIds) {
-      const request = requestMap.get(requestId);
-      const step = stepMap.get(requestId);
+    // for (const requestId of uniqueRequestIds) {
+    //   const request = requestMap.get(requestId);
+    //   const step = stepMap.get(requestId);
 
-      if (!request || !step) {
-        needReview.push({
-          requestId,
-          stepId: step?._id ? String(step._id) : undefined,
-          requestTitle: request?.title,
-          reason: this.extractReason(request?.values),
-          totalDays: this.extractApprovalAmount(request?.values),
-          matchedKeywords: [],
-          aiScore: 0,
-          aiDecision: 'review',
-          aiReason: 'Thiếu request hoặc approval step đang chờ duyệt',
-        });
-        continue;
-      }
+    //   if (!request || !step) {
+    //     needReview.push({
+    //       requestId,
+    //       stepId: step?._id ? String(step._id) : undefined,
+    //       requestTitle: request?.title,
+    //       reason: this.extractReason(request?.values),
+    //       totalDays: this.extractApprovalAmount(request?.values),
+    //       matchedKeywords: [],
+    //       aiScore: 0,
+    //       aiDecision: 'review',
+    //       aiReason: 'Thiếu request hoặc approval step đang chờ duyệt',
+    //     });
+    //     continue;
+    //   }
 
-      const analysis = this.analyzeHumanApproval(
-        request.values as Record<string, unknown> | undefined,
-      );
+    //   const analysis = this.analyzeHumanApproval(
+    //     request.values as Record<string, unknown> | undefined,
+    //   );
 
-      const candidate: BatchHumanApprovalItem = {
-        requestId,
-        stepId: String(step._id),
-        requestTitle: request.title,
-        reason: analysis.reason,
-        totalDays: analysis.totalDays,
-        matchedKeywords: analysis.matchedKeywords,
-        aiScore: analysis.score,
-        aiDecision: analysis.decision,
-        aiReason: analysis.reasonText,
-      };
+    //   const candidate: BatchHumanApprovalItem = {
+    //     requestId,
+    //     stepId: String(step._id),
+    //     requestTitle: request.title,
+    //     reason: analysis.reason,
+    //     totalDays: analysis.totalDays,
+    //     matchedKeywords: analysis.matchedKeywords,
+    //     aiScore: analysis.score,
+    //     aiDecision: analysis.decision,
+    //     aiReason: analysis.reasonText,
+    //   };
 
-      if (analysis.decision === 'approve') {
-        await this.approve(String(step._id), {}, actor);
-        approved.push(candidate);
-      } else {
-        needReview.push(candidate);
-      }
-    }
+    //   if (analysis.decision === 'approve') {
+    //     await this.approve(String(step._id), {}, actor);
+    //     approved.push(candidate);
+    //   } else {
+    //     needReview.push(candidate);
+    //   }
+    // }
 
-    return { approved, needReview };
+    // return { approved, needReview };
   }
 
   private async handleStepAction(

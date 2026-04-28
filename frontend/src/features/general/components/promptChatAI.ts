@@ -1,19 +1,19 @@
-type ChatRole = "EMPLOYEE" | "MANAGER" | "HR" | "ADMIN" | "UNKNOWN"
+type ChatRole = "EMPLOYEE" | "MANAGER" | "HR" | "ADMIN" | "UNKNOWN";
 
 type ChatMessage = {
-    role: "user" | "assistant"
-    content: string
-}
+    role: "user" | "assistant";
+    content: string;
+};
 
 type PromptInput = {
-    role: ChatRole
-    user: Record<string, any>
-    lb: Record<string, any>
-    history: ChatMessage[]
-    myRequests: any[]
-    teamRequests: any[]
-    systemRequests: any[]
-}
+    role: ChatRole;
+    user: Record<string, any>;
+    lb: Record<string, any>;
+    history: ChatMessage[];
+    myRequests: any[];
+    teamRequests: any[];
+    systemRequests: any[];
+};
 
 const normalizeRequest = (request: any) => ({
     reqDisplayId: request?.reqDisplayId || request?._id || "N/A",
@@ -32,20 +32,20 @@ const normalizeRequest = (request: any) => ({
               department: request.creatorId?.departmentId?.originName || request.creatorId?.departmentId?.name || "N/A",
           }
         : null,
-})
+});
 
 const capRequests = (requests: any[], cap: number) => {
-    if (!Array.isArray(requests)) return []
-    return requests.slice(0, cap).map(normalizeRequest)
-}
+    if (!Array.isArray(requests)) return [];
+    return requests.slice(0, cap).map(normalizeRequest);
+};
 
 export const promptChatAI = (userMessage: string, data: PromptInput) => {
-    const role = data?.role || "UNKNOWN"
-    const myRequests = capRequests(data?.myRequests || [], 120)
-    const teamRequests = data?.teamRequests || []
-    const systemRequests = capRequests(data?.systemRequests || [], 300)
-    const history = (data?.history || []).slice(-8)
-    console.log(data)
+    const role = data?.role || "UNKNOWN";
+    const myRequests = capRequests(data?.myRequests || [], 120);
+    const teamRequests = data?.teamRequests || [];
+    const systemRequests = capRequests(data?.systemRequests || [], 300);
+    const history = (data?.history || []).slice(-8);
+    console.log(data);
     const allowedData = {
         role,
         currentUser: { user: data.user, leaveBalance: data.lb },
@@ -53,7 +53,7 @@ export const promptChatAI = (userMessage: string, data: PromptInput) => {
         myRequests,
         teamRequests: role === "MANAGER" ? teamRequests : [],
         systemRequests: role === "HR" || role === "ADMIN" ? systemRequests : [],
-    }
+    };
 
     return `
 Bạn là trợ lý AI cho hệ thống quản lý nghỉ phép nội bộ.
@@ -78,5 +78,5 @@ CÂU HỎI MỚI CỦA NGƯỜI DÙNG:
 ${userMessage}
 
 Hãy trả lời trực tiếp, ngắn gọn, đúng trong tầm, và dùng markdown.
-`
-}
+`;
+};

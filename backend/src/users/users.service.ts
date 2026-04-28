@@ -53,7 +53,6 @@ export class UsersService {
 
   testNotificationCurrentUser(user: any) {
     const userId = user?._id;
-    console.log(`Sending notification to user: ${userId}`);
     this.pushNotiGateway.sendNotificationToUser(userId, {
       title: `${user.fullName}`,
       content: `Vừa tạo đơn xin nghỉ phép. Vui lòng kiểm tra!`,
@@ -650,24 +649,30 @@ export class UsersService {
   }
 
   // New: assign manager by date (payload uses manager _id and dateId)
-  async assignMassManagerByDate(managerId: string, dateId: string, actor: any) {
+  async assignMassManagerByDate(
+    managerEmail: string,
+    dateId: string,
+    actor: any,
+  ) {
     if (!actor?._id) throw new BadRequestException('Invalid requester context');
-    if (!managerId || !dateId)
-      throw new BadRequestException('managerId and dateId are required');
+    if (!managerEmail || !dateId)
+      throw new BadRequestException('managerEmail and dateId are required');
 
     // managerId may be empId or _id; try empId first
-    let manager = await this.userModel
-      .findOne({ empId: managerId })
+    const findManager = await this.userModel
+      .findOne({ email: managerEmail })
+      .select('_id empId roleId')
+      .populate<{ roleId: Pick<Role, 'name'> }>('roleId', 'name')
+      .exec();
+
+    if (!findManager) {
+      throw new NotFoundException('Manager not found by email');
+    }
+    const manager = await this.userModel
+      .findById(findManager._id)
       .select('_id empId roleId managerId')
       .populate<{ roleId: Pick<Role, 'name'> }>('roleId', 'name')
       .exec();
-    if (!manager) {
-      manager = await this.userModel
-        .findById(managerId)
-        .select('_id empId roleId managerId')
-        .populate<{ roleId: Pick<Role, 'name'> }>('roleId', 'name')
-        .exec();
-    }
     if (!manager) throw new NotFoundException('Manager not found');
     const managerRoleName = manager.roleId?.name;
     if (managerRoleName !== 'MANAGER') {

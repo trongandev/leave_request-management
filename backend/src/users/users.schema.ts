@@ -14,7 +14,8 @@ import { Document } from 'mongoose';
   },
 })
 export class User extends Document {
-  @Prop({ unique: true })
+  // @Prop({ unique: true })
+  @Prop()
   @ApiProperty({ example: 'EMP001', description: 'Mã nhân viên' })
   empId!: string;
 
@@ -23,6 +24,7 @@ export class User extends Document {
   fullName!: string;
 
   // @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   @ApiProperty({
     example: 'nguyen.vana@example.com',
     description: 'Email đăng nhập (unique)',

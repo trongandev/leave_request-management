@@ -46,7 +46,6 @@ export class AuthService {
       .select('-__v  -updatedAt')
       .lean()
       .exec();
-
     if (!user) {
       throw new BadRequestException('Tài khoản hoặc mật khẩu không chính xác');
     }
