@@ -276,10 +276,10 @@ export default function EmployeeManagementPage() {
 
     const handleCreateFakeUsers = () => {
         const count = Number(fakeCount)
-        if (!fakeCount.trim() || Number.isNaN(count) || count < 1 || count > 100) {
-            toast.error(t("admin.employeeManagement.messages.invalidFakeCount"))
-            return
-        }
+        // if (!fakeCount.trim() || Number.isNaN(count) || count < 1 || count > 100) {
+        //     toast.error(t("admin.employeeManagement.messages.invalidFakeCount"))
+        //     return
+        // }
         createFakeUsers(count)
     }
 

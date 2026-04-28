@@ -26,6 +26,12 @@ export class RequestsController {
     return this.requestsService.create(createRequestDto, user);
   }
 
+  @Post('random')
+  @RequirePermissions(Permission.CREATE_LEAVE)
+  createRandomRequest() {
+    return this.requestsService.createRandomRequest();
+  }
+
   // User xem danh sách request của chính mình theo creatorId.
   @Get('self')
   @RequirePermissions(Permission.READ_OWN_LEAVE)

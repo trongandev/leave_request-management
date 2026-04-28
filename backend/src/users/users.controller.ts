@@ -19,6 +19,7 @@ import { Permission } from '../enum/permission.enum';
 import { AssignManagerDto, RemoveManagerDto } from './dto/assign-manager.dto';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { QueryUsersDto } from './dto/query-users.dto';
+import { AssignMassDto } from './dto/assign-mass.dto';
 
 @Controller('users')
 @ApiBearerAuth()
@@ -76,6 +77,17 @@ export class UsersController {
     return this.usersService.assignManagerByEmpId(
       dto.empId,
       dto.managerId,
+      user,
+    );
+  }
+
+  @Patch('mass-manager')
+  @UseGuards(AuthGuard('jwt'))
+  @RequirePermissions('ASSIGN_MANAGER')
+  assignMassManager(@Body() dto: AssignMassDto, @CurrentUser() user: any) {
+    return this.usersService.assignMassManagerByDate(
+      dto.managerId,
+      dto.createdAt,
       user,
     );
   }
