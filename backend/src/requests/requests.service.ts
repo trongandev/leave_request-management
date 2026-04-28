@@ -175,6 +175,183 @@ export class RequestsService {
     return request;
   }
 
+  async create(createRequestDto: CreateRequestDto, user: any) {
+    let status = createRequestDto.status ?? RequestStatus.PENDING;
+    const normalizedValues = this.normalizeRequestValues(
+      createRequestDto.values,
+    );
+
+    let autoRejectedReason = '';
+
+    if (status !== RequestStatus.DRAFT) {
+      try {
+        await this.ensureSufficientLeaveBalance(
+          String(user?._id),
+          String(createRequestDto.code),
+          String(createRequestDto.formTemplateId),
+          normalizedValues,
+        );
+      } catch (error) {
+        status = RequestStatus.RETURNED;
+        autoRejectedReason =
+          error instanceof BadRequestException
+            ? String(error.message)
+            : 'Không đủ điều kiện nghỉ phép';
+      }
+    }
+
+    const createNewRequest = new this.requestModel({
+      ...createRequestDto,
+      reqDisplayId: await this.generateDisplayId(),
+      values: {
+        ...normalizedValues,
+        ...(autoRejectedReason ? { autoRejectedReason } : {}),
+      },
+      creatorId: user?._id,
+      status,
+      currentStepOrder:
+        status === RequestStatus.DRAFT || status === RequestStatus.RETURNED
+          ? 0
+          : (createRequestDto.currentStepOrder ?? 0),
+    });
+
+    const request = await createNewRequest.save();
+
+    if (status === RequestStatus.DRAFT || status === RequestStatus.RETURNED) {
+      return request;
+    }
+
+    const workflowContext = await this.resolveWorkflowContext(
+      String(user?._id),
+      String(createRequestDto.formTemplateId),
+    );
+    const requestReason = this.extractReason(normalizedValues);
+
+    // Create flow-log first so each approval step can persist a stable flowLogId reference.
+    const flowLog =
+      await this.approvalStepsFlowLogService.createOrResetForRequest({
+        requestId: String(request._id),
+        requesterName: workflowContext.requesterName,
+        requesterPosition: workflowContext.requesterPosition,
+        reason: requestReason,
+        approvalSteps: workflowContext.approvers.map((step, index) => ({
+          order: index + 1,
+          label: step.label,
+          postition: step.postition,
+          performer: step.approverName,
+          avatar: step.avatar,
+          userId: step.approverId,
+        })),
+      });
+
+    await this.approvalStepsService.createBatch(
+      workflowContext.approvers.map((step, index) => ({
+        requestId: String(request._id),
+        flowLogId: String(flowLog._id),
+        originalApproverId: step.approverId,
+        stepOrder: index + 1,
+        stepLabel: step.label,
+        groupId: [],
+        isFinalStep: index === workflowContext.approvers.length - 1,
+        requiredAll: true,
+      })),
+    );
+    // workflowContext.approvers.map((step) =>
+    // );
+    this.pushNotiGateway.sendNotificationToUser(
+      workflowContext.approvers[0].approverId,
+      {
+        title: `${user?.fullName}`,
+        content: `Vừa tạo đơn xin nghỉ phép. Vui lòng kiểm tra!`,
+        link: `/approvals/team-requests/${String(request?._id)}`,
+        requestId: String(request?._id),
+        avatar: user?.avatar,
+        type: 'LEAVE_REQUEST',
+        isShowModel: true,
+      },
+    );
+
+    return request;
+  }
+  async createRandomRequest() {
+    const today = new Date();
+    const start = new Date(today);
+    start.setUTCHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setUTCDate(end.getUTCDate() + 1);
+
+    // Tìm những user được tạo hôm nay, role EMPLOYEE và đã có managerId trỏ tới ObjectId
+    const targetUsers = await this.userModel
+      .find({
+        createdAt: { $gte: start, $lt: end },
+        managerId: { $ne: null },
+      })
+      .exec();
+
+    if (!targetUsers.length) {
+      return { message: 'No eligible users found today' };
+    }
+
+    const reasons = [
+      'Bị bệnh',
+      'Nghỉ phép cá nhân',
+      'Gia đình có đám tang',
+      'Ba mất',
+      'Mẹ mất',
+      'Con trai cưới vợ',
+      'Con gái cưới chồng',
+      'Nhà có đám giỗ',
+      'Về quê có việc gấp',
+      'Đi khám bệnh định kỳ',
+    ];
+
+    const results = [];
+
+    for (const user of targetUsers) {
+      // Tạo ngày ngẫu nhiên trong tháng tới
+      const startDay = Math.floor(Math.random() * 20) + 1;
+      const duration = Math.floor(Math.random() * 3) + 1; // Nghỉ 1-3 ngày
+
+      const startDate = new Date(2026, 3, startDay + 1, 0, 0, 0); // Tháng 4/2026
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + duration - 1);
+
+      const randomReason = reasons[Math.floor(Math.random() * reasons.length)];
+
+      const payload: CreateRequestDto = {
+        title: 'Đơn Xin Nghỉ Phép Năm (Auto)',
+        formTemplateId: '69d8e35ecb31d2f1823b8b28', // Hardcoded template ID
+        code: 'ANNUAL_LEAVE',
+        values: {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          totalDays: duration,
+          reason: randomReason,
+        },
+      };
+
+      try {
+        const request = await this.create(payload, user);
+        results.push({
+          userId: user._id,
+          requestId: request._id,
+          status: 'success',
+        });
+      } catch (err) {
+        results.push({
+          userId: user._id,
+          error: (err as Error).message,
+          status: 'failed',
+        });
+      }
+    }
+
+    return {
+      message: `Processed random requests for ${targetUsers.length} users`,
+      results,
+    };
+  }
+
   async resubmitAfterReturn(id: string, user: any) {
     const request = await this.requestModel.findById(id);
 
@@ -604,19 +781,9 @@ export class RequestsService {
   }> {
     const requesterProfile: any = await this.userModel
       .findById(requesterId)
-      .select('_id avatar email fullName managerId departmentId positionId')
-      .populate({
-        path: 'managerId',
-        select: 'fullName managerId',
-        populate: {
-          path: 'managerId',
-          select: 'fullName',
-        },
-      })
-      .populate({
-        path: 'positionId',
-        select: 'fullName name',
-      })
+      .select('_id avatar email fullName departmentId positionId managerId')
+      .populate({ path: 'positionId', select: 'fullName name' })
+      .populate({ path: 'managerId', select: '_id fullName' })
       .exec();
 
     if (!requesterProfile) {
@@ -631,21 +798,31 @@ export class RequestsService {
       requesterProfile.positionId?.name,
       'Position not specified',
     );
-    const fallback = await this.resolveRequesterManagerContext(requesterId);
 
-    const directManagerId =
-      this.toSafeString(requesterProfile.managerId?._id) || fallback.managerId;
-    const directManagerName =
-      this.toSafeText(requesterProfile.managerId?.fullName, '') ||
-      fallback.managerName;
-
-    const upperManagerId = this.toSafeString(
-      requesterProfile.managerId?.managerId?._id,
+    // Direct Manager follows official schema where managerId is on the user document
+    const directManagerId = this.toSafeString(
+      requesterProfile.managerId?._id || requesterProfile.managerId,
     );
-    const upperManagerName = this.toSafeText(
-      requesterProfile.managerId?.managerId?.fullName,
+    const directManagerName = this.toSafeText(
+      requesterProfile.managerId?.fullName,
       '',
     );
+
+    // Find upper manager
+    let upperManagerId = '';
+    let upperManagerName = '';
+    if (directManagerId) {
+      const dmDoc = await this.userModel
+        .findById(directManagerId)
+        .select('_id fullName managerId')
+        .populate({ path: 'managerId', select: '_id fullName' })
+        .lean()
+        .exec();
+      upperManagerId = this.toSafeString(
+        dmDoc?.managerId?._id || dmDoc?.managerId,
+      );
+      upperManagerName = this.toSafeText(dmDoc?.managerId?.fullName, '');
+    }
 
     const departmentHead = await this.findDepartmentHead(
       this.toSafeString(requesterProfile.departmentId),

@@ -22,6 +22,7 @@ import { LeaveBalancesService } from '../leave-balances/leave-balances.service';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { Request } from 'src/requests/requests.schema';
 import { PushNotiGateway } from 'src/push-noti/push-noti.gateway';
+import { CLIENT_RENEG_LIMIT } from 'tls';
 
 @Injectable()
 export class UsersService {
@@ -134,12 +135,12 @@ export class UsersService {
   }
 
   async createFakeUser(count: number = 1) {
-    if (count < 1) {
-      throw new BadRequestException('Count must be at least 1');
-    }
-    if (count > 100) {
-      throw new BadRequestException('Count must not exceed 100');
-    }
+    // if (count < 1) {
+    //   throw new BadRequestException('Count must be at least 1');
+    // }
+    // if (count > 100) {
+    //   throw new BadRequestException('Count must not exceed 100');
+    // }
     const [departments, roles, allPositions] = await Promise.all([
       this.departmentModel.find(),
       this.roleModel.find(),
@@ -387,6 +388,7 @@ export class UsersService {
       .find({ creatorId: id })
       .select('title status type createdAt values')
       .exec();
+
     return { user, lb: findLB, rq: findRqUser };
   }
 
@@ -407,65 +409,48 @@ export class UsersService {
   }
   // Helper function để kiểm tra vòng lặp quản lý
   private async assertNoManagerCycle(userId: string, newManagerId: string) {
-    let currentManagerId: string | null = newManagerId;
+    // With direct managerId stored on user
     const visited = new Set<string>();
+    let currentId: string | undefined = newManagerId;
 
-    while (currentManagerId) {
-      if (currentManagerId === userId) {
+    while (currentId) {
+      if (currentId === userId) {
         throw new BadRequestException('Manager assignment creates a cycle');
       }
+      if (visited.has(currentId)) break;
+      visited.add(currentId);
 
-      if (visited.has(currentManagerId)) {
-        // Dữ liệu cũ trong DB đã bị vòng lặp từ trước
-        throw new BadRequestException(
-          'Detected existing cycle in manager chain',
-        );
-      }
-
-      visited.add(currentManagerId);
-
-      const current = await this.userModel
-        .findById(currentManagerId)
+      const managerUser = await this.userModel
+        .findById(currentId)
         .select('managerId')
-        .lean<{ managerId?: unknown }>()
+        .lean<{ managerId?: string }>()
         .exec();
 
-      if (!current?.managerId) {
-        break;
-      }
-
-      currentManagerId = String(current.managerId as any);
+      currentId = managerUser?.managerId
+        ? String(managerUser.managerId)
+        : undefined;
     }
   }
 
   async getTeamMembers(user: any) {
-    if (!user?.managerId?._id && user.roleId.name === 'MANAGER') {
-      console.log(user?.managerId?._id, user.roleId.name);
+    const isManager = user.roleId.name === 'MANAGER';
+
+    if (isManager) {
+      // Team members for a manager are users who report to them
       const teamMembers = await this.userModel
         .find({ managerId: user._id })
         .select(
           'empId fullName email avatar phone departmentId positionId status roleId',
         )
-        .populate([
-          {
-            path: 'departmentId',
-          },
-          {
-            path: 'positionId',
-          },
-          {
-            path: 'roleId',
-          },
-        ])
+        .populate(['departmentId', 'positionId', 'roleId'])
         .exec();
 
       const teamMemberIds = teamMembers.map((member) => String(member._id));
 
-      // lấy ra các request của từng user có trong team để hiển thị số lượng request đang chờ phê duyệt
       const getRequestAllTeamMembers = await this.requestModel
         .find({
           creatorId: { $in: teamMemberIds },
-          status: 'approved',
+          status: 'pending',
         })
         .select('code values createdAt creatorId')
         .populate({
@@ -479,40 +464,30 @@ export class UsersService {
         })
         .exec();
 
-      const teamMember = [...teamMembers, user];
-      return { teamMember, getRequestAllTeamMembers };
+      return { teamMember: [...teamMembers, user], getRequestAllTeamMembers };
     } else {
-      const [teamMembers, manager] = await Promise.all([
-        this.userModel
-          .find({ managerId: user?.managerId?._id })
-          .select(
-            'empId fullName email avatar phone departmentId positionId status roleId',
-          )
-          .populate([
-            {
-              path: 'departmentId',
-            },
-            {
-              path: 'positionId',
-            },
-          ])
-          .exec(),
-        this.userModel
-          .findById(user?.managerId?._id)
-          .select(
-            'empId fullName email avatar phone departmentId positionId status roleId',
-          )
-          .populate([
-            {
-              path: 'departmentId',
-            },
-            {
-              path: 'positionId',
-            },
-          ])
-          .exec(),
-      ]);
-      return [...teamMembers, manager];
+      // For employee, find their manager first
+      const myManagerId = user.managerId?._id || user.managerId;
+      if (!myManagerId) return [user];
+
+      // Team members are people with the same manager
+      const teamMembers = await this.userModel
+        .find({ managerId: myManagerId })
+        .select(
+          'empId fullName email avatar phone departmentId positionId status roleId',
+        )
+        .populate(['departmentId', 'positionId', 'roleId'])
+        .exec();
+
+      const manager = await this.userModel
+        .findById(myManagerId)
+        .select(
+          'empId fullName email avatar phone departmentId positionId status roleId',
+        )
+        .populate(['departmentId', 'positionId', 'roleId'])
+        .exec();
+
+      return manager ? [...teamMembers, manager] : teamMembers;
     }
   }
 
@@ -533,24 +508,79 @@ export class UsersService {
       throw new BadRequestException('Cannot self-assign manager');
     }
 
-    const user = await this.userModel
-      .findOne({ empId: userEmpId })
-      .select('_id empId')
+    const manager = await this.userModel
+      .findOne({ empId: managerEmpId })
+      .select('_id empId roleId')
+      .populate<{ roleId: Pick<Role, 'name'> }>('roleId', 'name')
       .exec();
-    if (!user) {
+
+    if (!manager) {
+      throw new NotFoundException('Manager not found');
+    }
+
+    if (manager.roleId.name !== 'MANAGER') {
+      throw new BadRequestException(`User "${managerEmpId}" is not a manager.`);
+    }
+
+    const employeeRole = await this.roleModel
+      .findOne({ name: 'EMPLOYEE' })
+      .exec();
+    if (!employeeRole) {
+      throw new Error('EMPLOYEE role not found');
+    }
+
+    const userToAssign = await this.userModel
+      .findOne({ empId: userEmpId })
+      .select('_id empId roleId')
+      .exec();
+
+    if (!userToAssign) {
       throw new NotFoundException('User not found');
+    }
+
+    if (String(userToAssign.roleId) !== String(employeeRole._id)) {
+      throw new BadRequestException(
+        'Can only assign manager to users with EMPLOYEE role',
+      );
+    }
+
+    return this.userModel
+      .findByIdAndUpdate(
+        userToAssign._id,
+        { $set: { managerId: manager._id } },
+        { new: true },
+      )
+      .populate(['roleId', 'positionId', 'departmentId', 'managerId']);
+  }
+
+  async assignMassManagerByEmpId(
+    userEmpId: string,
+    managerEmpId: string,
+    actor: any,
+    createdAt?: string,
+  ) {
+    if (!actor?._id) {
+      throw new BadRequestException('Invalid requester context');
+    }
+
+    if (!userEmpId || !managerEmpId) {
+      throw new BadRequestException('userEmpId and managerId are required');
+    }
+
+    if (userEmpId === managerEmpId) {
+      throw new BadRequestException('Cannot self-assign manager');
     }
 
     const manager = await this.userModel
       .findOne({ empId: managerEmpId })
       .select('_id empId roleId')
-      .populate<{ roleId: Pick<Role, 'name'> }>('roleId', 'name') // Lấy role name
+      .populate<{ roleId: Pick<Role, 'name'> }>('roleId', 'name')
       .exec();
+
     if (!manager) {
       throw new NotFoundException('Manager not found');
     }
 
-    // Kiểm tra manager phải có role là MANAGER
     const managerRoleName = manager.roleId.name;
     if (managerRoleName !== 'MANAGER') {
       throw new BadRequestException(
@@ -558,13 +588,124 @@ export class UsersService {
       );
     }
 
-    await this.assertNoManagerCycle(String(user._id), String(manager._id));
-
-    const updated = await this.userModel
-      .findByIdAndUpdate(user._id, { managerId: manager._id }, { new: true })
-      .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
+    // Lấy roleId của role EMPLOYEE
+    const employeeRole = await this.roleModel
+      .findOne({ name: 'EMPLOYEE' })
       .exec();
-    return updated;
+    if (!employeeRole) {
+      throw new Error('EMPLOYEE role not found in database');
+    }
+
+    if (createdAt) {
+      const parsed = new Date(createdAt);
+      if (isNaN(parsed.getTime())) {
+        throw new BadRequestException('Invalid createdAt date');
+      }
+
+      const start = new Date(parsed);
+      start.setUTCHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setUTCDate(end.getUTCDate() + 1);
+
+      // Cập nhật managerId cho TẤT CẢ các user có role EMPLOYEE được tạo trong ngày này
+      const result = await this.userModel.updateMany(
+        {
+          createdAt: { $gte: start, $lt: end },
+          roleId: employeeRole._id,
+          _id: { $ne: manager._id }, // Không tự gán cho chính mình
+        },
+        { $set: { managerId: manager._id } },
+      );
+
+      return {
+        message: 'Mass assignment completed',
+        found: result.matchedCount,
+        modified: result.modifiedCount,
+      };
+    }
+
+    // Trường hợp gán lẻ 1 user: cũng phải check role EMPLOYEE
+    const userToAssign = await this.userModel
+      .findOne({ empId: userEmpId })
+      .select('_id empId roleId')
+      .exec();
+
+    if (!userToAssign) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (String(userToAssign.roleId) !== String(employeeRole._id)) {
+      throw new BadRequestException(
+        'Can only assign manager to users with EMPLOYEE role',
+      );
+    }
+
+    return this.userModel
+      .findByIdAndUpdate(
+        userToAssign._id,
+        { $set: { managerId: manager._id } },
+        { new: true },
+      )
+      .populate(['roleId', 'positionId', 'departmentId', 'managerId']);
+  }
+
+  // New: assign manager by date (payload uses manager _id and dateId)
+  async assignMassManagerByDate(managerId: string, dateId: string, actor: any) {
+    if (!actor?._id) throw new BadRequestException('Invalid requester context');
+    if (!managerId || !dateId)
+      throw new BadRequestException('managerId and dateId are required');
+
+    // managerId may be empId or _id; try empId first
+    let manager = await this.userModel
+      .findOne({ empId: managerId })
+      .select('_id empId roleId managerId')
+      .populate<{ roleId: Pick<Role, 'name'> }>('roleId', 'name')
+      .exec();
+    if (!manager) {
+      manager = await this.userModel
+        .findById(managerId)
+        .select('_id empId roleId managerId')
+        .populate<{ roleId: Pick<Role, 'name'> }>('roleId', 'name')
+        .exec();
+    }
+    if (!manager) throw new NotFoundException('Manager not found');
+    const managerRoleName = manager.roleId?.name;
+    if (managerRoleName !== 'MANAGER') {
+      throw new BadRequestException('Target user is not a manager');
+    }
+
+    const parsed = new Date(dateId);
+    if (isNaN(parsed.getTime()))
+      throw new BadRequestException('Invalid dateId');
+
+    const start = new Date(parsed);
+    start.setUTCHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setUTCDate(end.getUTCDate() + 1);
+
+    // Lấy roleId của role EMPLOYEE
+    const employeeRole = await this.roleModel
+      .findOne({ name: 'EMPLOYEE' })
+      .exec();
+    if (!employeeRole) {
+      throw new Error('EMPLOYEE role not found in database');
+    }
+
+    // Cập nhật managerId cho TẤT CẢ các user có role EMPLOYEE được tạo trong ngày này
+    const result = await this.userModel.updateMany(
+      {
+        createdAt: { $gte: start, $lt: end },
+        roleId: employeeRole._id,
+        _id: { $ne: manager._id },
+      },
+      { $set: { managerId: manager._id } },
+    );
+
+    return {
+      message: 'Mass assignment by date completed',
+      found: result.matchedCount,
+      modified: result.modifiedCount,
+    };
   }
 
   async removeManagerByEmpId(userEmpId: string, actor: any) {
@@ -584,10 +725,10 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    const updated = await this.userModel
-      .findByIdAndUpdate(user._id, { managerId: null }, { new: true })
+    // Set managerId to null for this user
+    return this.userModel
+      .findByIdAndUpdate(user._id, { $set: { managerId: null } }, { new: true })
       .populate(['roleId', 'positionId', 'departmentId', 'managerId'])
       .exec();
-    return updated;
   }
 }

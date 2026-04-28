@@ -22,7 +22,7 @@ export class User extends Document {
   @ApiProperty({ example: 'Nguyễn Văn A', description: 'Full name' })
   fullName!: string;
 
-  @Prop({ required: true, unique: true })
+  // @Prop({ required: true, unique: true })
   @ApiProperty({
     example: 'nguyen.vana@example.com',
     description: 'Email đăng nhập (unique)',
